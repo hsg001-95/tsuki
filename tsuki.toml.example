@@ -1,0 +1,51 @@
+# Tsuki Configuration File (Example)
+# Follows Engineering Rule COD-05: safe defaults and fail closed on invalid values.
+
+[general]
+mode = "shadow" # "shadow" (default), "approval", or "autonomous"
+log_level = "info"
+snapshot_dir = "/var/run/tsuki/snapshots"
+journal_path = "/var/lib/tsuki/rollback.journal"
+socket_path = "/var/run/tsuki/actuator.sock"
+
+[guard]
+sampling_rate_hz = 1.0
+adaptive_sampling = true
+max_adaptive_hz = 10.0
+window_size_samples = 60
+inference_p99_budget_ms = 5
+max_rss_mb = 100
+enable_ebpf = false
+
+[actuator]
+max_decision_latency_ms = 50
+default_ttl_seconds = 300
+max_ttl_seconds = 1800
+cooldown_seconds = 60
+
+# SAF-05: Protected list must always be enforced
+[protected]
+cgroups = [
+    "/system.slice/sshd.service",
+    "/system.slice/dbus.service",
+    "/system.slice/systemd-journald.service",
+    "/user.slice",
+]
+process_names = [
+    "systemd",
+    "sshd",
+    "Xorg",
+    "wayland",
+    "gnome-shell",
+    "dbus-daemon",
+    "tsuki-guard",
+    "tsuki-actuator",
+    "tsuki-rollbackd",
+]
+
+[reasoning]
+local_llm_url = "http://127.0.0.1:11434"
+local_llm_model = "llama3.1:8b"
+rag_index_path = "/var/lib/tsuki/rag_index"
+max_rss_mb = 4096
+timeout_seconds = 15

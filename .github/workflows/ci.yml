@@ -1,0 +1,53 @@
+name: Tsuki CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  rust-ci:
+    name: Rust Workspace Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cargo format check
+        run: cargo fmt --all -- --check
+
+      - name: Cargo check
+        run: cargo check --workspace --all-targets
+
+      - name: Cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Cargo test
+        run: cargo test --workspace
+
+  python-ci:
+    name: Python Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic pytest
+
+      - name: Run Reasoning Plane Tests
+        run: |
+          PYTHONPATH=reasoning pytest reasoning/tests

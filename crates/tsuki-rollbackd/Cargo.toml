@@ -1,0 +1,13 @@
+[package]
+name = "tsuki-rollbackd"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tsuki-common = { path = "../tsuki-common" }
+clap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+nix.workspace = true
+chrono.workspace = true
