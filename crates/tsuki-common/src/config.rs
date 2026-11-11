@@ -1,8 +1,8 @@
+use crate::error::{Result, TsukiError};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use crate::error::{Result, TsukiError};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub general: GeneralConfig,
@@ -140,17 +140,5 @@ impl Config {
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let content = std::fs::read_to_string(path)?;
         Self::load_from_str(&content)
-    }
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            general: GeneralConfig::default(),
-            guard: GuardConfig::default(),
-            actuator: ActuatorConfig::default(),
-            protected: ProtectedConfig::default(),
-            reasoning: ReasoningConfig::default(),
-        }
     }
 }

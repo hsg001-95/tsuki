@@ -1,0 +1,24 @@
+[Unit]
+Description=Tsuki Guard Plane Telemetry Collector & Early-Warning Daemon
+Documentation=https://github.com/snoxx-tech/tsuki
+After=network.target
+
+[Service]
+Type=simple
+Slice=tsuki-guard.slice
+ExecStart=/usr/local/bin/tsuki-guard --config /etc/tsuki/tsuki.toml
+Restart=always
+RestartSec=2s
+
+# Process security & sandboxing (PERF-01, SAF-05)
+User=root
+LimitMEMLOCK=infinity
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/run/tsuki /var/log/tsuki
+CapabilityBoundingSet=CAP_SYS_RESOURCE CAP_DAC_OVERRIDE
+OOMScoreAdjust=-900
+
+[Install]
+WantedBy=multi-user.target

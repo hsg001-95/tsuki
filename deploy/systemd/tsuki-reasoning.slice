@@ -1,0 +1,11 @@
+[Unit]
+Description=Tsuki Reasoning Plane Slice (Low Priority, Strictly Memory-Capped, Sacrificial)
+Documentation=https://github.com/snoxx-tech/tsuki
+Before=slices.target
+
+[Slice]
+# Reasoning Plane is sacrificed first on memory saturation (PERF-04)
+CPUWeight=50
+MemoryMax=4G
+MemoryOOMGroup=true
+OOMScoreAdjust=500

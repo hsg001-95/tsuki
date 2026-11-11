@@ -21,5 +21,5 @@ thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 clap = { version = "4.4", features = ["derive"] }
-nix = { version = "0.27", features = ["fs", "process", "signal", "user"] }
+nix = { version = "0.27", features = ["fs", "process", "signal", "user", "mman"] }
 chrono = { version = "0.4", features = ["serde"] }

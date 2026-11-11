@@ -1,0 +1,15 @@
+[Unit]
+Description=Tsuki Guard Plane Slice (Protected, High Priority, Memory-Locked)
+Documentation=https://github.com/snoxx-tech/tsuki
+Before=slices.target
+
+[Slice]
+# Guard Plane has guaranteed resource isolation and cannot be starved
+CPUWeight=1000
+CPUQuota=10%
+MemoryMin=50M
+MemoryLow=80M
+MemoryMax=100M
+ManagedOOMMemoryPressure=kill
+ManagedOOMMemoryPressureLimit=0%
+OOMScoreAdjust=-900

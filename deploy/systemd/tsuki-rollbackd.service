@@ -1,0 +1,21 @@
+[Unit]
+Description=Tsuki Rollback Watchdog Daemon
+Documentation=https://github.com/snoxx-tech/tsuki
+After=tsuki-actuator.service
+
+[Service]
+Type=simple
+Slice=tsuki-guard.slice
+ExecStart=/usr/local/bin/tsuki-rollbackd --config /etc/tsuki/tsuki.toml
+Restart=always
+RestartSec=2s
+
+User=root
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/tsuki /sys/fs/cgroup
+OOMScoreAdjust=-800
+
+[Install]
+WantedBy=multi-user.target
