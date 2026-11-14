@@ -1,0 +1,18 @@
+scenario_id: cpu_contention_noisy_neighbor
+name: CPU Contention via Noisy Neighbor Threads
+category: cpu_contention
+workload:
+  type: db
+  clients: 4
+fault:
+  type: cpu_contention
+  threads: 6
+  delay_sec: 2.0
+  duration_sec: 12.0
+timeline:
+  warmup_sec: 2.0
+  total_duration_sec: 15.0
+  horizon_sec: 30.0
+labels:
+  expected_fault_type: cpu_contention
+  is_negative: false

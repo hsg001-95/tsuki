@@ -46,8 +46,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pydantic pytest
+          pip install pydantic pytest pyyaml pyarrow pandas duckdb
 
       - name: Run Reasoning Plane Tests
         run: |
           PYTHONPATH=reasoning pytest reasoning/tests
+
+      - name: Run OS-FaultBench Tests
+        run: |
+          PYTHONPATH=bench pytest bench/tests

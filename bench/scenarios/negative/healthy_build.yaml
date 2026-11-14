@@ -1,0 +1,16 @@
+scenario_id: negative_healthy_build
+name: Heavy But Healthy Parallel Compilation
+category: negative
+workload:
+  type: build
+  jobs: 2
+  memory_per_job_mb: 32
+fault:
+  type: none
+timeline:
+  warmup_sec: 2.0
+  total_duration_sec: 12.0
+  horizon_sec: 30.0
+labels:
+  expected_fault_type: none
+  is_negative: true

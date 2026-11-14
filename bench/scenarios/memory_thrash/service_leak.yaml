@@ -1,0 +1,19 @@
+scenario_id: memory_thrash_service_leak
+name: Memory Thrash via Service Memory Leak
+category: memory_thrash
+workload:
+  type: build
+  jobs: 4
+  memory_per_job_mb: 64
+fault:
+  type: memory_thrash
+  target_mb: 384
+  delay_sec: 3.0
+  duration_sec: 12.0
+timeline:
+  warmup_sec: 2.0
+  total_duration_sec: 15.0
+  horizon_sec: 30.0
+labels:
+  expected_fault_type: memory_thrash
+  is_negative: false
