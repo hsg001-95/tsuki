@@ -13,3 +13,6 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 nix.workspace = true
 chrono.workspace = true
+
+[dev-dependencies]
+tsuki-guard = { path = "../tsuki-guard" }

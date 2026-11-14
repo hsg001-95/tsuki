@@ -646,6 +646,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tsuki-common",
+ "tsuki-guard",
 ]
 
 [[package]]
@@ -680,6 +681,8 @@ dependencies = [
  "chrono",
  "clap",
  "nix",
+ "serde",
+ "serde_json",
  "tracing",
  "tracing-subscriber",
  "tsuki-common",
