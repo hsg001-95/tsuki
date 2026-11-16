@@ -22,6 +22,10 @@ struct Args {
     #[arg(short, long, default_value = "tsuki.toml.example")]
     config: String,
 
+    /// Optional cgroup root path (defaults to /sys/fs/cgroup)
+    #[arg(long)]
+    cgroup_root: Option<PathBuf>,
+
     /// Run a single audit and rollback pass then exit
     #[arg(long)]
     oneshot: bool,
@@ -114,7 +118,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cfg = Config::load_from_file(&args.config).unwrap_or_default();
 
     let journal_path = cfg.general.journal_path;
-    let cgroup_root = PathBuf::from("/sys/fs/cgroup");
+    let cgroup_root = args
+        .cgroup_root
+        .unwrap_or_else(|| PathBuf::from("/sys/fs/cgroup"));
 
     info!("Monitoring journal: {:?}", journal_path);
 

@@ -1,0 +1,47 @@
+[general]
+mode = "autonomous"
+log_level = "info"
+snapshot_dir = "/tmp/tsuki_demo/snapshots"
+journal_path = "/tmp/tsuki_demo/rollback.journal"
+socket_path = "/tmp/tsuki_demo/actuator.sock"
+
+[guard]
+sampling_rate_hz = 1.0
+adaptive_sampling = true
+max_adaptive_hz = 10.0
+window_size_samples = 60
+inference_p99_budget_ms = 5
+max_rss_mb = 100
+enable_ebpf = false
+
+[actuator]
+max_decision_latency_ms = 50
+default_ttl_seconds = 300
+max_ttl_seconds = 1800
+cooldown_seconds = 60
+
+[protected]
+cgroups = [
+    "/system.slice/sshd.service",
+    "/system.slice/dbus.service",
+    "/system.slice/systemd-journald.service",
+    "/user.slice",
+]
+process_names = [
+    "systemd",
+    "sshd",
+    "Xorg",
+    "wayland",
+    "gnome-shell",
+    "dbus-daemon",
+    "tsuki-guard",
+    "tsuki-actuator",
+    "tsuki-rollbackd",
+]
+
+[reasoning]
+local_llm_url = "http://127.0.0.1:11434"
+local_llm_model = "llama3.1:8b"
+rag_index_path = "reasoning/tsuki_rag/index.db"
+max_rss_mb = 4096
+timeout_seconds = 15

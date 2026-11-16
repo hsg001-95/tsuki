@@ -17,6 +17,10 @@ struct Cli {
     #[arg(short, long, default_value = "tsuki.toml.example")]
     config: String,
 
+    /// Optional cgroup root path (defaults to /sys/fs/cgroup)
+    #[arg(long)]
+    cgroup_root: Option<PathBuf>,
+
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -45,9 +49,11 @@ enum Commands {
     Status,
 }
 
-fn build_manager(cfg: &Config) -> RemediationManager {
-    let validator = IntentValidator::new(cfg.clone());
-    let executor = ActionExecutor::default();
+fn build_manager(cfg: &Config, cgroup_root: Option<PathBuf>) -> RemediationManager {
+    let root = cgroup_root.unwrap_or_else(|| PathBuf::from("/sys/fs/cgroup"));
+    let validator =
+        IntentValidator::new(cfg.clone()).with_cgroup_root(root.to_string_lossy().to_string());
+    let executor = ActionExecutor::new(root);
     let journal = RollbackJournal::new(cfg.general.journal_path.clone());
     RemediationManager::new(cfg.clone(), validator, executor, journal)
 }
@@ -57,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     let cfg = Config::load_from_file(&cli.config).unwrap_or_default();
-    let manager = build_manager(&cfg);
+    let manager = build_manager(&cfg, cli.cgroup_root);
 
     match cli.command.unwrap_or(Commands::Daemon) {
         Commands::Panic => {

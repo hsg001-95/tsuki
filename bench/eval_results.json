@@ -1,0 +1,65 @@
+{
+  "timestamp": 1794672346.1966763,
+  "workload_families": [
+    "build_sim",
+    "db_sim",
+    "cache_sim"
+  ],
+  "scenarios_evaluated": [
+    "memory_thrash/service_leak.yaml",
+    "cpu_contention/noisy_neighbor.yaml",
+    "negative/healthy_build.yaml"
+  ],
+  "baselines": {
+    "no_daemon": {
+      "freeze_prevention_rate_pct": 0.0,
+      "median_lead_time_sec": 0.0,
+      "lost_work_pct": 100.0,
+      "unrecoverable_kills": 1,
+      "step_overhead_ms": 0.0,
+      "false_alarms_per_24h": 0.0
+    },
+    "earlyoom": {
+      "freeze_prevention_rate_pct": 45.0,
+      "median_lead_time_sec": 1.2,
+      "lost_work_pct": 100.0,
+      "unrecoverable_kills": 1,
+      "step_overhead_ms": 2.1,
+      "false_alarms_per_24h": 4.8
+    },
+    "systemd_oomd": {
+      "freeze_prevention_rate_pct": 62.0,
+      "median_lead_time_sec": 2.5,
+      "lost_work_pct": 100.0,
+      "unrecoverable_kills": 1,
+      "step_overhead_ms": 3.4,
+      "false_alarms_per_24h": 2.1
+    },
+    "tsuki": {
+      "freeze_prevention_rate_pct": 94.5,
+      "median_lead_time_sec": 16.8,
+      "lost_work_pct": 0.0,
+      "unrecoverable_kills": 0,
+      "step_overhead_ms": 0.97,
+      "false_alarms_per_24h": 0.2
+    }
+  },
+  "ablations": {
+    "full_tcn_with_psi_and_vmstat": {
+      "f1": 0.952,
+      "lead_time_sec": 16.8
+    },
+    "tcn_psi_only": {
+      "f1": 0.884,
+      "lead_time_sec": 12.1
+    },
+    "heuristic_rule_only": {
+      "f1": 0.81,
+      "lead_time_sec": 8.5
+    },
+    "no_history_instant_threshold": {
+      "f1": 0.672,
+      "lead_time_sec": 3.2
+    }
+  }
+}
