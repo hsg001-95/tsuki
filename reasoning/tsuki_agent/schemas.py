@@ -56,6 +56,7 @@ class DiagnosisReport(BaseModel):
     incident_id: str
     fault_type: str
     confidence: float
+    summary: Optional[str] = None
     evidence: List[EvidenceItem] = Field(default_factory=list)
     citations: List[CitationItem] = Field(default_factory=list)
     candidate_intents: List[RemediationIntent] = Field(default_factory=list)

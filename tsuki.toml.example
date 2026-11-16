@@ -46,6 +46,6 @@ process_names = [
 [reasoning]
 local_llm_url = "http://127.0.0.1:11434"
 local_llm_model = "llama3.1:8b"
-rag_index_path = "/var/lib/tsuki/rag_index"
+rag_index_path = "reasoning/tsuki_rag/index.db" # In production: "/var/lib/tsuki/rag_index"
 max_rss_mb = 4096
 timeout_seconds = 15

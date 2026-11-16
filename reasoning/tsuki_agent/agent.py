@@ -126,10 +126,17 @@ class DiagnosisAgent:
                 )
 
         # 4. Construct and verify report
+        summary = (
+            f"Detected {fault_type.upper()} with {confidence*100:.0f}% confidence. "
+            f"Target cgroup: {primary_cg or 'system'}. "
+            f"{'Remediation proposed: ' + candidate_intents[0].template.value if candidate_intents else 'No action required.'}"
+        )
+
         report = DiagnosisReport(
             incident_id=incident_id,
             fault_type=fault_type,
             confidence=confidence,
+            summary=summary,
             evidence=evidence,
             citations=citations,
             candidate_intents=candidate_intents,

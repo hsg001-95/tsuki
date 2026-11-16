@@ -95,12 +95,17 @@ impl IntentValidator {
             ));
         }
 
-        // Must consist only of valid cgroup path characters (strictly alphanumeric, '/', '.', '_', '-')
+        // Must consist only of valid cgroup path characters (strictly alphanumeric, '/', '.', '_', '-', '@', '+')
         // Any shell metacharacters, prompt injections, or whitespace are immediately rejected
-        if !trimmed
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '/' || c == '.' || c == '_' || c == '-')
-        {
+        if !trimmed.chars().all(|c| {
+            c.is_ascii_alphanumeric()
+                || c == '/'
+                || c == '.'
+                || c == '_'
+                || c == '-'
+                || c == '@'
+                || c == '+'
+        }) {
             return Err(TsukiError::Validation(
                 "Target cgroup path contains invalid or dangerous characters (potential injection rejected)".into(),
             ));

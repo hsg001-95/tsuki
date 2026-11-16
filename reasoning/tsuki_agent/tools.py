@@ -95,6 +95,20 @@ class AgentTools:
             "tsuki-actuator",
             "tsuki-rollbackd",
         ]
+
+        if os.path.exists(self.config_path):
+            try:
+                import tomllib
+                with open(self.config_path, "rb") as f:
+                    cfg = tomllib.load(f)
+                    p = cfg.get("protected", {})
+                    if "cgroups" in p:
+                        protected_cgroups = p["cgroups"]
+                    if "process_names" in p:
+                        protected_processes = p["process_names"]
+            except Exception:
+                pass
+
         return {
             "cgroups": protected_cgroups,
             "processes": protected_processes,

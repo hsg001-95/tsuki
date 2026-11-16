@@ -6,6 +6,7 @@ license.workspace = true
 
 [dependencies]
 tsuki-common = { path = "../tsuki-common" }
+tsuki-actuator = { path = "../tsuki-actuator" }
 serde.workspace = true
 serde_json.workspace = true
 clap.workspace = true

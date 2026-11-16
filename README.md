@@ -96,8 +96,11 @@ Evaluated under the Leave-One-Workload-Family-Out protocol across compiler build
 git clone https://github.com/snoxx-tech/tsuki.git
 cd tsuki
 
-# Build native Rust binaries
-cargo build --workspace
+# Quick build using Makefile
+make build
+
+# Or manually:
+cargo build --workspace --release
 
 # Setup Python reasoning environment
 python3 -m venv .venv
@@ -108,12 +111,14 @@ pip install -r requirements.txt
 ### 3. Run the Live End-to-End Demo
 Experience the full 6-stage lifecycle (telemetry -> fault injection -> early warning -> causal RAG -> validated actuation -> panic rollback):
 ```bash
-./demo/run_demo.sh
+make demo
+# or: ./demo/run_demo.sh
 ```
 
 ### 4. Launch the Operator Dashboard
 ```bash
-streamlit run reasoning/tsuki_api/dashboard.py
+make dashboard
+# or: streamlit run reasoning/tsuki_api/dashboard.py
 ```
 Open `http://localhost:8501` to view live kernel pressure metrics, incoming early-warning alerts, grounded citations, and one-click remediation approvals.
 
@@ -121,18 +126,19 @@ Open `http://localhost:8501` to view live kernel pressure metrics, incoming earl
 
 ## 🧪 Testing & Verification
 
-Run the full Rust workspace and the **10 Mandatory Safety Suite Tests**:
+Run all test suites via Make:
 ```bash
-cargo test --workspace
-cargo test --test safety_suite
+make test
 ```
 
-Run the Python reasoning, benchmark, and training tests:
+Or run individual suites:
 ```bash
-PYTHONPATH=bench:reasoning:training pytest bench/tests training/tests reasoning/tests
+make test-rust       # All workspace unit tests
+make test-safety     # 10 mandatory safety suite tests
+make test-python     # Python RAG, agent, and benchmark tests
+make clippy          # Strict linting with zero warnings
+make eval            # Data-driven OS-FaultBench evaluation
 ```
-
-Run the benchmark evaluation and ablation suite:
 ```bash
 python bench/eval_suite.py
 ```

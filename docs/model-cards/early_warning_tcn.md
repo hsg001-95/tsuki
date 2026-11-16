@@ -25,6 +25,11 @@
 - **Resident Memory:** $< 50\text{ MB}$ RSS
 - **False Alarm Rate:** $\le 1 \text{ per } 8\text{ hours}$ on healthy heavy background workloads (NFR-6)
 
+## Limitations & Known Failure Modes
+- **Fast-Onset Faults:** Memory faults allocating $>10\text{ GB/s}$ can exhaust swap and physical memory in $< 3\text{ seconds}$, leaving insufficient time for the 15-second lead time prediction horizon.
+- **Novel Workload Patterns:** Workloads exhibiting atypical paging patterns not represented in OS-FaultBench (such as massive GPU unified memory migrations) may produce lower anomaly confidence.
+- **Fail-Safe Heuristic Fallback (Rule ML-07):** In all edge cases, uncalibrated outputs or missing model files automatically trigger deterministic heuristic safety rules based on kernel PSI thresholds.
+
 ## Ethical & Safety Considerations
 - Telemetry never leaves the host (strictly local-first).
 - The model produces **proposals only**; all host remediations are filtered by deterministic safety validators and reversible rollback journals.

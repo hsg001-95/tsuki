@@ -1,5 +1,7 @@
+use nix::fcntl::{flock, FlockArg};
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, BufRead, BufReader, Write};
+use std::os::unix::io::AsRawFd;
 use std::path::PathBuf;
 use tracing::{debug, warn};
 use tsuki_common::error::Result;
@@ -45,11 +47,15 @@ impl RollbackJournal {
             .append(true)
             .open(&self.journal_path)?;
 
+        let _ = flock(file.as_raw_fd(), FlockArg::LockExclusive);
+
         let mut json_line = serde_json::to_string(entry)?;
         json_line.push('\n');
 
         file.write_all(json_line.as_bytes())?;
         file.sync_all()?; // Mandatory fsync before kernel actuation
+
+        let _ = flock(file.as_raw_fd(), FlockArg::Unlock);
 
         debug!(
             "Journaled action [{}] state: {:?}",
@@ -65,7 +71,8 @@ impl RollbackJournal {
         }
 
         let file = File::open(&self.journal_path)?;
-        let reader = BufReader::new(file);
+        let _ = flock(file.as_raw_fd(), FlockArg::LockShared);
+        let reader = BufReader::new(&file);
         let mut entries = Vec::new();
 
         for (idx, line) in reader.lines().enumerate() {
@@ -87,6 +94,7 @@ impl RollbackJournal {
             }
         }
 
+        let _ = flock(file.as_raw_fd(), FlockArg::Unlock);
         Ok(entries)
     }
 

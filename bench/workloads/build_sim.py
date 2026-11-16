@@ -71,9 +71,12 @@ class BuildWorkload:
     def stop(self):
         self._stop_flag.value = True
         for p in self._processes:
-            p.join(timeout=2.0)
+            p.join(timeout=1.0)
             if p.is_alive():
                 p.terminate()
+                p.join(timeout=0.5)
+                if p.is_alive():
+                    p.kill()
 
 
 def main():

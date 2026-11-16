@@ -5,6 +5,7 @@ Produces grounded citation items with unique chunk IDs for LLM agent reports.
 """
 
 import os
+import re
 import sqlite3
 import sys
 from typing import List
@@ -24,15 +25,15 @@ class HybridRetriever:
         conn = sqlite3.connect(self.db_path)
         cur = conn.cursor()
 
-        # Sanitize query for FTS5
-        clean_words = [
-            w for w in query.replace('"', "").replace("'", "").split() if len(w) > 2
-        ]
+        # Sanitize query for FTS5 (prevent syntax errors and operator injections)
+        tokens = [re.sub(r"[^a-zA-Z0-9_\-]", "", w) for w in query.split()]
+        clean_words = [w for w in tokens if len(w) > 2]
         if not clean_words:
             conn.close()
             return []
 
-        fts_query = " OR ".join(clean_words)
+        # Quote every individual token in FTS5 syntax
+        fts_query = " OR ".join([f'"{w}"' for w in clean_words])
 
         results = []
         try:

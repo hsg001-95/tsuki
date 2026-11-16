@@ -133,8 +133,42 @@ impl Default for ReasoningConfig {
 }
 
 impl Config {
+    pub fn validate(&self) -> Result<()> {
+        let valid_modes = ["shadow", "approval", "autonomous"];
+        if !valid_modes.contains(&self.general.mode.as_str()) {
+            return Err(TsukiError::Config(format!(
+                "Invalid mode '{}', expected one of {:?}",
+                self.general.mode, valid_modes
+            )));
+        }
+
+        if self.guard.sampling_rate_hz <= 0.0 {
+            return Err(TsukiError::Config("sampling_rate_hz must be > 0.0".into()));
+        }
+        if self.guard.adaptive_sampling && self.guard.max_adaptive_hz < self.guard.sampling_rate_hz {
+            return Err(TsukiError::Config("max_adaptive_hz cannot be less than sampling_rate_hz".into()));
+        }
+        if self.guard.window_size_samples < 5 {
+            return Err(TsukiError::Config("window_size_samples must be at least 5".into()));
+        }
+
+        if self.actuator.default_ttl_seconds == 0 {
+            return Err(TsukiError::Config("default_ttl_seconds must be > 0".into()));
+        }
+        if self.actuator.max_ttl_seconds < self.actuator.default_ttl_seconds {
+            return Err(TsukiError::Config("max_ttl_seconds cannot be less than default_ttl_seconds".into()));
+        }
+        if self.actuator.cooldown_seconds == 0 {
+            return Err(TsukiError::Config("cooldown_seconds must be > 0".into()));
+        }
+
+        Ok(())
+    }
+
     pub fn load_from_str(s: &str) -> Result<Self> {
-        toml::from_str(s).map_err(|e| TsukiError::Config(e.to_string()))
+        let cfg: Self = toml::from_str(s).map_err(|e| TsukiError::Config(e.to_string()))?;
+        cfg.validate()?;
+        Ok(cfg)
     }
 
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {

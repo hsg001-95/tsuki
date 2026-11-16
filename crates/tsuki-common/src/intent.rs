@@ -4,8 +4,11 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ActionTemplate {
+    #[serde(alias = "ThrottleMemory")]
     ThrottleMemory,
+    #[serde(alias = "ReweightCpu")]
     ReweightCpu,
+    #[serde(alias = "FreezeCgroup")]
     FreezeCgroup,
 }
 

@@ -91,10 +91,18 @@ def test_diagnosis_agent_report_generation():
     report = agent.diagnose_snapshot(sample_snapshot)
     assert report.fault_type == "memory_thrash"
     assert report.confidence > 0.5
+    assert report.summary is not None
+    assert "MEMORY_THRASH" in report.summary
     assert len(report.citations) > 0
     assert all("kernel_" in c.chunk_id or "systemd" in c.chunk_id or "os_" in c.chunk_id for c in report.citations)
     assert len(report.candidate_intents) > 0
     assert report.candidate_intents[0].target_cgroup == "/user.slice/app.slice/worker.service"
+
+
+def test_retriever_special_characters():
+    retriever = HybridRetriever(db_path="reasoning/tsuki_rag/index.db")
+    results = retriever.search('""**?? memory::: NEAR/2 throttling', k=2)
+    assert isinstance(results, list)
 
 
 def test_fastapi_endpoints():

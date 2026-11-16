@@ -685,6 +685,7 @@ dependencies = [
  "serde_json",
  "tracing",
  "tracing-subscriber",
+ "tsuki-actuator",
  "tsuki-common",
 ]
 

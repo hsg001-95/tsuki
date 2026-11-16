@@ -100,7 +100,7 @@ impl RemediationManager {
         self.execute_action(&action_id, &intent, expires_at)
     }
 
-    /// Execute an approved action, fsync prior values to journal, and apply to cgroup.
+    /// Execute an approved action, fsync prior values to journal BEFORE applying to cgroup (SAF-04).
     pub fn execute_action(
         &self,
         action_id: &str,
@@ -109,21 +109,32 @@ impl RemediationManager {
     ) -> Result<ActionState> {
         let now = Utc::now();
 
-        // 1. Apply action and capture prior values
-        let prior_values = self.executor.apply(intent)?;
+        // 1. Capture prior values without modifying the host
+        let prior_values = self.executor.read_prior_values(intent)?;
 
-        // 2. Journal before completing actuation (SAF-04)
-        let entry = JournalEntry {
+        // 2. Journal and fsync BEFORE mutating kernel control files (Rule SAF-04)
+        let mut entry = JournalEntry {
             action_id: action_id.to_string(),
             intent: intent.clone(),
             state: ActionState::Applied,
-            prior_values,
+            prior_values: prior_values.clone(),
             created_at: now,
             expires_at,
             completed_at: None,
             rollback_reason: None,
         };
         self.journal.record(&entry)?;
+
+        // 3. Apply actuation to cgroup files
+        if let Err(e) = self.executor.apply_with_priors(intent, &prior_values) {
+            warn!("Actuation failed for [{}]: {}; rolling back to prior values...", action_id, e);
+            let _ = self.executor.rollback(&intent.target_cgroup, &prior_values);
+            entry.state = ActionState::RolledBack;
+            entry.completed_at = Some(Utc::now());
+            entry.rollback_reason = Some(format!("Actuation failed: {}", e));
+            let _ = self.journal.record(&entry);
+            return Err(e);
+        }
 
         info!(
             "Action [{}] applied successfully; state: Observing.",

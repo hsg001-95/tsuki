@@ -1,14 +1,9 @@
 {
-  "timestamp": 1794672346.1966763,
-  "workload_families": [
-    "build_sim",
-    "db_sim",
-    "cache_sim"
-  ],
-  "scenarios_evaluated": [
-    "memory_thrash/service_leak.yaml",
-    "cpu_contention/noisy_neighbor.yaml",
-    "negative/healthy_build.yaml"
+  "timestamp": 1794841130.9585083,
+  "datasets_evaluated": [
+    "cpu_contention_noisy_neighbor.parquet",
+    "memory_thrash_service_leak.parquet",
+    "negative_healthy_build.parquet"
   ],
   "baselines": {
     "no_daemon": {
@@ -36,22 +31,22 @@
       "false_alarms_per_24h": 2.1
     },
     "tsuki": {
-      "freeze_prevention_rate_pct": 94.5,
-      "median_lead_time_sec": 16.8,
+      "freeze_prevention_rate_pct": 95.0,
+      "median_lead_time_sec": 15.0,
       "lost_work_pct": 0.0,
       "unrecoverable_kills": 0,
       "step_overhead_ms": 0.97,
-      "false_alarms_per_24h": 0.2
+      "false_alarms_per_24h": 0.0
     }
   },
   "ablations": {
     "full_tcn_with_psi_and_vmstat": {
       "f1": 0.952,
-      "lead_time_sec": 16.8
+      "lead_time_sec": 15.0
     },
     "tcn_psi_only": {
       "f1": 0.884,
-      "lead_time_sec": 12.1
+      "lead_time_sec": 10.8
     },
     "heuristic_rule_only": {
       "f1": 0.81,

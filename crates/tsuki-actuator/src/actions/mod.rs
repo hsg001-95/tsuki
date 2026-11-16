@@ -38,8 +38,8 @@ impl ActionExecutor {
         Ok(buf.trim().to_string())
     }
 
-    /// Safely apply a validated intent and return prior values for rollback journaling.
-    pub fn apply(&self, intent: &RemediationIntent) -> Result<HashMap<String, String>> {
+    /// Read the prior values of relevant cgroup control files before modification.
+    pub fn read_prior_values(&self, intent: &RemediationIntent) -> Result<HashMap<String, String>> {
         let target_dir = self.resolve_path(&intent.target_cgroup);
         if !target_dir.exists() {
             return Err(TsukiError::Validation(format!(
@@ -49,18 +49,52 @@ impl ActionExecutor {
         }
 
         let mut prior_values = HashMap::new();
+        match intent.template {
+            ActionTemplate::ThrottleMemory => {
+                let mem_high_file = target_dir.join("memory.high");
+                let prior = self
+                    .read_prior_value(&mem_high_file)
+                    .unwrap_or_else(|_| "max".into());
+                prior_values.insert("memory.high".into(), prior);
+            }
+            ActionTemplate::ReweightCpu => {
+                let cpu_weight_file = target_dir.join("cpu.weight");
+                let prior = self
+                    .read_prior_value(&cpu_weight_file)
+                    .unwrap_or_else(|_| "100".into());
+                prior_values.insert("cpu.weight".into(), prior);
+            }
+            ActionTemplate::FreezeCgroup => {
+                let freeze_file = target_dir.join("cgroup.freeze");
+                let prior = self
+                    .read_prior_value(&freeze_file)
+                    .unwrap_or_else(|_| "0".into());
+                prior_values.insert("cgroup.freeze".into(), prior);
+            }
+        }
+
+        Ok(prior_values)
+    }
+
+    /// Apply the action after prior values have been safely journaled (SAF-04).
+    pub fn apply_with_priors(
+        &self,
+        intent: &RemediationIntent,
+        _prior_values: &HashMap<String, String>,
+    ) -> Result<()> {
+        let target_dir = self.resolve_path(&intent.target_cgroup);
+        if !target_dir.exists() {
+            return Err(TsukiError::Validation(format!(
+                "Target cgroup directory '{:?}' does not exist",
+                target_dir
+            )));
+        }
 
         match intent.template {
             ActionTemplate::ThrottleMemory => {
                 let mem_high_file = target_dir.join("memory.high");
                 let mem_curr_file = target_dir.join("memory.current");
 
-                let prior = self
-                    .read_prior_value(&mem_high_file)
-                    .unwrap_or_else(|_| "max".into());
-                prior_values.insert("memory.high".into(), prior);
-
-                // Calculate target bytes
                 let target_bytes = if let Some(ratio) = intent
                     .params
                     .get("ratio_of_current")
@@ -92,11 +126,6 @@ impl ActionExecutor {
             }
             ActionTemplate::ReweightCpu => {
                 let cpu_weight_file = target_dir.join("cpu.weight");
-                let prior = self
-                    .read_prior_value(&cpu_weight_file)
-                    .unwrap_or_else(|_| "100".into());
-                prior_values.insert("cpu.weight".into(), prior);
-
                 let weight = intent
                     .params
                     .get("cpu_weight")
@@ -111,16 +140,18 @@ impl ActionExecutor {
             }
             ActionTemplate::FreezeCgroup => {
                 let freeze_file = target_dir.join("cgroup.freeze");
-                let prior = self
-                    .read_prior_value(&freeze_file)
-                    .unwrap_or_else(|_| "0".into());
-                prior_values.insert("cgroup.freeze".into(), prior);
-
                 info!("Freezing cgroup {:?}", target_dir);
                 fs::write(&freeze_file, "1")?;
             }
         }
 
+        Ok(())
+    }
+
+    /// Safely apply a validated intent and return prior values for rollback journaling.
+    pub fn apply(&self, intent: &RemediationIntent) -> Result<HashMap<String, String>> {
+        let prior_values = self.read_prior_values(intent)?;
+        self.apply_with_priors(intent, &prior_values)?;
         Ok(prior_values)
     }
 
@@ -143,13 +174,22 @@ impl ActionExecutor {
             "Rolling back cgroup {:?} to prior state: {:?}",
             target_dir, prior_values
         );
+        let mut failures = Vec::new();
         for (filename, prior_val) in prior_values {
             let file_path = target_dir.join(filename);
             if file_path.exists() {
                 if let Err(e) = fs::write(&file_path, prior_val) {
                     warn!("Failed to write prior value to {:?}: {}", file_path, e);
+                    failures.push(format!("{}: {}", filename, e));
                 }
             }
+        }
+
+        if !failures.is_empty() {
+            return Err(TsukiError::Io(io::Error::other(format!(
+                "Partial rollback failures: {}",
+                failures.join(", ")
+            ))));
         }
 
         Ok(())

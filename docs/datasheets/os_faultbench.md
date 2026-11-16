@@ -42,4 +42,6 @@
 ## 5. Distribution & Licensing
 - **Format:** Apache Parquet with Snappy compression and typed schemas.
 - **License:** Creative Commons Attribution 4.0 International (CC BY 4.0).
-- **Maintenance:** Managed via the Tsuki open source repository.
+- **Point of Contact:** `tsuki-maintainers@snoxx.tech`
+- **Distribution & Access:** Distributed alongside Tsuki release artifacts (`bench/data/`) and open-access research repositories.
+- **Maintenance Plan:** Maintained via the Tsuki open source repository with annual benchmark updates matching new Linux kernel long-term support (LTS) releases.
