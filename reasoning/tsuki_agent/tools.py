@@ -7,12 +7,15 @@ Tools return Pydantic-validated structured data only.
 
 import glob
 import json
+import logging
 import os
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from tsuki_agent.schemas import CitationItem
 from tsuki_rag.retriever import HybridRetriever
+
+logger = logging.getLogger("tsuki.agent.tools")
 
 
 class CgroupSummary(BaseModel):
@@ -46,8 +49,9 @@ class AgentTools:
         try:
             with open(path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception:
-            return None
+        except Exception as exc:
+            logger.error("Failed to load evidence snapshot from %s: %s", path, exc, exc_info=True)
+            raise RuntimeError(f"Snapshot loading failed for '{path}': {exc}") from exc
 
     def top_cgroups(self, snapshot_id: str, n: int = 5) -> List[CgroupSummary]:
         """Rank cgroups by memory utilization from an evidence snapshot."""
@@ -106,8 +110,11 @@ class AgentTools:
                         protected_cgroups = p["cgroups"]
                     if "process_names" in p:
                         protected_processes = p["process_names"]
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.error("Failed to parse protected config from %s: %s", self.config_path, exc, exc_info=True)
+                raise RuntimeError(
+                    f"Configuration parsing error in protected-list at '{self.config_path}': {exc}"
+                ) from exc
 
         return {
             "cgroups": protected_cgroups,

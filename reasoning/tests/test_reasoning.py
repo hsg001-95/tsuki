@@ -105,12 +105,104 @@ def test_retriever_special_characters():
     assert isinstance(results, list)
 
 
-def test_fastapi_endpoints():
+def test_fastapi_endpoints(monkeypatch):
     client = TestClient(app)
     resp = client.get("/api/status")
     assert resp.status_code == 200
     assert resp.json()["status"] == "online"
 
+    # Mutating actions without authentication must fail closed (Issue 9)
     panic_resp = client.post("/api/panic")
-    assert panic_resp.status_code == 200
-    assert panic_resp.json()["status"] == "panic_engaged"
+    assert panic_resp.status_code == 401
+
+    # Mutating actions with authentication and mock UDS IPC
+    monkeypatch.setattr(
+        "tsuki_api.app.send_actuator_ipc",
+        lambda payload: {
+            "status": "ok",
+            "reverted_count": 2,
+            "message": "Global panic executed",
+            "action_state": "Applied",
+        },
+    )
+
+    auth_headers = {"X-Tsuki-Token": "tsuki-secure-dev-token"}
+    panic_authed = client.post("/api/panic", headers=auth_headers)
+    assert panic_authed.status_code == 200
+    assert panic_authed.json()["status"] == "panic_engaged"
+    assert panic_authed.json()["reverted_count"] == 2
+
+    # Test approve intent with mock payload
+    intent_payload = {
+        "intent_id": "test-intent-101",
+        "timestamp": "2026-11-17T08:00:00Z",
+        "target_cgroup": "/user.slice/app.slice/worker.service",
+        "template": "ThrottledMemoryHigh",
+        "parameters": {"memory_high_bytes": 1000000},
+        "ttl_seconds": 60,
+        "rationale": "Test remediation",
+        "citations": ["kernel_cgroup_v2#memory-high"],
+    }
+    approve_resp = client.post(
+        "/api/intents/test-intent-101/approve",
+        json={"intent": intent_payload},
+        headers=auth_headers,
+    )
+    assert approve_resp.status_code == 200
+    assert approve_resp.json()["status"] == "applied"
+
+
+def test_tools_error_handling(tmp_path):
+    # Test that corrupted snapshot raises RuntimeError rather than silently returning None (Issue 8)
+    bad_snap = tmp_path / "bad_snap.json"
+    bad_snap.write_text("{ corrupted json [", encoding="utf-8")
+
+    tools = AgentTools(snapshot_dir=str(tmp_path))
+    with pytest.raises(RuntimeError):
+        tools.get_snapshot("bad_snap")
+
+    # Test that invalid protected config raises RuntimeError rather than falling back silently
+    bad_cfg = tmp_path / "bad_config.toml"
+    bad_cfg.write_text("protected = [not valid toml", encoding="utf-8")
+    tools_cfg = AgentTools(snapshot_dir=str(tmp_path), config_path=str(bad_cfg))
+    with pytest.raises(RuntimeError):
+        tools_cfg.protected_list()
+
+
+def test_snapshot_watcher_staging(tmp_path):
+    from tsuki_agent.watcher import SnapshotWatcher
+    import json
+
+    snap_dir = tmp_path / "snapshots"
+    pending_dir = tmp_path / "pending"
+    snap_dir.mkdir()
+    pending_dir.mkdir()
+
+    snap_file = snap_dir / "snap-001.json"
+    sample = {
+        "snapshot_id": "snap-001",
+        "primary_cgroup": "/user.slice/app.slice/worker.service",
+        "samples": [
+            {
+                "pressure": {"memory": {"some_avg10": 35.0, "full_avg10": 15.0}},
+                "vmstat": {"workingset_refault": 1200},
+            }
+        ],
+    }
+    snap_file.write_text(json.dumps(sample), encoding="utf-8")
+
+    watcher = SnapshotWatcher(
+        snapshot_dir=str(snap_dir),
+        socket_path=str(tmp_path / "actuator.sock"),
+        pending_dir=str(pending_dir),
+        mode="approval_required",
+    )
+
+    processed = watcher.poll_once()
+    assert processed == 1
+
+    # In approval mode, candidate intent must be staged in pending_dir
+    staged = list(pending_dir.glob("*.json"))
+    assert len(staged) >= 1
+
+

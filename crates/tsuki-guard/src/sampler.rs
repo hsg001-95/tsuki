@@ -1,5 +1,5 @@
 use crate::collector::Collector;
-use crate::detector::{DetectionResult, HeuristicDetector};
+use crate::detector::{DetectionResult, ModelDetector};
 use crate::features::{FeaturePipeline, FeatureVector, SlidingWindow};
 use crate::snapshot::SnapshotRingBuffer;
 use std::collections::HashMap;
@@ -13,7 +13,7 @@ pub struct Sampler {
     config: GuardConfig,
     collector: Collector,
     window: SlidingWindow,
-    detector: HeuristicDetector,
+    detector: ModelDetector,
     ring_buffer: SnapshotRingBuffer,
     running: Arc<AtomicBool>,
     last_alert_time: Option<Instant>,
@@ -31,11 +31,16 @@ impl Sampler {
             config,
             collector,
             window: SlidingWindow::new(capacity),
-            detector: HeuristicDetector::default(),
+            detector: ModelDetector::default(),
             ring_buffer,
             running,
             last_alert_time: None,
         }
+    }
+
+    pub fn with_detector(mut self, detector: ModelDetector) -> Self {
+        self.detector = detector;
+        self
     }
 
     /// Run a single sampling iteration. Returns the extracted features and detection result.

@@ -47,15 +47,23 @@ impl RollbackJournal {
             .append(true)
             .open(&self.journal_path)?;
 
-        let _ = flock(file.as_raw_fd(), FlockArg::LockExclusive);
+        flock(file.as_raw_fd(), FlockArg::LockExclusive).map_err(|e| {
+            tsuki_common::error::TsukiError::Io(io::Error::other(format!(
+                "Failed to acquire journal exclusive lock: {}",
+                e
+            )))
+        })?;
 
         let mut json_line = serde_json::to_string(entry)?;
         json_line.push('\n');
 
-        file.write_all(json_line.as_bytes())?;
-        file.sync_all()?; // Mandatory fsync before kernel actuation
+        let write_res = file.write_all(json_line.as_bytes());
+        let sync_res = file.sync_all(); // Mandatory fsync before kernel actuation
 
         let _ = flock(file.as_raw_fd(), FlockArg::Unlock);
+
+        write_res?;
+        sync_res?;
 
         debug!(
             "Journaled action [{}] state: {:?}",
@@ -71,7 +79,12 @@ impl RollbackJournal {
         }
 
         let file = File::open(&self.journal_path)?;
-        let _ = flock(file.as_raw_fd(), FlockArg::LockShared);
+        flock(file.as_raw_fd(), FlockArg::LockShared).map_err(|e| {
+            tsuki_common::error::TsukiError::Io(io::Error::other(format!(
+                "Failed to acquire journal shared lock: {}",
+                e
+            )))
+        })?;
         let reader = BufReader::new(&file);
         let mut entries = Vec::new();
 

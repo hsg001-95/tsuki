@@ -26,6 +26,8 @@ def evaluate_traces() -> Dict[str, Any]:
     print("\n=======================================================")
     print(" 📊 Tsuki Comprehensive OS-FaultBench Evaluation Suite")
     print("=======================================================")
+    print("[*] Note: Metrics reflect evaluation harness runs across scenario parquet")
+    print("    traces with comparative baseline reference figures.")
 
     parquet_files = glob.glob(os.path.join(DATA_DIR, "*.parquet"))
     if not parquet_files:
@@ -127,6 +129,8 @@ def evaluate_traces() -> Dict[str, Any]:
     results = {
         "timestamp": time.time(),
         "datasets_evaluated": list(dfs.keys()),
+        "harness_mode": "evaluation_suite",
+        "harness_note": "Evaluation harness output across scenario traces with comparative baseline references.",
         "baselines": {
             "no_daemon": {
                 "freeze_prevention_rate_pct": 0.0,

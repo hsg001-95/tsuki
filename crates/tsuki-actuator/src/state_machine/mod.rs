@@ -1,8 +1,8 @@
 use chrono::Utc;
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::{error, info, warn};
 use tsuki_common::config::Config;
-use tsuki_common::error::Result;
+use tsuki_common::error::{Result, TsukiError};
 use tsuki_common::intent::{ActionState, JournalEntry, RemediationIntent};
 
 use crate::actions::ActionExecutor;
@@ -31,8 +31,34 @@ impl RemediationManager {
         }
     }
 
+    fn panic_latch_path(&self) -> std::path::PathBuf {
+        self.config.general.journal_path.with_extension("panic")
+    }
+
+    /// Check if the system is currently under emergency panic lockdown.
+    pub fn is_panic_latched(&self) -> bool {
+        self.panic_latch_path().exists()
+    }
+
+    /// Reset emergency panic latch, restoring actuation capabilities.
+    pub fn reset_panic(&self) -> Result<()> {
+        let p = self.panic_latch_path();
+        if p.exists() {
+            std::fs::remove_file(&p)?;
+            info!("Emergency panic latch cleared. Actuation restored.");
+        }
+        Ok(())
+    }
+
     /// Process an incoming intent proposal through the validation and state machine.
     pub fn process_intent(&self, intent: RemediationIntent) -> Result<ActionState> {
+        // 0. Persistent Panic Latch Check (SAF-08)
+        if self.is_panic_latched() {
+            return Err(tsuki_common::error::TsukiError::Validation(
+                "Actuation locked: system is in EMERGENCY PANIC state (SAF-08). Reset panic latch before submitting new intents.".into()
+            ));
+        }
+
         // 1. Mandatory Deterministic Validation (SAF-02, SAF-03, SAF-05)
         self.validator.validate(&intent)?;
 
@@ -128,11 +154,15 @@ impl RemediationManager {
         // 3. Apply actuation to cgroup files
         if let Err(e) = self.executor.apply_with_priors(intent, &prior_values) {
             warn!("Actuation failed for [{}]: {}; rolling back to prior values...", action_id, e);
-            let _ = self.executor.rollback(&intent.target_cgroup, &prior_values);
+            if let Err(re) = self.executor.rollback(&intent.target_cgroup, &prior_values) {
+                error!("Rollback also failed following actuation failure for [{}]: {}", action_id, re);
+            }
             entry.state = ActionState::RolledBack;
             entry.completed_at = Some(Utc::now());
             entry.rollback_reason = Some(format!("Actuation failed: {}", e));
-            let _ = self.journal.record(&entry);
+            if let Err(je) = self.journal.record(&entry) {
+                error!("Failed to record journal state following actuation failure for [{}]: {}", action_id, je);
+            }
             return Err(e);
         }
 
@@ -161,23 +191,48 @@ impl RemediationManager {
         Ok(())
     }
 
-    /// Global Panic Switch (SAF-08): Reverts all active actions and disables actuation.
+    /// Global Panic Switch (SAF-08): Reverts all active actions and permanently latches actuation disabled.
     pub fn panic(&self) -> Result<usize> {
         warn!("🚨 GLOBAL PANIC TRIGGERED: Reverting all active actions immediately (SAF-08)...");
+
+        // 1. Set persistent panic latch on disk (SAF-08)
+        let latch_path = self.panic_latch_path();
+        if let Some(parent) = latch_path.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        std::fs::write(&latch_path, Utc::now().to_rfc3339())?;
+
+        // 2. Revert all currently active actions
         let active = self.journal.get_active_actions()?;
         let count = active.len();
+        let mut rollback_errors = Vec::new();
 
         for mut entry in active {
-            let _ = self
+            if let Err(e) = self
                 .executor
-                .rollback(&entry.intent.target_cgroup, &entry.prior_values);
+                .rollback(&entry.intent.target_cgroup, &entry.prior_values)
+            {
+                error!("Panic rollback failed for target {}: {}", entry.intent.target_cgroup, e);
+                rollback_errors.push(format!("rollback {}: {}", entry.intent.target_cgroup, e));
+            }
             entry.state = ActionState::RolledBack;
             entry.completed_at = Some(Utc::now());
             entry.rollback_reason = Some("Emergency global panic triggered".into());
-            let _ = self.journal.record(&entry);
+            if let Err(e) = self.journal.record(&entry) {
+                error!("Failed to journal panic entry for {}: {}", entry.action_id, e);
+                rollback_errors.push(format!("journal record {}: {}", entry.action_id, e));
+            }
         }
 
-        info!("Panic complete: {} actions reverted.", count);
+        if !rollback_errors.is_empty() {
+            error!("Panic completed with errors: {:?}", rollback_errors);
+            return Err(TsukiError::Rollback(format!(
+                "Panic completed with operational errors: {}",
+                rollback_errors.join("; ")
+            )));
+        }
+
+        info!("Panic complete: {} actions reverted. Panic latch active.", count);
         Ok(count)
     }
 }

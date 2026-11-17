@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     info!("Initializing Tsuki Rollback Watchdog Daemon (v0.1.0)...");
-    let cfg = Config::load_from_file(&args.config).unwrap_or_default();
+    let cfg = Config::load_or_default(&args.config)?;
 
     let journal = RollbackJournal::new(cfg.general.journal_path);
     let cgroup_root = args

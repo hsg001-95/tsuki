@@ -32,6 +32,10 @@ Evaluated under the Leave-One-Workload-Family-Out protocol across compiler build
 | **systemd-oomd** | 62.0% | 2.5s | 100.0% (SIGKILL) | 3.40 ms | 2.1 |
 | **Tsuki (Ours)** | **94.5%** | **16.8s** | **0.0%** (Reversible) | **0.97 ms** | **0.2** |
 
+> [!NOTE]
+> **Evaluation Harness & Prototype Status:**
+> The benchmark metrics above represent evaluation harness outputs across local scenario traces (`bench/data/*.parquet`) combined with comparative baseline literature references. Tsuki is a validated prototype and demonstration system featuring a rigorous, memory-locked Rust safety core, deterministic rollback journaling, active UDS IPC, and authenticated operator controls. Production deployment in autonomous mode should be staged under human approval controls and thorough live workload validation.
+
 ---
 
 ## 🏗️ Two-Plane Architecture

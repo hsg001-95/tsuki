@@ -175,4 +175,17 @@ impl Config {
         let content = std::fs::read_to_string(path)?;
         Self::load_from_str(&content)
     }
+
+    /// Load config from file if it exists, failing closed on any syntax or validation error.
+    /// Falls back to default ONLY if the file does not exist.
+    pub fn load_or_default<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let p = path.as_ref();
+        if p.exists() {
+            Self::load_from_file(p)
+        } else {
+            let default_cfg = Self::default();
+            default_cfg.validate()?;
+            Ok(default_cfg)
+        }
+    }
 }

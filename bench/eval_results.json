@@ -1,10 +1,12 @@
 {
-  "timestamp": 1794883367.5185726,
+  "timestamp": 1794884346.046724,
   "datasets_evaluated": [
     "cpu_contention_noisy_neighbor.parquet",
     "memory_thrash_service_leak.parquet",
     "negative_healthy_build.parquet"
   ],
+  "harness_mode": "evaluation_suite",
+  "harness_note": "Evaluation harness output across scenario traces with comparative baseline references.",
   "baselines": {
     "no_daemon": {
       "freeze_prevention_rate_pct": 0.0,

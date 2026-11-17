@@ -20,6 +20,9 @@ pub enum TsukiError {
     #[error("Action expired or timed out")]
     ActionExpired,
 
+    #[error("Rollback error: {0}")]
+    Rollback(String),
+
     #[error("Journal error: {0}")]
     Journal(String),
 }

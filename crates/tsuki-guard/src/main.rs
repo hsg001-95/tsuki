@@ -53,13 +53,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
     info!("Initializing Tsuki Guard Plane (v0.1.0)...");
-    let cfg = Config::load_from_file(&args.config).unwrap_or_else(|_| {
-        info!(
-            "Config file '{}' not found or invalid; falling back to safe default configuration",
-            args.config
-        );
-        Config::default()
-    });
+    let cfg = Config::load_or_default(&args.config)?;
 
     try_mlockall();
 
@@ -69,7 +63,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let running = Arc::new(AtomicBool::new(true));
     install_signal_handlers(running.clone())?;
 
-    let mut sampler = Sampler::new(cfg.guard.clone(), collector, ring_buffer, running.clone());
+    let detector = detector::ModelDetector::new(std::path::PathBuf::from("models/detector.onnx"));
+    let mut sampler = Sampler::new(cfg.guard.clone(), collector, ring_buffer, running.clone())
+        .with_detector(detector);
 
     if args.oneshot {
         info!("Running oneshot telemetry collection...");
