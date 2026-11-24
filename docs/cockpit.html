@@ -1,681 +1,828 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Tsuki Control Plane — Autonomous Operator Cockpit</title>
+  
+  <!-- Typography: Newsreader, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.tabular-nums{font-variant-numeric:tabular-nums;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-variant":"#d3e4fe","secondary":"#006c49","secondary-container":"#6cf8bb","on-tertiary-container":"#fffbff","on-primary-container":"#fdfcff","outline-variant":"#bfc7d2","on-primary-fixed-variant":"#004b73","outline":"#707881","background":"#f8f9ff","inverse-on-surface":"#eaf1ff","tertiary-fixed":"#ffdcc3","on-primary":"#ffffff","on-tertiary-fixed":"#2f1500","tertiary":"#8d4b00","tertiary-fixed-dim":"#ffb77d","primary-fixed":"#cce5ff","surface-container-lowest":"#ffffff","surface-container-high":"#dce9ff","surface-tint":"#006398","tertiary-container":"#b15f00","on-background":"#0b1c30","on-secondary":"#ffffff","secondary-fixed-dim":"#4edea3","on-tertiary":"#ffffff","primary-container":"#007bb9","on-secondary-fixed":"#002113","on-error":"#ffffff","secondary-fixed":"#6ffbbe","primary":"#006194","surface-dim":"#cbdbf5","on-secondary-container":"#00714d","surface-container":"#e5eeff","surface":"#f8f9ff","error-container":"#ffdad6","on-error-container":"#93000a","on-secondary-fixed-variant":"#005236","on-surface":"#0b1c30","surface-container-low":"#eff4ff","surface-bright":"#f8f9ff","inverse-surface":"#213145","on-primary-fixed":"#001d31","on-surface-variant":"#3f4850","primary-fixed-dim":"#93ccff","surface-container-highest":"#d3e4fe","inverse-primary":"#93ccff","error":"#ba1a1a","on-tertiary-fixed-variant":"#6e3900"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"1.5rem","space-xs":"0.25rem","gutter":"1rem","space-md":"0.75rem","margin-desktop":"2rem","space-lg":"1rem","space-sm":"0.5rem","gutter-lg":"1.5rem","space-xl":"1.5rem","margin-mobile":"1rem","gutter-sm":"0.75rem"},"fontFamily":{"label-sm":["Space Grotesk","sans-serif"],"code-sm":["JetBrains Mono","monospace"],"body-md":["Space Grotesk","sans-serif"],"body-lg":["Space Grotesk","sans-serif"],"headline-md":["Space Grotesk","sans-serif"],"headline-xl":["Space Grotesk","sans-serif"],"label-md":["Space Grotesk","sans-serif"],"code-md":["JetBrains Mono","monospace"],"headline-lg":["Space Grotesk","sans-serif"],"headline-xl-mobile":["Space Grotesk","sans-serif"],"body-sm":["Space Grotesk","sans-serif"]},"fontSize":{"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"18px","fontWeight":"500"}],"code-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-xl-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 h-16 z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-margin flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><a href="landing_page.html" class="flex items-center gap-2 group" title="Return to Product Page"><img src="assets/logo.png?v=5" alt="Tsuki Logo" class="h-13 w-auto object-contain shrink-0" /></a><div class="flex items-baseline gap-space-xs"><span class="font-headline-md text-headline-md tracking-tight text-on-surface">TSUKI</span><span class="font-code-sm text-code-sm text-on-surface-variant font-bold">// CONTROL PLANE</span></div></div><div class="hidden xl:flex items-center px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">v1.0-alpha [ebpf-co-re]</div><div class="hidden lg:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>GUARD PLANE: ARMED & LOCKED</div></div><div class="hidden 2xl:flex items-center gap-space-lg font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">HOST:</span><span id="top-host-val" class="text-on-surface font-label-sm text-label-sm">prod-kernel-6.8-x86_64</span></div><div class="flex items-center gap-space-xs"><span class="text-outline">UPTIME:</span><span id="top-uptime-val" class="text-on-surface font-label-sm text-label-sm">14d 06h 22m</span></div><div class="flex items-center gap-space-xs"><span class="text-outline">PSI:</span><span id="top-psi-val" class="text-secondary font-label-sm text-label-sm">PSI NORMAL (0.00% stall)</span></div></div><div class="flex items-center gap-space-md"><button id="btn-panic" onclick="triggerPanic()" class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer" type="button"><span class="material-symbols-outlined text-[16px]">shield</span><span id="btn-panic-text" class="font-label-sm text-label-sm tracking-wide">TSUKI PANIC</span></button><div class="flex items-center gap-space-xs pl-space-sm"><img alt="Profile" class="h-13 w-auto object-contain shrink-0" src="assets/logo.png?v=5"/></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-low z-40 flex flex-col justify-between py-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex flex-col gap-space-lg"><div class="px-space-lg"><div class="font-code-sm text-code-sm uppercase tracking-wider text-outline mb-space-sm">Remediation Planes</div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container rounded-lg font-label-md"><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="initialization-and-boot" href="bootloader.html"><span class="material-symbols-outlined text-[18px]">power_settings_new</span>Initialization & Boot</a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2 transition-all bg-primary-container text-on-primary-container rounded-lg font-label-md" data-path="autonomous-cockpit" href="cockpit.html"><span class="material-symbols-outlined text-[18px]">monitoring</span>Autonomous Cockpit</a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="audit-trail" href="audit.html"><span class="material-symbols-outlined text-[18px]">history_toggle_off</span>Audit Trail</a></nav></div><div class="px-space-lg"><div class="font-code-sm text-code-sm uppercase tracking-wider text-outline mb-space-sm">System Governance</div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container rounded-lg font-label-md"><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="telemetry-ebpf-probes" href="telemetry.html"><span class="material-symbols-outlined text-[18px]">radar</span>Telemetry & Probes</a><a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="system-settings" href="settings.html"><span class="material-symbols-outlined text-[18px]">tune</span>Settings</a></nav></div></div><div class="px-space-lg"><div class="p-space-md rounded-xl bg-surface-container-lowest shadow-[0_1px_2px_rgba(15,23,42,0.04)]"><div class="flex items-center justify-between mb-space-xs"><span class="font-label-sm text-label-sm text-on-surface">eBPF Rings</span><span class="font-code-sm text-code-sm text-secondary">Online</span></div><div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden"><div class="bg-secondary h-1.5 rounded-full w-4/5"></div></div><div class="mt-space-xs flex justify-between font-code-sm text-code-sm text-on-surface-variant"><span>Buffer</span><span>0.12ms / lat</span></div></div></div></aside><div class="pl-64"><main class="relative pt-16 bg-surface min-h-screen">
-<!-- Ambient Dashboard Tsukuyomi Watermark -->
-<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center pl-64 pt-16">
-  <img src="assets/watermark.png?v=1" alt="" aria-hidden="true" style="width: min(420px, 60vw); height: auto; opacity: 0.12; pointer-events: none; user-select: none;" />
-</div>
-<!-- Ambient Dashboard Tsukuyomi Watermark -->
-<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center pl-64 pt-16">
-  <img src="assets/logo.png?v=6" alt="" aria-hidden="true" class="w-[420px] lg:w-[580px] max-w-none opacity-[0.16] filter contrast-125 brightness-85 select-none mix-blend-multiply pointer-events-none" />
-</div><div class="flex flex-col w-full">
-<div class="px-margin py-space-lg flex flex-col gap-space-lg">
-<!-- Sub-header & Cockpit State Indicator Strip -->
-<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-xs">
-<div class="flex items-center gap-space-md">
-<div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">
-<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-<span>AUTONOMOUS_LOOP_01 // RUNNING</span>
-</div>
-<div class="hidden sm:flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
-<span class="material-symbols-outlined text-[16px] text-outline">dns</span>
-<span>cgroup_v2: unified hierarchy</span>
-</div>
-<div class="hidden md:flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
-<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
-<span>pidfd security check: STRICT</span>
-</div>
-</div>
-<div class="flex items-center gap-space-sm font-code-sm text-code-sm">
-<span class="text-outline">POLICIES ACTIVE:</span>
-<span class="px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface font-semibold">14 REVERSIBLE</span>
-<span class="text-outline">THOMPSON BANDIT:</span>
-<span class="px-space-xs py-0.5 rounded bg-surface-container-high text-secondary font-semibold">α=124 β=8 (EXPLORE 2.4%)</span>
-</div>
-</div>
-<!-- 1. Top KPI / Metric Cards (4 pure white cards) -->
-<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
-<!-- Card 1: Guard Plane Overhead -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-<div>
-<div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Guard Plane Overhead</span>
-<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-container-high text-primary tracking-tight">SUB-1% BOUNDED</span>
-</div>
-<div class="flex items-baseline gap-space-sm my-space-xs">
-<span class="font-headline-xl text-headline-xl text-on-surface tracking-tight">0.18%</span>
-<span class="font-code-sm text-code-sm text-on-surface-variant">CPU (Target ≤1.0%)</span>
-</div>
-<div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-space-xs">
-<span class="text-outline">RSS:</span>
-<span class="text-on-surface font-semibold">42 MB</span>
-<span class="text-[10px] text-outline">(Pinned via mlockall)</span>
-</div>
-</div>
-<div class="mt-space-md pt-space-xs flex items-center justify-between">
-<svg class="w-28 h-6 text-primary" fill="none" viewbox="0 0 112 24">
-<path d="M0 16 L20 16 L35 15 L50 16 L65 14 L80 16 L95 15 L112 16" stroke="currentColor" stroke-linecap="round" stroke-width="1.75"></path>
-<circle class="fill-primary" cx="112" cy="16" r="2"></circle>
-</svg>
-<span class="font-code-sm text-[10px] text-secondary flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[13px]">lock</span>
-            ZERO_PAGE_FAULT
-          </span>
-</div>
-</div>
-<!-- Card 2: Inference Latency -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-<div>
-<div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Inference Latency</span>
-<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-secondary-container text-on-secondary-container tracking-tight">REAL-TIME VERIFIED</span>
-</div>
-<div class="flex items-baseline gap-space-sm my-space-xs">
-<span class="font-headline-xl text-headline-xl text-on-surface tracking-tight">2.1 <span class="text-headline-md">ms</span></span>
-<span class="font-code-sm text-code-sm text-on-surface-variant">p99 (Target ≤5.0ms)</span>
-</div>
-<div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-space-xs">
-<span class="text-outline">Engine:</span>
-<span class="text-on-surface font-semibold">ONNX Runtime INT8 TCN</span>
-</div>
-</div>
-<div class="mt-space-md pt-space-xs flex items-center justify-between">
-<!-- Micro-histogram in emerald -->
-<div class="flex items-end gap-1 h-6">
-<div class="w-1.5 bg-secondary/30 rounded-t h-2"></div>
-<div class="w-1.5 bg-secondary/50 rounded-t h-3"></div>
-<div class="w-1.5 bg-secondary/80 rounded-t h-5"></div>
-<div class="w-1.5 bg-secondary rounded-t h-6"></div>
-<div class="w-1.5 bg-secondary/60 rounded-t h-3.5"></div>
-<div class="w-1.5 bg-secondary/30 rounded-t h-1.5"></div>
-<div class="w-1.5 bg-secondary/20 rounded-t h-1"></div>
-</div>
-<span class="font-code-sm text-[10px] text-on-surface-variant">
-            Tick: 100Hz eBPF
-          </span>
-</div>
-</div>
-<!-- Card 3: System Health Index -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-<div>
-<div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">System Health Index</span>
-<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-container-high text-on-surface-variant tracking-tight">OS-FaultBench</span>
-</div>
-<div class="flex items-baseline gap-space-sm my-space-xs">
-<span class="font-headline-xl text-headline-xl text-secondary tracking-tight">99.4%</span>
-<span class="font-code-sm text-code-sm text-secondary font-semibold">+0.2% vs 24h</span>
-</div>
-<div class="font-code-sm text-code-sm text-on-surface-variant">
-            Zero fatal OOM panics in 14d
-          </div>
-</div>
-<div class="mt-space-md pt-space-xs flex items-center justify-between">
-<div class="w-full bg-surface-container rounded-full h-1.5 mr-space-md">
-<div class="bg-secondary h-1.5 rounded-full" style="width: 99.4%"></div>
-</div>
-<span class="font-code-sm text-[11px] text-secondary font-semibold shrink-0">OPTIMAL</span>
-</div>
-</div>
-<!-- Card 4: Active Enforcements -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-<div>
-<div class="flex items-center justify-between mb-space-xs">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Active Enforcements</span>
-<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-tertiary-fixed text-on-tertiary-fixed tracking-tight animate-pulse">1 THROTTLED</span>
-</div>
-<div class="flex items-baseline gap-space-xs my-space-xs">
-<span class="font-headline-md text-headline-md text-on-surface tracking-tight">build-worker.service</span>
-</div>
-<div class="font-code-sm text-code-sm text-on-surface-variant truncate">
-            /system.slice/build-worker.service
-          </div>
-</div>
-<div class="mt-space-md pt-space-xs flex items-center justify-between">
-<div class="flex items-center gap-1.5 px-space-sm py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-code-sm text-[11px] font-bold">
-<span class="material-symbols-outlined text-[13px]">timer</span>
-<span id="countdown-kpi">TTL 00:04:12</span>
-</div>
-<span class="font-code-sm text-[10px] text-tertiary font-semibold">REVERSIBLE</span>
-</div>
-</div>
-</div>
-<!-- 2. Center Main Stage (Split View: Telemetry & Live Incident) -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
-<!-- Left Column (Telemetry & Predictive Pressure Sensors - 60% Width / col-span-7) -->
-<div class="lg:col-span-7 flex flex-col gap-gutter">
-<!-- Multi-metric Real-Time Graph Card -->
-<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
-<!-- Graph Header & Interactive Legend -->
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
-<div>
-<div class="flex items-center gap-space-xs">
-<h2 class="font-headline-md text-headline-md text-on-surface">Kernel PSI Telemetry & Predictive Horizon</h2>
-<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-code-sm text-[10px] font-semibold">15 MIN WINDOW</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                Full & Some stall ratios polled from /proc/pressure/ at 100ms ring buffer resolution
-              </p>
-</div>
-<!-- Legend with dynamic badge style -->
-<div class="flex flex-wrap items-center gap-space-sm font-code-sm text-code-sm">
-<span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-on-surface">
-<span class="w-2.5 h-0.5 rounded bg-primary"></span>
-<span>Mem Full</span>
-</span>
-<span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-on-surface">
-<span class="w-2.5 h-0.5 rounded bg-secondary"></span>
-<span>CPU Stall</span>
-</span>
-<span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-on-surface">
-<span class="w-2.5 h-0.5 rounded bg-tertiary"></span>
-<span>I/O Wait</span>
-</span>
-</div>
-</div>
-<!-- Main SVG Telemetry Chart Container -->
-<div class="relative w-full aspect-[2/1] min-h-[260px] max-h-[340px] bg-surface rounded-lg p-space-sm overflow-hidden flex flex-col justify-between">
-<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 600 240">
-<defs>
-<lineargradient id="memGradient" x1="0" x2="0" y1="0" y2="1">
-<stop offset="0%" stop-color="#007bb9" stop-opacity="0.32"></stop>
-<stop offset="85%" stop-color="#007bb9" stop-opacity="0.02"></stop>
-<stop offset="100%" stop-color="#007bb9" stop-opacity="0"></stop>
-</lineargradient>
-<pattern height="40" id="gridPattern" patternunits="userSpaceOnUse" width="40">
-<path d="M 40 0 L 0 0 0 40" fill="none" stroke="#d3e4fe" stroke-opacity="0.7" stroke-width="0.5"></path>
-</pattern>
-</defs>
-<!-- Subtle background grid -->
-<rect fill="url(#gridPattern)" height="240" width="600"></rect>
-<!-- Threshold line: 50% Crimson Thrash Danger Line -->
-<line stroke="#ba1a1a" stroke-dasharray="4 3" stroke-opacity="0.6" stroke-width="1.2" x1="0" x2="600" y1="60" y2="60"></line>
-<!-- Threshold line: 25% Amber TCN Trigger Zone -->
-<line stroke="#b15f00" stroke-dasharray="4 3" stroke-opacity="0.6" stroke-width="1.2" x1="0" x2="600" y1="120" y2="120"></line>
-<!-- Baseline 0% line -->
-<line stroke="#bfc7d2" stroke-opacity="0.5" stroke-width="1" x1="0" x2="600" y1="210" y2="210"></line>
-<!-- Memory Pressure Area Fill -->
-<path d="M 0 205 Q 60 202 120 204 T 240 198 T 330 180 T 400 135 T 450 78 T 490 85 T 530 160 T 600 190 L 600 210 L 0 210 Z" fill="url(#memGradient)"></path>
-<!-- Memory Pressure Curve (Cobalt) -->
-<path d="M 0 205 Q 60 202 120 204 T 240 198 T 330 180 T 400 135 T 450 78 T 490 85 T 530 160 T 600 190" stroke="#006194" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-<!-- CPU Stall Line (Emerald) -->
-<path d="M 0 208 Q 90 207 180 206 T 320 200 T 420 185 T 470 145 T 520 180 T 600 202" stroke="#006c49" stroke-dasharray="2 1" stroke-linecap="round" stroke-width="1.8"></path>
-<!-- I/O Stall Line (Amber) -->
-<path d="M 0 209 Q 80 208 170 205 T 310 195 T 410 165 T 460 110 T 510 160 T 600 195" stroke="#b15f00" stroke-linecap="round" stroke-width="1.8"></path>
-<!-- Predictive Intervention Point (T - 30s) -->
-<line stroke="#ba1a1a" stroke-dasharray="3 3" stroke-width="1.5" x1="450" x2="450" y1="20" y2="210"></line>
-<!-- Spark dot on curve at alert fire -->
-<circle cx="450" cy="78" fill="#ba1a1a" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
-<!-- Reversal recovery slope point -->
-<circle cx="530" cy="160" fill="#006c49" r="3.5" stroke="#ffffff" stroke-width="1.5"></circle>
-</svg>
-<!-- Overlay Pills & Callouts inside the chart -->
-<div class="absolute top-2 left-3 flex flex-col gap-1 pointer-events-none">
-<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-error-container/90 text-on-error-container font-label-sm text-[10px]">
-<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-<span>50% Thrash Hazard Boundary</span>
-</div>
-<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-tertiary-fixed/90 text-on-tertiary-fixed font-label-sm text-[10px]">
-<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-<span>25% TCN Predictive Trigger Zone (10-30s prior to swap stall)</span>
-</div>
-</div>
-<!-- TCN Alert Fired Flag at X: 450 (75%) -->
-<div class="absolute top-10 right-1/4 transform translate-x-4 bg-surface-container-lowest px-space-sm py-1 rounded shadow-md pointer-events-none">
-<div class="flex items-center gap-1 text-error font-code-sm text-[11px] font-bold">
-<span class="material-symbols-outlined text-[14px]">bolt</span>
-<span>TCN Alert Fired (T-30s)</span>
-</div>
-<div class="font-code-sm text-[10px] text-on-surface-variant">Throttle enforced -> PSI down 84%</div>
-</div>
-<!-- Horizontal Time Axis -->
-<div class="w-full flex items-center justify-between text-outline font-code-sm text-[10px] pt-1">
-<span>-15m 00s</span>
-<span>-12m 30s</span>
-<span>-10m 00s</span>
-<span>-07m 30s</span>
-<span>-05m 00s</span>
-<span>-02m 30s</span>
-<span class="text-on-surface font-semibold">NOW (Live)</span>
-</div>
-</div>
-<div class="mt-space-md flex flex-wrap items-center justify-between gap-space-sm text-on-surface-variant font-code-sm text-code-sm">
-<div class="flex items-center gap-space-xs">
-<span class="text-outline">Algorithm:</span>
-<span class="text-on-surface font-semibold">Temporal Convolutional Network (k=3, d=1..8)</span>
-</div>
-<div class="flex items-center gap-space-xs">
-<span class="text-outline">False Positive Rate:</span>
-<span class="text-secondary font-semibold">< 0.08% on Linux 6.8</span>
-</div>
-</div>
-</div>
-<!-- Telemetry Stream Strip (3 clean metric gauge cards beneath chart) -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
-<div class="flex items-center justify-between mb-1">
-<span class="font-label-sm text-[11px] text-on-surface-variant">eBPF Runqueue Latency</span>
-<span class="w-2 h-2 rounded-full bg-secondary"></span>
-</div>
-<div class="font-headline-md text-headline-md text-on-surface">4.2 <span class="text-code-sm text-on-surface-variant font-normal">µs (p95)</span></div>
-<div class="mt-space-xs text-secondary font-code-sm text-[11px] flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[13px]">check_circle</span>
-              Nominal scheduler delay
-            </div>
-</div>
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
-<div class="flex items-center justify-between mb-1">
-<span class="font-label-sm text-[11px] text-on-surface-variant">Page Scan Rate</span>
-<span class="w-2 h-2 rounded-full bg-tertiary"></span>
-</div>
-<div class="font-headline-md text-headline-md text-on-surface">1,840 <span class="text-code-sm text-on-surface-variant font-normal">pages/s</span></div>
-<div class="mt-space-xs text-tertiary font-code-sm text-[11px] flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[13px]">warning</span>
-              kswapd active scanning
-            </div>
-</div>
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
-<div class="flex items-center justify-between mb-1">
-<span class="font-label-sm text-[11px] text-on-surface-variant">Kernel Lock Waits</span>
-<span class="w-2 h-2 rounded-full bg-secondary"></span>
-</div>
-<div class="font-headline-md text-headline-md text-on-surface">0.8 <span class="text-code-sm text-on-surface-variant font-normal">ms (max)</span></div>
-<div class="mt-space-xs text-secondary font-code-sm text-[11px] flex items-center gap-0.5">
-<span class="material-symbols-outlined text-[13px]">check_circle</span>
-              futex / mm_sem healthy
-            </div>
-</div>
-</div>
-</div>
-<!-- Right Column (Autonomous Remediation & Reasoning Timeline - 40% Width / col-span-5) -->
-<div class="lg:col-span-5 flex flex-col gap-gutter">
-<!-- Active Incident Card with top accent -->
-<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
-<!-- Top Accent Bar -->
-<div class="h-1.5 w-full bg-error"></div>
-<div class="p-space-lg flex flex-col gap-space-md">
-<!-- Alert Banner -->
-<div class="flex items-start justify-between gap-space-sm">
-<div class="flex flex-col">
-<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-error-container text-on-error-container w-max font-code-sm text-[11px] font-bold">
-<span class="material-symbols-outlined text-[14px]">crisis_alert</span>
-<span>PREDICTED MEMORY THRASHING</span>
-</div>
-<span class="font-code-sm text-code-sm text-error font-semibold mt-1">RISK SCORE: 0.94 // CRITICAL STALL IMMINENT</span>
-</div>
-<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-code-sm text-[11px]">INC-8921</span>
-</div>
-<!-- Target Process Monospace Block -->
-<div class="bg-surface-container-low rounded-lg p-space-sm font-code-sm text-code-sm flex flex-col gap-1">
-<div class="flex items-center justify-between text-on-surface font-semibold">
-<span class="flex items-center gap-1">
-<span class="material-symbols-outlined text-[15px] text-primary">terminal</span>
-<span>cc1plus</span>
-</span>
-<span class="text-outline">PID: 38412</span>
-</div>
-<div class="text-on-surface-variant truncate">
-                cgroup: <span class="text-on-surface">/system.slice/build-worker.service</span>
-</div>
-<div class="text-[10px] text-outline">
-                ppid: 38100 (ninja) • user: builder (1001) • numa_node: 0
-              </div>
-</div>
-<!-- Root Cause Analysis (LLM Reasoning Plane with Cited Evidence) -->
-<div class="flex flex-col gap-1">
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-primary">
-<span class="material-symbols-outlined text-[16px]">psychology</span>
-<span>REASONING PLANE // CITED KERNEL EVIDENCE</span>
-</div>
-<div class="p-space-sm rounded-lg bg-surface font-body-sm text-body-sm text-on-surface leading-relaxed">
-                "High anon-RSS velocity <span class="font-semibold text-error">(420 MB/s)</span> coinciding with page fault stall spikes <span class="font-semibold text-tertiary">(PSI full: 38%)</span>. High confidence memory leak detected in template expansion compilation unit."
-              </div>
-</div>
-<!-- Prescribed Remediation (Machine-executable policy) -->
-<div class="flex flex-col gap-1">
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary">
-<span class="material-symbols-outlined text-[16px]">gavel</span>
-<span>PRESCRIBED REMEDIATION (REVERSIBLE EXECUTION)</span>
-</div>
-<div class="p-space-sm rounded-lg bg-surface-container font-code-sm text-code-sm text-on-surface">
-                Apply reversible <span class="text-primary font-bold">memory.high throttle (4.0 GiB)</span> & demote <span class="text-primary font-bold">cpu.weight to 20</span> (TTL: 300s).
-              </div>
-</div>
-<!-- Visual Verification Pill -->
-<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-secondary-container/40 text-on-secondary-container font-label-sm text-label-sm">
-<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
-<span>Safety Check Passed: PID verified via pidfd_open, Target not in protected systemd whitelist.</span>
-</div>
-<!-- Incident Progress / TTL Bar -->
-<div class="flex flex-col gap-1 pt-space-xs">
-<div class="flex justify-between font-code-sm text-code-sm text-on-surface-variant">
-<span>Remediation Grace Countdown</span>
-<span class="text-tertiary font-bold" id="countdown-incident">00:04:12 remaining</span>
-</div>
-<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
-<div class="bg-tertiary h-1.5 rounded-full" style="width: 84%"></div>
-</div>
-</div>
-<!-- Interactive Remediation Action Bar -->
-<div class="flex flex-col sm:flex-row items-center gap-space-sm pt-space-xs">
-<button id="btn-extend" onclick="extendLease()" class="w-full sm:w-auto flex-1 px-space-md py-2 rounded bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-1 cursor-pointer" type="button">
-<span class="material-symbols-outlined text-[16px]">add_circle</span>
-<span id="btn-extend-text">Extend (+300s)</span>
-</button>
-<button id="btn-trace" onclick="traceIncident()" class="w-full sm:w-auto px-space-md py-2 rounded bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-1 cursor-pointer" type="button">
-<span class="material-symbols-outlined text-[16px]">account_tree</span>
-<span>Trace</span>
-</button>
-<button id="btn-rollback" onclick="rollbackRemediation()" class="w-full sm:w-auto px-space-md py-2 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors font-label-md text-label-md flex items-center justify-center gap-1 cursor-pointer" type="button">
-<span class="material-symbols-outlined text-[16px]">undo</span>
-<span id="btn-rollback-text">Rollback</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Real-time Agent Log Pulse Strip -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between">
-<div class="flex items-center gap-space-sm font-code-sm text-code-sm text-on-surface truncate">
-<span class="text-primary font-bold">LATEST:</span>
-<span class="text-on-surface-variant truncate">memory.high write verified to /sys/fs/cgroup/system.slice...</span>
-</div>
-<span class="font-code-sm text-[11px] text-outline shrink-0 ml-2">14:32:08.114</span>
-</div>
-</div>
-</div>
-<!-- 3. Bottom Drawer / Audit Trail & Safety Diagnostics -->
-<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col mb-space-lg">
-<!-- Drawer Navigation Header -->
-<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
-<div class="flex items-center gap-space-xs overflow-x-auto">
-<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest shadow-sm font-label-md text-label-md text-primary font-semibold flex items-center gap-1.5 shrink-0" type="button">
-<span class="material-symbols-outlined text-[16px]">history</span>
-<span>Reversible Remediation Log (Active)</span>
-<span class="w-2 h-2 rounded-full bg-primary ml-1"></span>
-</button>
-<button class="px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 shrink-0 transition-colors" type="button">
-<span class="material-symbols-outlined text-[16px]">sensors</span>
-<span>eBPF Probe Diagnostics</span>
-</button>
-<button class="px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 shrink-0 transition-colors" type="button">
-<span class="material-symbols-outlined text-[16px]">security</span>
-<span>Safety Invariants & Watchdogs</span>
-</button>
-</div>
-<!-- Filter / Search input -->
-<div class="flex items-center gap-space-sm">
-<div class="relative">
-<span class="material-symbols-outlined text-[16px] text-outline absolute left-2.5 top-2">search</span>
-<input class="pl-8 pr-3 py-1 bg-surface-container-lowest text-on-surface font-code-sm text-code-sm rounded h-8 w-60 focus:outline-none shadow-sm" placeholder="Filter cgroup, PID, action..." type="text"/>
-</div>
-<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant" type="button">
-<span class="material-symbols-outlined text-[18px]">tune</span>
-</button>
-</div>
-</div>
-<!-- High-Density Monospace Audit Table -->
-<div class="w-full overflow-x-auto">
-<table class="w-full text-left font-code-sm text-code-sm whitespace-nowrap">
-<thead class="bg-surface-container-low text-outline font-semibold">
-<tr>
-<th class="py-space-sm px-space-md">TIMESTAMP</th>
-<th class="py-space-sm px-space-md">EVENT TYPE</th>
-<th class="py-space-sm px-space-md">TARGET CGROUP / PID</th>
-<th class="py-space-sm px-space-md">ACTION EXECUTED</th>
-<th class="py-space-sm px-space-md">REVERSIBILITY STATUS</th>
-<th class="py-space-sm px-space-md">TTL COUNTDOWN</th>
-<th class="py-space-sm px-space-md">THOMPSON REWARD</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-surface-container">
-<!-- Row 1: Active Intervention -->
-<tr class="hover:bg-surface-container-low/60 transition-colors">
-<td class="py-space-md px-space-md text-on-surface font-medium">14:32:08.114</td>
-<td class="py-space-md px-space-md">
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-error-container text-on-error-container">MEMORY_HIGH_SET</span>
-</td>
-<td class="py-space-md px-space-md text-on-surface">
-<div class="font-semibold">/system.slice/build-worker.service</div>
-<div class="text-[10px] text-outline">PID 38412 (cc1plus)</div>
-</td>
-<td class="py-space-md px-space-md text-on-surface-variant">
-                Throttled memory.high to <span class="text-on-surface font-semibold">4294967296</span> (4GiB)
-              </td>
-<td class="py-space-md px-space-md">
-<span class="flex items-center gap-1 text-secondary font-semibold">
-<span class="material-symbols-outlined text-[14px]">lock_reset</span>
-                  Reversible (cgroup v2)
-                </span>
-</td>
-<td class="py-space-md px-space-md">
-<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-bold text-[11px] animate-pulse">00:04:12 ACTIVE</span>
-</td>
-<td class="py-space-md px-space-md text-secondary font-bold">
-                +0.92 <span class="text-[10px] font-normal text-outline">(PSI -84%)</span>
-</td>
-</tr>
-<!-- Row 2: Past Reversible Demote -->
-<tr class="hover:bg-surface-container-low/60 transition-colors">
-<td class="py-space-md px-space-md text-on-surface font-medium">14:15:40.002</td>
-<td class="py-space-md px-space-md">
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container-high text-primary">CPU_WEIGHT_DEMOTE</span>
-</td>
-<td class="py-space-md px-space-md text-on-surface">
-<div class="font-semibold">/docker/c8f2a1b9e0f5...</div>
-<div class="text-[10px] text-outline">PID 19284 (python-worker)</div>
-</td>
-<td class="py-space-md px-space-md text-on-surface-variant">
-                cpu.weight: 100 -> <span class="text-on-surface font-semibold">25</span>
-</td>
-<td class="py-space-md px-space-md">
-<span class="flex items-center gap-1 text-on-surface-variant">
-<span class="material-symbols-outlined text-[14px]">history</span>
-                  Restored automatically
-                </span>
-</td>
-<td class="py-space-md px-space-md">
-<span class="text-outline">Expired & Rolled Back</span>
-</td>
-<td class="py-space-md px-space-md text-secondary font-bold">
-                +0.88 <span class="text-[10px] font-normal text-outline">(Stall avoided)</span>
-</td>
-</tr>
-<!-- Row 3: Buffer Cache Drop -->
-<tr class="hover:bg-surface-container-low/60 transition-colors">
-<td class="py-space-md px-space-md text-on-surface font-medium">13:58:12.780</td>
-<td class="py-space-md px-space-md">
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-surface-container text-on-surface-variant">BUFFER_CACHE_DROP</span>
-</td>
-<td class="py-space-md px-space-md text-on-surface">
-<div class="font-semibold">/user.slice/user-1000.slice</div>
-<div class="text-[10px] text-outline">PID 4912 (db-loader)</div>
-</td>
-<td class="py-space-md px-space-md text-on-surface-variant">
-                echo 1 > drop_caches
-              </td>
-<td class="py-space-md px-space-md">
-<span class="flex items-center gap-1 text-outline">
-<span class="material-symbols-outlined text-[14px]">check</span>
-                  Non-fatal
-                </span>
-</td>
-<td class="py-space-md px-space-md">
-<span class="text-outline">Permanent</span>
-</td>
-<td class="py-space-md px-space-md text-secondary font-bold">
-                +0.95 <span class="text-[10px] font-normal text-outline">(IO stall resolved)</span>
-</td>
-</tr>
-<!-- Row 4: Watchdog Heartbeat -->
-<tr class="hover:bg-surface-container-low/60 transition-colors">
-<td class="py-space-md px-space-md text-on-surface font-medium">12:40:02.100</td>
-<td class="py-space-md px-space-md">
-<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-container text-on-secondary-container">GUARD_HEARTBEAT</span>
-</td>
-<td class="py-space-md px-space-md text-on-surface">
-<div class="font-semibold">/system/tsuki-guard.service</div>
-<div class="text-[10px] text-outline">Watchdog (pidfd)</div>
-</td>
-<td class="py-space-md px-space-md text-on-surface-variant">
-                Rust Watchdog Verified (Ping 12ms)
-              </td>
-<td class="py-space-md px-space-md">
-<span class="flex items-center gap-1 text-secondary font-semibold">
-<span class="material-symbols-outlined text-[14px]">verified</span>
-                  Invariant OK
-                </span>
-</td>
-<td class="py-space-md px-space-md">
-<span class="text-secondary font-semibold">Continuous</span>
-</td>
-<td class="py-space-md px-space-md text-outline">
-                N/A
-              </td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Drawer Footer status bar -->
-<div class="px-space-md py-space-sm bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm text-outline font-code-sm text-code-sm">
-<div class="flex items-center gap-space-md">
-<span>Showing 4 active & historical events</span>
-<span class="hidden sm:inline">•</span>
-<span>Zero manual interventions required in 72h</span>
-</div>
-<div class="flex items-center gap-space-xs text-on-surface-variant">
-<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-<span>eBPF Rings flushed at ring_buffer__consume() tick</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<script>
-  // Dynamic countdown micro-interaction
-  let totalSeconds = 252; // 00:04:12
-
-  function updateCountdowns() {
-    if (totalSeconds <= 0) {
-      const elKpi = document.getElementById('countdown-kpi');
-      const elInc = document.getElementById('countdown-incident');
-      if (elKpi) elKpi.innerText = 'TTL EXPIRED (REVERTED)';
-      if (elInc) elInc.innerText = '00:00:00 (Reverted)';
-      return;
-    }
-    totalSeconds--;
-
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    const formatted = '00:' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-
-    const elKpi = document.getElementById('countdown-kpi');
-    const elInc = document.getElementById('countdown-incident');
-
-    if (elKpi) elKpi.innerText = 'TTL ' + formatted;
-    if (elInc) elInc.innerText = formatted + ' remaining';
-  }
-
-  setInterval(updateCountdowns, 1000);
-
-  // Live telemetry polling from FastAPI backend
-      function getAuthHeaders() {
-    const token = localStorage.getItem('tsuki_token') || 'tsuki-secure-dev-token';
-    return {
-      'Content-Type': 'application/json',
-      'X-Tsuki-Token': token,
-      'Authorization': 'Bearer ' + token
-    };
-  }
-  function getApiBase() {
-    return (localStorage.getItem('tsuki_api_url') || '').replace(/\/+$/, '');
-  }
-  async function fetchTelemetry() {
-    try {
-      const res = await fetch(getApiBase() + '/api/telemetry');
-      if (!res.ok) return;
-      const data = await res.json();
-
-      const hostEl = document.getElementById('top-host-val');
-      if (hostEl && data.host) hostEl.innerText = data.host;
-
-      const uptimeEl = document.getElementById('top-uptime-val');
-      if (uptimeEl && data.uptime) uptimeEl.innerText = data.uptime;
-
-      const psiEl = document.getElementById('top-psi-val');
-      if (psiEl && data.psi) {
-        const memSome = data.psi.memory_some || 0;
-        if (memSome > 10.0) {
-          psiEl.innerText = 'PSI ELEVATED (' + memSome.toFixed(2) + '% stall)';
-          psiEl.className = 'text-error font-label-sm text-label-sm';
-        } else {
-          psiEl.innerText = 'PSI NORMAL (' + memSome.toFixed(2) + '% stall)';
-          psiEl.className = 'text-secondary font-label-sm text-label-sm';
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ["Newsreader", "Georgia", "serif"],
+            sans: ["Space Grotesk", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+          },
+          colors: {
+            paper: "#F7F6F2",
+            ink: {
+              DEFAULT: "#141413",
+              soft: "#2A2A28",
+              muted: "#63635E",
+              faint: "#8E8E86",
+            },
+            accent: {
+              DEFAULT: "#006B44",
+              hover: "#005234",
+              light: "#EAF3ED",
+              border: "#9ECBB4",
+            },
+            amber: {
+              DEFAULT: "#A85208",
+              light: "#FDF5ED",
+            },
+            crimson: {
+              DEFAULT: "#9E1C24",
+              light: "#FBECEE",
+            },
+            border: {
+              DEFAULT: "#DEDCD4",
+              dark: "#141413",
+              subtle: "#EAE8E0",
+            }
+          }
         }
       }
-    } catch (e) {
-      console.debug('Telemetry poll error:', e);
     }
-  }
+  </script>
 
-  fetchTelemetry();
-  setInterval(fetchTelemetry, 3000);
+  <style>
+    :root {
+      --bg-paper: #F7F6F2;
+      --ink: #141413;
+      --border-crisp: #DEDCD4;
+      --accent-green: #006B44;
+    }
 
-  // Operator Actions wired to FastAPI backend
-  async function triggerPanic() {
-    const btn = document.getElementById('btn-panic');
-    const btnText = document.getElementById('btn-panic-text');
-    if (!confirm('⚠️ TRIGGER EMERGENCY TSUKI PANIC?\n\nThis will immediately revert all active cgroup throttles and latch actuation disabled.')) return;
-    try {
-      if (btnText) btnText.innerText = 'PANICKING...';
-      const res = await fetch(getApiBase() + '/api/panic/trigger', { method: 'POST', headers: getAuthHeaders() });
-      const data = await res.json();
-      totalSeconds = 0;
-      updateCountdowns();
-      alert('🚨 EMERGENCY PANIC ENGAGED\n\n' + (data.message || 'Actuation latched closed.'));
-      if (btn && btnText) {
-        btnText.innerText = 'PANIC LATCHED';
-        btn.classList.remove('bg-error-container', 'text-on-error-container');
-        btn.classList.add('bg-error', 'text-on-error');
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle Architectural Rule Grid (1px solid crisp lines) */
+    .bg-editorial-grid {
+      background-size: 48px 48px;
+      background-image: 
+        linear-gradient(to right, rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
+    }
+
+    .panel-editorial {
+      background: #FFFFFF;
+      border: 1px solid var(--border-crisp);
+      border-radius: 0px;
+    }
+
+    .panel-editorial-subtle {
+      background: #F1EFEA;
+      border: 1px solid var(--border-crisp);
+      border-radius: 0px;
+    }
+
+    .panel-dark {
+      background: #141413;
+      color: #F7F6F2;
+      border: 1px solid #2A2A28;
+      border-radius: 0px;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Single high-res dark watermark matching landing page */
+    .editorial-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(520px, 80vw);
+      height: auto;
+      opacity: 0.16;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-[#006B44] selection:text-white">
+
+  <!-- Watermark & Blueprint Layer (Centered, Single Asset, Same as Landing Page) -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center pl-0 lg:pl-64 pt-16">
+    <div class="absolute inset-0 bg-editorial-grid"></div>
+    <img src="assets/watermark.png?v=2" alt="" aria-hidden="true" class="editorial-watermark" />
+  </div>
+
+  <!-- TOP BAR (Edge-to-Edge, Same Style as Landing Page) -->
+  <header class="fixed top-0 left-0 right-0 h-16 z-50 bg-[#F7F6F2]/95 backdrop-blur-sm border-b border-[#DEDCD4]">
+    <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Monogram & Classification -->
+      <div class="flex items-center gap-3.5">
+        <a href="landing_page.html" class="flex items-center gap-3 group" title="Return to Product Page">
+          <img src="assets/logo.png?v=4" alt="Tsuki Monogram" class="h-10 w-auto object-contain shrink-0" />
+          <div class="flex items-baseline gap-2">
+            <span class="font-serif font-semibold text-2xl tracking-tight text-[#141413]">Tsuki</span>
+            <span class="font-mono text-xs text-[#63635E] font-bold tracking-wider uppercase">// CONTROL PLANE</span>
+          </div>
+        </a>
+
+        <div class="hidden xl:flex items-center px-2 py-0.5 rounded-[1px] bg-[#F1EFEA] border border-[#DEDCD4] text-[#63635E] font-mono text-[11px]">
+          v1.0 • eBPF CO-RE
+        </div>
+
+        <div class="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-[1px] bg-[#EAF3ED] text-[#006B44] border border-[#9ECBB4] font-mono text-[11px] font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#006B44] animate-pulse"></span>
+          GUARD PLANE: ARMED &amp; LOCKED
+        </div>
+      </div>
+
+      <!-- Live Telemetry Health Indicators -->
+      <div class="hidden 2xl:flex items-center gap-6 font-mono text-xs text-[#63635E]">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[#8E8E86]">HOST:</span>
+          <span id="top-host-val" class="text-[#141413] font-semibold">prod-kernel-6.8-x86_64</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[#8E8E86]">UPTIME:</span>
+          <span id="top-uptime-val" class="text-[#141413] font-semibold">14d 06h 22m</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[#8E8E86]">PSI:</span>
+          <span id="top-psi-val" class="text-[#006B44] font-semibold">PSI NORMAL (0.00% stall)</span>
+        </div>
+      </div>
+
+      <!-- Right Action: Emergency Panic Killswitch & Product Link -->
+      <div class="flex items-center gap-3">
+        <button id="btn-panic" onclick="triggerPanic()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] bg-[#FBECEE] text-[#9E1C24] hover:bg-[#9E1C24] hover:text-white border border-[#9E1C24]/40 font-mono text-xs font-semibold tracking-wider transition-colors cursor-pointer" type="button">
+          <span class="material-symbols-outlined text-[15px]">shield</span>
+          <span id="btn-panic-text">TSUKI PANIC</span>
+        </button>
+        <a href="landing_page.html" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-mono font-medium text-[#141413] border border-[#DEDCD4] hover:border-[#141413] bg-white rounded-[2px] transition-colors">
+          OVERVIEW →
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- SIDEBAR NAVIGATION (Sharp 1px Borders, Warm Paper Tone) -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-[#F1EFEA] border-r border-[#DEDCD4] z-40 flex flex-col justify-between py-6">
+    <div class="flex flex-col gap-6">
+      
+      <!-- Remediation Section -->
+      <div class="px-5">
+        <div class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-semibold mb-2.5">
+          Remediation Planes
+        </div>
+        <nav class="flex flex-col gap-1">
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="bootloader.html">
+            <span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+            <span>Bootloader Check</span>
+          </a>
+          <a aria-current="page" class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono font-semibold bg-[#141413] text-white border border-[#141413] rounded-[1px] transition-all" href="cockpit.html">
+            <span class="material-symbols-outlined text-[16px]">monitoring</span>
+            <span>Autonomous Cockpit</span>
+          </a>
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="audit.html">
+            <span class="material-symbols-outlined text-[16px]">history_toggle_off</span>
+            <span>Audit Trail</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Governance Section -->
+      <div class="px-5">
+        <div class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-semibold mb-2.5">
+          System Governance
+        </div>
+        <nav class="flex flex-col gap-1">
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="telemetry.html">
+            <span class="material-symbols-outlined text-[16px]">radar</span>
+            <span>Telemetry &amp; Probes</span>
+          </a>
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="settings.html">
+            <span class="material-symbols-outlined text-[16px]">tune</span>
+            <span>Settings</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Bottom Status Card -->
+    <div class="px-5">
+      <div class="p-3 bg-white border border-[#DEDCD4] rounded-[2px]">
+        <div class="flex items-center justify-between mb-1.5 font-mono text-xs">
+          <span class="text-[#141413] font-semibold">eBPF Rings</span>
+          <span class="text-[#006B44] font-bold">[ONLINE]</span>
+        </div>
+        <div class="w-full bg-[#EAE8E0] h-1.5 rounded-[1px] overflow-hidden mb-2">
+          <div class="bg-[#006B44] h-1.5" style="width: 80%"></div>
+        </div>
+        <div class="flex justify-between font-mono text-[10px] text-[#63635E]">
+          <span>Buffer: 64MB</span>
+          <span>0.12ms Latency</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN COCKPIT VIEWPORT -->
+  <div class="pl-0 lg:pl-64">
+    <main class="relative z-10 pt-20 px-4 sm:px-6 lg:px-8 pb-12 max-w-[1600px]">
+      
+      <!-- Cockpit State Status Strip -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 mb-4 border-b border-[#DEDCD4]">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2 px-2.5 py-1 rounded-[1px] bg-white border border-[#DEDCD4] font-mono text-xs text-[#141413]">
+            <span class="w-2 h-2 rounded-full bg-[#006B44] animate-ping"></span>
+            <span>AUTONOMOUS_LOOP_01 // RUNNING</span>
+          </div>
+          <div class="hidden sm:flex items-center gap-1.5 text-xs font-mono text-[#63635E]">
+            <span class="text-[#141413] font-semibold">cgroup_v2:</span>
+            <span>unified hierarchy</span>
+          </div>
+          <div class="hidden md:flex items-center gap-1.5 text-xs font-mono text-[#63635E]">
+            <span class="text-[#006B44] font-semibold">pidfd check:</span>
+            <span>STRICT</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 font-mono text-xs text-[#63635E]">
+          <div>
+            <span class="text-[#8E8E86]">POLICIES:</span>
+            <span class="font-bold text-[#141413]">14 REVERSIBLE</span>
+          </div>
+          <div>
+            <span class="text-[#8E8E86]">BANDIT:</span>
+            <span class="font-bold text-[#006B44]">α=124 β=8 (EXPLORE 2.4%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. TOP KPI METRIC CARDS (4 Sharp Editorial Panels) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        
+        <!-- Card 1: Guard Plane Overhead -->
+        <div class="panel-editorial p-4 border border-[#DEDCD4] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider font-semibold">Guard Plane Overhead</span>
+              <span class="px-1.5 py-0.2 rounded-[1px] text-[10px] font-mono font-semibold bg-[#EAF3ED] text-[#006B44] border border-[#9ECBB4]">SUB-1% BOUNDED</span>
+            </div>
+            <div class="flex items-baseline gap-2 my-1">
+              <span class="font-mono text-3xl font-bold text-[#141413] tracking-tight tabular-nums">0.18%</span>
+              <span class="font-mono text-xs text-[#63635E]">CPU (≤1.0% limit)</span>
+            </div>
+            <div class="font-mono text-xs text-[#63635E]">
+              RSS: <strong class="text-[#141413]">42 MB</strong> <span class="text-[10px]">(Pinned via mlockall)</span>
+            </div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-[#DEDCD4] flex items-center justify-between">
+            <svg class="w-24 h-5 text-[#141413]" fill="none" viewBox="0 0 112 24">
+              <path d="M0 16 L20 16 L35 15 L50 16 L65 14 L80 16 L95 15 L112 16" stroke="currentColor" stroke-linecap="round" stroke-width="1.75"></path>
+              <circle class="fill-[#141413]" cx="112" cy="16" r="2.5"></circle>
+            </svg>
+            <span class="font-mono text-[10px] text-[#006B44] font-semibold">ZERO_PAGE_FAULT</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Inference Latency -->
+        <div class="panel-editorial p-4 border border-[#DEDCD4] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider font-semibold">Inference Latency</span>
+              <span class="px-1.5 py-0.2 rounded-[1px] text-[10px] font-mono font-semibold bg-[#EAF3ED] text-[#006B44] border border-[#9ECBB4]">REAL-TIME VERIFIED</span>
+            </div>
+            <div class="flex items-baseline gap-2 my-1">
+              <span class="font-mono text-3xl font-bold text-[#141413] tracking-tight tabular-nums">2.1 <span class="text-xl">ms</span></span>
+              <span class="font-mono text-xs text-[#63635E]">p99 (≤5.0ms)</span>
+            </div>
+            <div class="font-mono text-xs text-[#63635E]">
+              Engine: <strong class="text-[#141413]">ONNX Runtime INT8 TCN</strong>
+            </div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-[#DEDCD4] flex items-center justify-between">
+            <div class="flex items-end gap-1 h-5">
+              <div class="w-1.5 bg-[#006B44]/30 h-2"></div>
+              <div class="w-1.5 bg-[#006B44]/50 h-3"></div>
+              <div class="w-1.5 bg-[#006B44]/80 h-4"></div>
+              <div class="w-1.5 bg-[#006B44] h-5"></div>
+              <div class="w-1.5 bg-[#006B44]/60 h-3.5"></div>
+              <div class="w-1.5 bg-[#006B44]/30 h-1.5"></div>
+            </div>
+            <span class="font-mono text-[10px] text-[#63635E]">Tick: 100Hz eBPF</span>
+          </div>
+        </div>
+
+        <!-- Card 3: System Health Index -->
+        <div class="panel-editorial p-4 border border-[#DEDCD4] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider font-semibold">System Health Index</span>
+              <span class="px-1.5 py-0.2 rounded-[1px] text-[10px] font-mono font-semibold bg-[#F1EFEA] text-[#141413] border border-[#DEDCD4]">OS-FaultBench</span>
+            </div>
+            <div class="flex items-baseline gap-2 my-1">
+              <span class="font-mono text-3xl font-bold text-[#006B44] tracking-tight tabular-nums">99.4%</span>
+              <span class="font-mono text-xs text-[#006B44] font-semibold">+0.2% vs 24h</span>
+            </div>
+            <div class="font-mono text-xs text-[#63635E]">
+              Zero fatal OOM panics in 14d
+            </div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-[#DEDCD4] flex items-center justify-between">
+            <div class="w-full bg-[#EAE8E0] h-1.5 mr-3 rounded-[1px] overflow-hidden">
+              <div class="bg-[#006B44] h-1.5" style="width: 99.4%"></div>
+            </div>
+            <span class="font-mono text-[11px] text-[#006B44] font-bold shrink-0">OPTIMAL</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Active Enforcements -->
+        <div class="panel-editorial p-4 border border-[#DEDCD4] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider font-semibold">Active Enforcements</span>
+              <span class="px-1.5 py-0.2 rounded-[1px] text-[10px] font-mono font-semibold bg-[#FDF5ED] text-[#A85208] border border-[#A85208]/30 animate-pulse">1 THROTTLED</span>
+            </div>
+            <div class="flex items-baseline gap-2 my-1">
+              <span class="font-mono text-lg font-bold text-[#141413] truncate tracking-tight">build-worker.service</span>
+            </div>
+            <div class="font-mono text-xs text-[#63635E] truncate">
+              /system.slice/build-worker.service
+            </div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-[#DEDCD4] flex items-center justify-between font-mono text-xs">
+            <span class="text-[#A85208] font-bold" id="countdown-kpi">TTL 00:04:12</span>
+            <span class="text-[10px] text-[#006B44] font-semibold">[REVERSIBLE]</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 2. CENTER SPLIT STAGE: TELEMETRY & LIVE INCIDENT -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mb-6">
+        
+        <!-- Left: Telemetry & Predictive Horizon (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="panel-editorial p-5 border border-[#DEDCD4]">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-[#DEDCD4]">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="font-serif text-xl font-bold text-[#141413]">Kernel PSI Telemetry &amp; Predictive Horizon</h2>
+                  <span class="px-1.5 py-0.2 rounded-[1px] bg-[#F1EFEA] border border-[#DEDCD4] font-mono text-[10px] font-semibold">15M WINDOW</span>
+                </div>
+                <p class="font-mono text-xs text-[#63635E] mt-0.5">
+                  Full &amp; Some stall ratios polled from /proc/pressure/ at 100ms ring buffer resolution
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2 font-mono text-xs">
+                <span class="flex items-center gap-1 text-[#141413]"><span class="w-2.5 h-0.5 bg-[#141413]"></span> Mem Full</span>
+                <span class="flex items-center gap-1 text-[#006B44]"><span class="w-2.5 h-0.5 bg-[#006B44]"></span> CPU Stall</span>
+                <span class="flex items-center gap-1 text-[#A85208]"><span class="w-2.5 h-0.5 bg-[#A85208]"></span> I/O Wait</span>
+              </div>
+            </div>
+
+            <!-- Vector Telemetry Chart -->
+            <div class="relative w-full aspect-[2/1] min-h-[260px] max-h-[320px] bg-[#FBFBF9] border border-[#EAE8E0] p-3 flex flex-col justify-between">
+              <svg class="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 600 240">
+                <line x1="0" y1="40" x2="600" y2="40" stroke="#DEDCD4" stroke-width="0.75" stroke-dasharray="2 2"></line>
+                <line x1="0" y1="80" x2="600" y2="80" stroke="#DEDCD4" stroke-width="0.75" stroke-dasharray="2 2"></line>
+                <line x1="0" y1="120" x2="600" y2="120" stroke="#DEDCD4" stroke-width="0.75" stroke-dasharray="2 2"></line>
+                <line x1="0" y1="160" x2="600" y2="160" stroke="#DEDCD4" stroke-width="0.75" stroke-dasharray="2 2"></line>
+
+                <!-- 50% Danger line -->
+                <line x1="0" y1="60" x2="600" y2="60" stroke="#9E1C24" stroke-width="1.2" stroke-dasharray="4 3" stroke-opacity="0.7"></line>
+                <!-- 25% Trigger line -->
+                <line x1="0" y1="120" x2="600" y2="120" stroke="#A85208" stroke-width="1.2" stroke-dasharray="4 3" stroke-opacity="0.7"></line>
+                <!-- Baseline -->
+                <line x1="0" y1="210" x2="600" y2="210" stroke="#DEDCD4" stroke-width="1"></line>
+
+                <!-- Memory Pressure Curve (Solid Ink Stroke) -->
+                <path d="M 0 205 Q 60 202 120 204 T 240 198 T 330 180 T 400 135 T 450 78 T 490 85 T 530 160 T 600 190" stroke="#141413" stroke-width="2.4" stroke-linecap="round"></path>
+                <!-- CPU Stall (Forest Green) -->
+                <path d="M 0 208 Q 90 207 180 206 T 320 200 T 420 185 T 470 145 T 520 180 T 600 202" stroke="#006B44" stroke-width="1.8" stroke-dasharray="3 2"></path>
+                <!-- I/O Stall (Burnt Amber) -->
+                <path d="M 0 209 Q 80 208 170 205 T 310 195 T 410 165 T 460 110 T 510 160 T 600 195" stroke="#A85208" stroke-width="1.8"></path>
+
+                <!-- Trigger Flag Line -->
+                <line x1="450" y1="20" x2="450" y2="210" stroke="#9E1C24" stroke-width="1.5" stroke-dasharray="3 3"></line>
+                <circle cx="450" cy="78" r="4.5" fill="#9E1C24" stroke="#FFFFFF" stroke-width="1.5"></circle>
+                <circle cx="530" cy="160" r="3.5" fill="#006B44" stroke="#FFFFFF" stroke-width="1.5"></circle>
+              </svg>
+
+              <!-- Threshold Labels -->
+              <div class="absolute top-3 left-4 flex flex-col gap-1 pointer-events-none font-mono text-[10px]">
+                <span class="text-[#9E1C24] font-semibold">50% Thrash Hazard Boundary</span>
+                <span class="text-[#A85208] font-semibold">25% TCN Predictive Trigger Zone (10–30s prior)</span>
+              </div>
+
+              <!-- Time Horizon Scale -->
+              <div class="w-full flex items-center justify-between font-mono text-[10px] text-[#63635E] pt-1 border-t border-[#DEDCD4] tabular-nums">
+                <span>-15m 00s</span>
+                <span>-10m 00s</span>
+                <span>-05m 00s</span>
+                <span class="text-[#141413] font-bold">TCN Alert Fired (-30s)</span>
+                <span class="text-[#006B44] font-bold">NOW (Live)</span>
+              </div>
+            </div>
+
+            <!-- Algorithm spec footer -->
+            <div class="mt-3 pt-3 border-t border-[#DEDCD4] flex flex-wrap items-center justify-between font-mono text-xs text-[#63635E]">
+              <div>
+                <span class="text-[#8E8E86]">Algorithm:</span>
+                <span class="text-[#141413] font-semibold">Temporal Convolutional Network (k=3, d=1..8)</span>
+              </div>
+              <div>
+                <span class="text-[#8E8E86]">False Positive Rate:</span>
+                <span class="text-[#006B44] font-semibold">&lt; 0.08% on Linux 6.8</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Micro Gauges (3 Editorial Panels) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="panel-editorial p-3 border border-[#DEDCD4]">
+              <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">eBPF Runqueue Delay</div>
+              <div class="font-mono text-xl font-bold text-[#141413] tabular-nums">4.2 <span class="text-xs font-normal text-[#63635E]">µs (p95)</span></div>
+              <div class="font-mono text-[11px] text-[#006B44] mt-1 font-semibold">[PASS] Nominal</div>
+            </div>
+            <div class="panel-editorial p-3 border border-[#DEDCD4]">
+              <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">Page Scan Velocity</div>
+              <div class="font-mono text-xl font-bold text-[#141413] tabular-nums">1,840 <span class="text-xs font-normal text-[#63635E]">pages/s</span></div>
+              <div class="font-mono text-[11px] text-[#A85208] mt-1 font-semibold">[WARN] kswapd scanning</div>
+            </div>
+            <div class="panel-editorial p-3 border border-[#DEDCD4]">
+              <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">Kernel Lock Waits</div>
+              <div class="font-mono text-xl font-bold text-[#141413] tabular-nums">0.8 <span class="text-xs font-normal text-[#63635E]">ms (max)</span></div>
+              <div class="font-mono text-[11px] text-[#006B44] mt-1 font-semibold">[PASS] futex healthy</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Active Incident & Causal Reasoning Plane (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <div class="panel-editorial p-5 border-2 border-[#9E1C24] bg-white">
+            
+            <!-- Incident Header -->
+            <div class="flex items-start justify-between pb-3 mb-3 border-b border-[#DEDCD4]">
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[1px] bg-[#FBECEE] text-[#9E1C24] border border-[#9E1C24]/30 font-mono text-[10px] font-bold">
+                  PREDICTED MEMORY THRASHING
+                </div>
+                <div class="font-mono text-xs font-bold text-[#9E1C24] mt-1">
+                  RISK SCORE: 0.94 // CRITICAL STALL IMMINENT
+                </div>
+              </div>
+              <span class="font-mono text-xs px-2 py-0.5 bg-[#F1EFEA] border border-[#DEDCD4] text-[#141413] font-semibold">INC-8921</span>
+            </div>
+
+            <!-- Target Process Monospace Block -->
+            <div class="p-3 bg-[#F1EFEA] border border-[#DEDCD4] font-mono text-xs mb-3 space-y-1">
+              <div class="flex items-center justify-between font-bold text-[#141413]">
+                <span>Target: cc1plus</span>
+                <span class="text-[#63635E]">PID: 38412</span>
+              </div>
+              <div class="text-[#63635E] truncate">
+                cgroup: <span class="text-[#141413]">/system.slice/build-worker.service</span>
+              </div>
+              <div class="text-[10px] text-[#8E8E86]">
+                ppid: 38100 (ninja) • user: builder (1001) • numa_node: 0
+              </div>
+            </div>
+
+            <!-- Causal Reasoning Evidence -->
+            <div class="mb-3">
+              <div class="font-mono text-[10px] font-bold text-[#006B44] uppercase tracking-wider mb-1">
+                REASONING PLANE // CITED KERNEL EVIDENCE
+              </div>
+              <p class="p-3 bg-[#FBFBF9] border border-[#DEDCD4] text-xs font-sans text-[#2A2A28] leading-relaxed">
+                "High anon-RSS velocity <strong class="text-[#9E1C24]">(420 MB/s)</strong> coinciding with page fault stall spikes <strong class="text-[#A85208]">(PSI full: 38%)</strong>. High confidence memory leak detected in template expansion compilation unit."
+              </p>
+            </div>
+
+            <!-- Prescribed Remediation -->
+            <div class="mb-3">
+              <div class="font-mono text-[10px] font-bold text-[#141413] uppercase tracking-wider mb-1">
+                PRESCRIBED REMEDIATION (REVERSIBLE EXECUTION)
+              </div>
+              <div class="p-3 bg-[#F1EFEA] border border-[#DEDCD4] font-mono text-xs text-[#141413]">
+                Apply reversible <strong class="text-[#006B44]">memory.high throttle (4.0 GiB)</strong> &amp; demote <strong class="text-[#A85208]">cpu.weight to 20</strong> (TTL: 300s).
+              </div>
+            </div>
+
+            <!-- Verification Assertion -->
+            <div class="p-2.5 bg-[#EAF3ED] border border-[#9ECBB4] text-[#006B44] font-mono text-[11px] mb-3 flex items-center gap-2">
+              <span class="font-bold">[VERIFIED]</span>
+              <span>PID confirmed via pidfd_open. Target not in system whitelist.</span>
+            </div>
+
+            <!-- Remediation Countdown -->
+            <div class="mb-4">
+              <div class="flex justify-between font-mono text-xs mb-1">
+                <span class="text-[#63635E]">Remediation Lease Grace:</span>
+                <span class="text-[#A85208] font-bold" id="countdown-incident">00:04:12 remaining</span>
+              </div>
+              <div class="w-full bg-[#EAE8E0] h-1.5 rounded-[1px] overflow-hidden">
+                <div class="bg-[#A85208] h-1.5" style="width: 84%"></div>
+              </div>
+            </div>
+
+            <!-- Action Controls (Sharp 2px radius buttons) -->
+            <div class="grid grid-cols-3 gap-2 font-mono text-xs">
+              <button id="btn-extend" onclick="extendLease()" class="px-3 py-2 bg-[#141413] hover:bg-[#2A2A28] text-white border border-[#141413] rounded-[2px] transition-colors font-medium">
+                <span id="btn-extend-text">Extend (+300s)</span>
+              </button>
+              <button id="btn-trace" onclick="traceIncident()" class="px-3 py-2 bg-white hover:bg-[#F1EFEA] text-[#141413] border border-[#DEDCD4] rounded-[2px] transition-colors font-medium">
+                Trace PID
+              </button>
+              <button id="btn-rollback" onclick="rollbackRemediation()" class="px-3 py-2 bg-[#FBECEE] hover:bg-[#9E1C24] hover:text-white text-[#9E1C24] border border-[#9E1C24]/30 rounded-[2px] transition-colors font-medium">
+                <span id="btn-rollback-text">Rollback</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Real-Time Activity Ticker -->
+          <div class="p-3 bg-white border border-[#DEDCD4] font-mono text-xs flex items-center justify-between">
+            <div class="flex items-center gap-2 truncate">
+              <span class="text-[#006B44] font-bold">LATEST:</span>
+              <span class="text-[#63635E] truncate">memory.high write verified to /sys/fs/cgroup/system.slice...</span>
+            </div>
+            <span class="text-[11px] text-[#8E8E86] ml-2 shrink-0">14:32:08.114</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 3. BOTTOM AUDIT TRAIL TABLE (High-Density Monospace Editorial Ledger) -->
+      <div class="panel-editorial border border-[#DEDCD4] overflow-hidden mb-6">
+        
+        <!-- Table Header & Controls -->
+        <div class="p-4 bg-[#F1EFEA] border-b border-[#DEDCD4] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs font-bold text-[#141413] uppercase tracking-wider">
+              Reversible Remediation Journal (SQLite Audit Ledger)
+            </span>
+            <span class="w-2 h-2 rounded-full bg-[#006B44]"></span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input class="px-3 py-1 bg-white text-[#141413] font-mono text-xs border border-[#DEDCD4] rounded-[1px] w-64 focus:outline-none focus:border-[#141413]" placeholder="Filter cgroup, PID, action..." type="text"/>
+            <button class="px-2.5 py-1 text-xs font-mono text-[#63635E] hover:text-[#141413] border border-[#DEDCD4] bg-white rounded-[1px]" type="button">
+              FILTER
+            </button>
+          </div>
+        </div>
+
+        <!-- Ledger Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-mono text-xs border-collapse">
+            <thead>
+              <tr class="bg-[#FBFBF9] border-b border-[#DEDCD4] text-[11px] text-[#63635E] uppercase tracking-wider">
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Timestamp</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Event Type</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Target Slice / PID</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Actuation Limit</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Reversibility</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">TTL Lease</th>
+                <th class="py-2.5 px-4">Bandit Reward</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#DEDCD4]">
+              
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4] tabular-nums">14:32:08.114</td>
+                <td class="py-3 px-4 border-r border-[#DEDCD4]">
+                  <span class="px-1.5 py-0.2 rounded-[1px] bg-[#FBECEE] text-[#9E1C24] font-bold text-[10px]">MEMORY_HIGH_SET</span>
+                </td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">
+                  <div class="font-semibold">/system.slice/build-worker.service</div>
+                  <div class="text-[10px] text-[#63635E]">PID 38412 (cc1plus)</div>
+                </td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">
+                  Throttled memory.high to <strong class="text-[#141413]">4.0 GiB</strong>
+                </td>
+                <td class="py-3 px-4 text-[#006B44] font-semibold border-r border-[#DEDCD4]">
+                  [ACTIVE] Reversible (cgroup v2)
+                </td>
+                <td class="py-3 px-4 text-[#A85208] font-bold border-r border-[#DEDCD4] tabular-nums">
+                  00:04:12 ACTIVE
+                </td>
+                <td class="py-3 px-4 text-[#006B44] font-bold tabular-nums">
+                  +0.92 <span class="text-[10px] font-normal text-[#63635E]">(PSI -84%)</span>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4] tabular-nums">14:15:40.002</td>
+                <td class="py-3 px-4 border-r border-[#DEDCD4]">
+                  <span class="px-1.5 py-0.2 rounded-[1px] bg-[#F1EFEA] text-[#141413] font-bold text-[10px]">CPU_WEIGHT_DEMOTE</span>
+                </td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">
+                  <div class="font-semibold">/docker/c8f2a1b9e0f5...</div>
+                  <div class="text-[10px] text-[#63635E]">PID 19284 (python-worker)</div>
+                </td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">
+                  cpu.weight: 100 → <strong class="text-[#141413]">25</strong>
+                </td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">
+                  Auto-Restored
+                </td>
+                <td class="py-3 px-4 text-[#8E8E86] border-r border-[#DEDCD4]">
+                  Expired (300s TTL)
+                </td>
+                <td class="py-3 px-4 text-[#006B44] font-bold tabular-nums">
+                  +0.88 <span class="text-[10px] font-normal text-[#63635E]">(Stall avoided)</span>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4] tabular-nums">13:58:12.780</td>
+                <td class="py-3 px-4 border-r border-[#DEDCD4]">
+                  <span class="px-1.5 py-0.2 rounded-[1px] bg-[#F1EFEA] text-[#141413] font-bold text-[10px]">BUFFER_CACHE_DROP</span>
+                </td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">
+                  <div class="font-semibold">/user.slice/user-1000.slice</div>
+                  <div class="text-[10px] text-[#63635E]">PID 4912 (db-loader)</div>
+                </td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">
+                  echo 1 &gt; drop_caches
+                </td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">
+                  Non-fatal
+                </td>
+                <td class="py-3 px-4 text-[#8E8E86] border-r border-[#DEDCD4]">
+                  Permanent
+                </td>
+                <td class="py-3 px-4 text-[#006B44] font-bold tabular-nums">
+                  +0.95 <span class="text-[10px] font-normal text-[#63635E]">(I/O resolved)</span>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer -->
+        <div class="p-3 bg-[#F1EFEA] border-t border-[#DEDCD4] flex items-center justify-between font-mono text-[11px] text-[#63635E]">
+          <div>Showing 3 journal entries • Zero manual interventions required in 72h</div>
+          <div class="text-[#006B44] font-semibold">eBPF ring buffer synchronized</div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- INTERACTIVITY & FASTAPI BACKEND CLIENT SCRIPT -->
+  <script>
+    let totalSeconds = 252; // 00:04:12
+
+    function updateCountdowns() {
+      if (totalSeconds <= 0) {
+        const elKpi = document.getElementById('countdown-kpi');
+        const elInc = document.getElementById('countdown-incident');
+        if (elKpi) elKpi.innerText = 'TTL EXPIRED (REVERTED)';
+        if (elInc) elInc.innerText = '00:00:00 (Reverted)';
+        return;
       }
-    } catch (err) {
-      alert('Error triggering panic: ' + err);
-    }
-  }
+      totalSeconds--;
 
-  async function extendLease() {
-    const btnText = document.getElementById('btn-extend-text');
-    try {
-      const res = await fetch(getApiBase() + '/api/remediation/extend', { method: 'POST', headers: getAuthHeaders() });
-      const data = await res.json();
-      totalSeconds += 300;
-      updateCountdowns();
-      if (btnText) {
-        btnText.innerText = 'Extended (+300s)';
-        setTimeout(() => { if (btnText) btnText.innerText = 'Extend (+300s)'; }, 2000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      const formatted = '00:' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+
+      const elKpi = document.getElementById('countdown-kpi');
+      const elInc = document.getElementById('countdown-incident');
+
+      if (elKpi) elKpi.innerText = 'TTL ' + formatted;
+      if (elInc) elInc.innerText = formatted + ' remaining';
+    }
+
+    setInterval(updateCountdowns, 1000);
+
+    function getAuthHeaders() {
+      const token = localStorage.getItem('tsuki_token') || 'tsuki-secure-dev-token';
+      return {
+        'Content-Type': 'application/json',
+        'X-Tsuki-Token': token,
+        'Authorization': 'Bearer ' + token
+      };
+    }
+
+    function getApiBase() {
+      return (localStorage.getItem('tsuki_api_url') || '').replace(/\/+$/, '');
+    }
+
+    async function fetchTelemetry() {
+      try {
+        const res = await fetch(getApiBase() + '/api/telemetry');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const hostEl = document.getElementById('top-host-val');
+        if (hostEl && data.host) hostEl.innerText = data.host;
+
+        const uptimeEl = document.getElementById('top-uptime-val');
+        if (uptimeEl && data.uptime) uptimeEl.innerText = data.uptime;
+
+        const psiEl = document.getElementById('top-psi-val');
+        if (psiEl && data.psi) {
+          const memSome = data.psi.memory_some || 0;
+          if (memSome > 10.0) {
+            psiEl.innerText = 'PSI ELEVATED (' + memSome.toFixed(2) + '% stall)';
+            psiEl.className = 'text-[#9E1C24] font-semibold';
+          } else {
+            psiEl.innerText = 'PSI NORMAL (' + memSome.toFixed(2) + '% stall)';
+            psiEl.className = 'text-[#006B44] font-semibold';
+          }
+        }
+      } catch (e) {
+        console.debug('Telemetry poll error:', e);
       }
-    } catch (err) {
-      alert('Failed to extend lease: ' + err);
     }
-  }
 
-  async function rollbackRemediation() {
-    const btnText = document.getElementById('btn-rollback-text');
-    if (!confirm('Rollback active remediation (/sys/fs/cgroup/...)?')) return;
-    try {
-      const res = await fetch(getApiBase() + '/api/remediation/rollback', { method: 'POST', headers: getAuthHeaders() });
-      const data = await res.json();
-      totalSeconds = 0;
-      updateCountdowns();
-      if (btnText) btnText.innerText = 'Rolled Back';
-      alert('✅ Remediation rolled back:\n' + (data.message || 'cgroup restored'));
-    } catch (err) {
-      alert('Failed to rollback: ' + err);
+    fetchTelemetry();
+    setInterval(fetchTelemetry, 3000);
+
+    async function triggerPanic() {
+      const btn = document.getElementById('btn-panic');
+      const btnText = document.getElementById('btn-panic-text');
+      if (!confirm('⚠️ TRIGGER EMERGENCY TSUKI PANIC?\n\nThis will immediately revert all active cgroup throttles and latch actuation disabled.')) return;
+      try {
+        if (btnText) btnText.innerText = 'PANICKING...';
+        const res = await fetch(getApiBase() + '/api/panic/trigger', { method: 'POST', headers: getAuthHeaders() });
+        const data = await res.json();
+        totalSeconds = 0;
+        updateCountdowns();
+        alert('🚨 EMERGENCY PANIC ENGAGED\n\n' + (data.message || 'Actuation latched closed.'));
+        if (btn && btnText) {
+          btnText.innerText = 'PANIC LATCHED';
+          btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] bg-[#9E1C24] text-white border border-[#9E1C24] font-mono text-xs font-semibold tracking-wider';
+        }
+      } catch (err) {
+        alert('Error triggering panic: ' + err);
+      }
     }
-  }
 
-  function traceIncident() {
-    alert('Tracing Incident INC-2026-11-8402:\nTarget: /sys/fs/cgroup/system.slice/production-worker.service\neBPF Trace: sched_switch, memory.high (800MB limit active)');
-  }
-</script></main></div></body></html>
+    async function extendLease() {
+      const btnText = document.getElementById('btn-extend-text');
+      try {
+        const res = await fetch(getApiBase() + '/api/remediation/extend', { method: 'POST', headers: getAuthHeaders() });
+        const data = await res.json();
+        totalSeconds += 300;
+        updateCountdowns();
+        if (btnText) {
+          btnText.innerText = 'Extended (+300s)';
+          setTimeout(() => { if (btnText) btnText.innerText = 'Extend (+300s)'; }, 2000);
+        }
+      } catch (err) {
+        alert('Failed to extend lease: ' + err);
+      }
+    }
+
+    async function rollbackRemediation() {
+      const btnText = document.getElementById('btn-rollback-text');
+      if (!confirm('Rollback active remediation (/sys/fs/cgroup/...)?')) return;
+      try {
+        const res = await fetch(getApiBase() + '/api/remediation/rollback', { method: 'POST', headers: getAuthHeaders() });
+        const data = await res.json();
+        totalSeconds = 0;
+        updateCountdowns();
+        if (btnText) btnText.innerText = 'Rolled Back';
+        alert('✅ Remediation rolled back:\n' + (data.message || 'cgroup restored'));
+      } catch (err) {
+        alert('Failed to rollback: ' + err);
+      }
+    }
+
+    function traceIncident() {
+      alert('Tracing Incident INC-8921:\nTarget: /sys/fs/cgroup/system.slice/build-worker.service\neBPF Trace: sched_switch, memory.high (4GiB throttle active)');
+    }
+  </script>
+</body>
+</html>
