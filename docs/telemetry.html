@@ -1,463 +1,394 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Tsuki Control Plane — eBPF Telemetry &amp; Kernel Probes</title>
+  
+  <!-- Typography: Newsreader, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.tabular-nums{font-variant-numeric:tabular-nums;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-variant":"#d3e4fe","secondary":"#006c49","secondary-container":"#6cf8bb","on-tertiary-container":"#fffbff","on-primary-container":"#fdfcff","outline-variant":"#bfc7d2","on-primary-fixed-variant":"#004b73","outline":"#707881","background":"#f8f9ff","inverse-on-surface":"#eaf1ff","tertiary-fixed":"#ffdcc3","on-primary":"#ffffff","on-tertiary-fixed":"#2f1500","tertiary":"#8d4b00","tertiary-fixed-dim":"#ffb77d","primary-fixed":"#cce5ff","surface-container-lowest":"#ffffff","surface-container-high":"#dce9ff","surface-tint":"#006398","tertiary-container":"#b15f00","on-background":"#0b1c30","on-secondary":"#ffffff","secondary-fixed-dim":"#4edea3","on-tertiary":"#ffffff","primary-container":"#007bb9","on-secondary-fixed":"#002113","on-error":"#ffffff","secondary-fixed":"#6ffbbe","primary":"#006194","surface-dim":"#cbdbf5","on-secondary-container":"#00714d","surface-container":"#e5eeff","surface":"#f8f9ff","error-container":"#ffdad6","on-error-container":"#93000a","on-secondary-fixed-variant":"#005236","on-surface":"#0b1c30","surface-container-low":"#eff4ff","surface-bright":"#f8f9ff","inverse-surface":"#213145","on-primary-fixed":"#001d31","on-surface-variant":"#3f4850","primary-fixed-dim":"#93ccff","surface-container-highest":"#d3e4fe","inverse-primary":"#93ccff","error":"#ba1a1a","on-tertiary-fixed-variant":"#6e3900"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin":"1.5rem","space-xs":"0.25rem","gutter":"1rem","space-md":"0.75rem","margin-desktop":"2rem","space-lg":"1rem","space-sm":"0.5rem","gutter-lg":"1.5rem","space-xl":"1.5rem","margin-mobile":"1rem","gutter-sm":"0.75rem"},"fontFamily":{"label-sm":["Space Grotesk","sans-serif"],"code-sm":["JetBrains Mono","monospace"],"body-md":["Space Grotesk","sans-serif"],"body-lg":["Space Grotesk","sans-serif"],"headline-md":["Space Grotesk","sans-serif"],"headline-xl":["Space Grotesk","sans-serif"],"label-md":["Space Grotesk","sans-serif"],"code-md":["JetBrains Mono","monospace"],"headline-lg":["Space Grotesk","sans-serif"],"headline-xl-mobile":["Space Grotesk","sans-serif"],"body-sm":["Space Grotesk","sans-serif"]},"fontSize":{"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"16px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"18px","fontWeight":"500"}],"code-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-xl-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased">
-
-<!-- FIXED TOP HEADER (Identical across all pages) -->
-<header class="fixed top-0 left-0 right-0 h-16 z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-  <div class="h-16 w-full px-margin flex items-center justify-between">
-    <div class="flex items-center gap-space-lg">
-      <div class="flex items-center gap-space-sm">
-        <a href="landing_page.html" class="flex items-center gap-2 group" title="Return to Product Page">
-          <img src="assets/logo.png?v=5" alt="Tsuki Logo" class="h-13 w-auto object-contain shrink-0" />
-        </a>
-        <div class="flex items-baseline gap-space-xs">
-          <span class="font-headline-md text-headline-md tracking-tight text-on-surface">TSUKI</span>
-          <span class="font-code-sm text-code-sm text-on-surface-variant font-bold">// CONTROL PLANE</span>
-        </div>
-      </div>
-      <div class="hidden xl:flex items-center px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm">v1.0-alpha [ebpf-co-re]</div>
-      <div class="hidden lg:flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
-        <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>GUARD PLANE: ARMED &amp; LOCKED
-      </div>
-    </div>
-    <div class="hidden 2xl:flex items-center gap-space-lg font-code-sm text-code-sm text-on-surface-variant">
-      <div class="flex items-center gap-space-xs"><span class="text-outline">HOST:</span><span id="top-host-val" class="text-on-surface font-label-sm text-label-sm">prod-kernel-6.8-x86_64</span></div>
-      <div class="flex items-center gap-space-xs"><span class="text-outline">UPTIME:</span><span id="top-uptime-val" class="text-on-surface font-label-sm text-label-sm">14d 06h 22m</span></div>
-      <div class="flex items-center gap-space-xs"><span class="text-outline">PSI:</span><span id="top-psi-val" class="text-secondary font-label-sm text-label-sm">PSI NORMAL (0.00% stall)</span></div>
-    </div>
-    <div class="flex items-center gap-space-md">
-      <button id="btn-panic" onclick="triggerPanic()" class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer" type="button">
-        <span class="material-symbols-outlined text-[16px]">shield</span>
-        <span id="btn-panic-text" class="font-label-sm text-label-sm tracking-wide">TSUKI PANIC</span>
-      </button>
-      <div class="flex items-center gap-space-xs pl-space-sm">
-        <img alt="Profile" class="h-13 w-auto object-contain shrink-0" src="assets/logo.png?v=5"/>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- FIXED LEFT SIDEBAR (Identical structure across all pages) -->
-<aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-low z-40 flex flex-col justify-between py-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.02)]">
-  <div class="flex flex-col gap-space-lg">
-    <div class="px-space-lg">
-      <div class="font-code-sm text-code-sm uppercase tracking-wider text-outline mb-space-sm">Remediation Planes</div>
-      <nav class="flex flex-col gap-1">
-        <a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="initialization-and-boot" href="bootloader.html">
-          <span class="material-symbols-outlined text-[18px]">power_settings_new</span>Initialization &amp; Boot
-        </a>
-        <a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="autonomous-cockpit" href="cockpit.html">
-          <span class="material-symbols-outlined text-[18px]">monitoring</span>Autonomous Cockpit
-        </a>
-        <a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="audit-trail" href="audit.html">
-          <span class="material-symbols-outlined text-[18px]">history_toggle_off</span>Audit Trail
-        </a>
-      </nav>
-    </div>
-    <div class="px-space-lg">
-      <div class="font-code-sm text-code-sm uppercase tracking-wider text-outline mb-space-sm">System Governance</div>
-      <nav class="flex flex-col gap-1">
-        <a aria-current="page" class="flex items-center gap-space-sm px-space-md py-2 transition-all bg-primary-container text-on-primary-container rounded-lg font-label-md" data-path="telemetry-ebpf-probes" href="telemetry.html">
-          <span class="material-symbols-outlined text-[18px]">radar</span>Telemetry &amp; Probes
-        </a>
-        <a class="flex items-center gap-space-sm px-space-md py-2 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-label-md text-label-md" data-path="system-settings" href="settings.html">
-          <span class="material-symbols-outlined text-[18px]">tune</span>Settings
-        </a>
-      </nav>
-    </div>
-  </div>
-  <div class="px-space-lg">
-    <div class="p-space-md rounded-xl bg-surface-container-lowest shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-      <div class="flex items-center justify-between mb-space-xs">
-        <span class="font-label-sm text-label-sm text-on-surface">eBPF Rings</span>
-        <span class="font-code-sm text-code-sm text-secondary">Online</span>
-      </div>
-      <div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
-        <div class="bg-secondary h-1.5 rounded-full w-4/5"></div>
-      </div>
-      <div class="mt-space-xs flex justify-between font-code-sm text-code-sm text-on-surface-variant">
-        <span>Buffer</span>
-        <span>0.12ms / lat</span>
-      </div>
-    </div>
-  </div>
-</aside>
-
-<!-- MAIN VIEWPORT CONTAINER (Full Screen Width & Height) -->
-<div class="pl-64">
-  <main class="relative pt-16 bg-surface min-h-screen">
-  <!-- Ambient Dashboard Tsukuyomi Watermark -->
-  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center pl-64 pt-16">
-    <img src="assets/watermark.png?v=1" alt="" aria-hidden="true" style="width: min(420px, 60vw); height: auto; opacity: 0.12; pointer-events: none; user-select: none;" />
-  </div>
-    <div class="flex flex-col w-full">
-      <div class="px-margin py-space-lg flex flex-col gap-space-lg w-full">
-
-        <!-- Sub-header & Action Strip -->
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-xs border-b border-outline-variant/50">
-          <div>
-            <div class="flex items-center gap-space-sm">
-              <span class="px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface font-code-sm text-code-sm font-bold">KERNEL SUB-100µs</span>
-              <span class="font-code-sm text-code-sm text-secondary font-semibold flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-secondary"></span>
-                100Hz RING POLL ACTIVE
-              </span>
-            </div>
-            <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-1">eBPF Probes, Ring Buffers &amp; Kernel Telemetry</h1>
-            <p class="font-code-sm text-code-sm text-on-surface-variant mt-0.5">
-              Continuous kernel telemetry, zero-drop ring buffer pipelines, sched_switch tracepoints, and pressure stall monitors.
-            </p>
-          </div>
-          <div class="flex items-center gap-space-sm flex-wrap">
-            <button onclick="flushBuffers()" class="px-space-md py-2 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1.5 border border-outline-variant/60 shadow-xs cursor-pointer">
-              <span class="material-symbols-outlined text-[16px] text-secondary">refresh</span>
-              <span>Flush Ring Buffers</span>
-            </button>
-            <button onclick="exportBpfTrace()" class="px-space-md py-2 rounded bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer">
-              <span class="material-symbols-outlined text-[16px]">file_download</span>
-              <span>Export eBPF Trace</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 1. Top KPI Summary Cards (Full Screen Grid) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
-          <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div>
-              <div class="flex items-center justify-between mb-space-xs">
-                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Active eBPF Probes</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-secondary-container text-on-secondary-container">CO-RE ARMED</span>
-              </div>
-              <div class="flex items-baseline gap-space-sm my-space-xs">
-                <span class="font-headline-xl text-headline-xl text-on-surface tracking-tight tabular-nums">14 Attached</span>
-              </div>
-              <div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-space-xs">
-                <span class="text-outline">BTF Data:</span>
-                <span class="text-secondary font-semibold">vmlinux Verified</span>
-              </div>
-            </div>
-            <div class="mt-space-md pt-space-xs border-t border-outline-variant/40 flex items-center justify-between text-code-sm text-on-surface-variant font-code-sm">
-              <span>Verifier Insns:</span>
-              <span class="text-primary font-semibold">1,420 / 1M</span>
-            </div>
-          </div>
-
-          <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div>
-              <div class="flex items-center justify-between mb-space-xs">
-                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Event Throughput</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-container-high text-primary">REAL-TIME</span>
-              </div>
-              <div class="flex items-baseline gap-space-sm my-space-xs">
-                <span class="font-headline-xl text-headline-xl text-on-surface tracking-tight tabular-nums">14,280</span>
-                <span class="font-code-sm text-code-sm text-on-surface-variant">events/sec</span>
-              </div>
-              <div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-space-xs">
-                <span class="text-outline">Buffer Capacity:</span>
-                <span class="text-on-surface font-semibold">64 KB Pinned</span>
-              </div>
-            </div>
-            <div class="mt-space-md pt-space-xs border-t border-outline-variant/40 flex items-center justify-between text-code-sm text-on-surface-variant font-code-sm">
-              <span>Drop Rate:</span>
-              <span class="text-secondary font-semibold">0.00% (Zero Drops)</span>
-            </div>
-          </div>
-
-          <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div>
-              <div class="flex items-center justify-between mb-space-xs">
-                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Probe Hook Latency</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-surface-container-high text-on-surface-variant">SUB-MICROSEC</span>
-              </div>
-              <div class="flex items-baseline gap-space-sm my-space-xs">
-                <span class="font-headline-xl text-headline-xl text-secondary tracking-tight tabular-nums">0.12 <span class="text-headline-md">ms</span></span>
-                <span class="font-code-sm text-code-sm text-on-surface-variant">p99</span>
-              </div>
-              <div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-space-xs">
-                <span class="text-outline">Hook:</span>
-                <span class="text-on-surface font-semibold">sched:sched_switch</span>
-              </div>
-            </div>
-            <div class="mt-space-md pt-space-xs border-t border-outline-variant/40 flex items-center justify-between text-code-sm text-on-surface-variant font-code-sm">
-              <span>Overhead:</span>
-              <span class="text-secondary font-semibold">&lt; 0.05% CPU</span>
-            </div>
-          </div>
-
-          <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div>
-              <div class="flex items-center justify-between mb-space-xs">
-                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Continuous PSI Poll</span>
-                <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-secondary-container text-on-secondary-container">100 HZ</span>
-              </div>
-              <div class="flex items-baseline gap-space-sm my-space-xs">
-                <span class="font-headline-xl text-headline-xl text-primary tracking-tight tabular-nums">10 ms</span>
-                <span class="font-code-sm text-code-sm text-on-surface-variant">sampling interval</span>
-              </div>
-              <div class="font-code-sm text-code-sm text-on-surface-variant flex items-center gap-space-xs">
-                <span class="text-outline">Channel:</span>
-                <span class="text-on-surface font-semibold">Epoll /proc/pressure</span>
-              </div>
-            </div>
-            <div class="mt-space-md pt-space-xs border-t border-outline-variant/40 flex items-center justify-between text-code-sm text-on-surface-variant font-code-sm">
-              <span>Page Faults:</span>
-              <span class="text-secondary font-semibold">0 (mlockall)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Attached eBPF Probes & Maps Table (Full Screen Width) -->
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/40 overflow-hidden">
-          <div class="px-space-md py-space-sm bg-surface-container-low flex items-center justify-between border-b border-outline-variant/40">
-            <div class="flex items-center gap-space-sm font-code-sm text-code-sm font-bold text-on-surface">
-              <span class="material-symbols-outlined text-[16px] text-primary">radar</span>
-              <span>ATTACHED KERNEL PROBES &amp; BPF MAP DIRECTORY</span>
-            </div>
-            <span class="font-code-sm text-code-sm text-outline tabular-nums">14 Active Hook Points</span>
-          </div>
-
-          <div class="overflow-x-auto w-full">
-            <table class="w-full text-left font-code-sm text-code-sm border-collapse">
-              <thead>
-                <tr class="border-b border-outline-variant/60 bg-surface-container-low/50 text-outline text-[11px] uppercase tracking-wider">
-                  <th class="py-space-sm px-space-md font-semibold">Probe Identifier</th>
-                  <th class="py-space-sm px-space-md font-semibold">Kernel Hook Point</th>
-                  <th class="py-space-sm px-space-md font-semibold">BPF Map Type</th>
-                  <th class="py-space-sm px-space-md font-semibold">Buffer Size</th>
-                  <th class="py-space-sm px-space-md font-semibold">Event Rate</th>
-                  <th class="py-space-sm px-space-md font-semibold">Latency (p99)</th>
-                  <th class="py-space-sm px-space-md font-semibold text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-outline-variant/30 tabular-nums">
-                <tr class="hover:bg-surface-container-low/60 transition-colors">
-                  <td class="py-space-md px-space-md text-on-surface font-semibold">tsuki_sched_switch</td>
-                  <td class="py-space-md px-space-md text-on-surface-variant">tracepoint:sched:sched_switch</td>
-                  <td class="py-space-md px-space-md text-on-surface">BPF_MAP_TYPE_RINGBUF</td>
-                  <td class="py-space-md px-space-md text-outline">64 KB</td>
-                  <td class="py-space-md px-space-md text-on-surface font-medium">8,920/s</td>
-                  <td class="py-space-md px-space-md text-secondary font-semibold">0.08 ms</td>
-                  <td class="py-space-md px-space-md text-right"><span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
-                </tr>
-                <tr class="hover:bg-surface-container-low/60 transition-colors">
-                  <td class="py-space-md px-space-md text-on-surface font-semibold">tsuki_psi_monitor</td>
-                  <td class="py-space-md px-space-md text-on-surface-variant">kprobe:psi_group_change</td>
-                  <td class="py-space-md px-space-md text-on-surface">BPF_MAP_TYPE_HASH</td>
-                  <td class="py-space-md px-space-md text-outline">16 KB</td>
-                  <td class="py-space-md px-space-md text-on-surface font-medium">2,450/s</td>
-                  <td class="py-space-md px-space-md text-secondary font-semibold">0.11 ms</td>
-                  <td class="py-space-md px-space-md text-right"><span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
-                </tr>
-                <tr class="hover:bg-surface-container-low/60 transition-colors">
-                  <td class="py-space-md px-space-md text-on-surface font-semibold">tsuki_cgroup_reclaim</td>
-                  <td class="py-space-md px-space-md text-on-surface-variant">tracepoint:vmscan:mm_vmscan_direct_reclaim_begin</td>
-                  <td class="py-space-md px-space-md text-on-surface">BPF_MAP_TYPE_RINGBUF</td>
-                  <td class="py-space-md px-space-md text-outline">32 KB</td>
-                  <td class="py-space-md px-space-md text-on-surface font-medium">1,120/s</td>
-                  <td class="py-space-md px-space-md text-secondary font-semibold">0.14 ms</td>
-                  <td class="py-space-md px-space-md text-right"><span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
-                </tr>
-                <tr class="hover:bg-surface-container-low/60 transition-colors">
-                  <td class="py-space-md px-space-md text-on-surface font-semibold">tsuki_io_latency</td>
-                  <td class="py-space-md px-space-md text-on-surface-variant">kprobe:blk_mq_start_request</td>
-                  <td class="py-space-md px-space-md text-on-surface">BPF_MAP_TYPE_LRU_HASH</td>
-                  <td class="py-space-md px-space-md text-outline">64 KB</td>
-                  <td class="py-space-md px-space-md text-on-surface font-medium">1,790/s</td>
-                  <td class="py-space-md px-space-md text-secondary font-semibold">0.18 ms</td>
-                  <td class="py-space-md px-space-md text-right"><span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- 3. Real-Time Telemetry Stream & Ring Log -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
-          <!-- PSI Pressure Waveform -->
-          <div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-outline-variant/40 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-space-xs">
-                <span class="font-code-sm text-code-sm font-bold uppercase tracking-wider text-on-surface">Pressure Stall (avg10 Trend)</span>
-                <span class="font-code-sm text-xs text-secondary font-semibold">LIVE 100Hz</span>
-              </div>
-              <p class="font-code-sm text-xs text-outline mb-space-md">Real-time stall ratios read directly from /proc/pressure/{cpu,memory,io}.</p>
-              
-              <div class="space-y-4 font-code-sm text-code-sm">
-                <div>
-                  <div class="flex justify-between mb-1">
-                    <span class="text-on-surface font-medium">Memory Stall (some)</span>
-                    <span id="psi-mem-val" class="font-bold text-secondary">0.00%</span>
-                  </div>
-                  <div class="w-full bg-surface-container rounded h-2 overflow-hidden">
-                    <div id="psi-mem-bar" class="bg-secondary h-2 rounded transition-all duration-300" style="width: 2%"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="flex justify-between mb-1">
-                    <span class="text-on-surface font-medium">CPU Stall (some)</span>
-                    <span id="psi-cpu-val" class="font-bold text-primary">0.00%</span>
-                  </div>
-                  <div class="w-full bg-surface-container rounded h-2 overflow-hidden">
-                    <div id="psi-cpu-bar" class="bg-primary h-2 rounded transition-all duration-300" style="width: 1%"></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="flex justify-between mb-1">
-                    <span class="text-on-surface font-medium">I/O Stall (full)</span>
-                    <span id="psi-io-val" class="font-bold text-secondary">0.00%</span>
-                  </div>
-                  <div class="w-full bg-surface-container rounded h-2 overflow-hidden">
-                    <div id="psi-io-bar" class="bg-secondary h-2 rounded transition-all duration-300" style="width: 1%"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-space-md pt-space-xs border-t border-outline-variant/40 flex items-center justify-between font-code-sm text-xs text-outline">
-              <span>Threshold trigger: 10.0% stall for &ge; 500ms</span>
-              <span class="text-secondary font-semibold">Stall Guard: ACTIVE</span>
-            </div>
-          </div>
-
-          <!-- Raw Tracepoint Ingestion Terminal -->
-          <div class="bg-[#090A0F] rounded-xl border border-outline-variant/40 overflow-hidden shadow-md flex flex-col justify-between">
-            <div class="px-space-md py-space-sm bg-[#11141A] flex items-center justify-between border-b border-slate-800">
-              <div class="flex items-center gap-space-sm">
-                <span class="w-2.5 h-2.5 rounded-full bg-secondary inline-block"></span>
-                <span class="font-code-sm text-code-sm text-slate-300">tracepoint event stream — ring_buffer__consume()</span>
-              </div>
-              <span class="text-[10px] font-code-sm text-secondary bg-[#003824] px-1.5 py-0.5 rounded border border-secondary/50">SUB-100µs</span>
-            </div>
-
-            <div class="p-space-md text-slate-200 font-code-sm text-xs leading-relaxed min-h-[160px] max-h-[220px] overflow-y-auto space-y-1" id="traceLog">
-              <div class="text-slate-400">[14:34:01.002] ring_buffer__consume: batch of 64 events dispatched</div>
-              <div class="text-[#00875a]">[14:34:01.012] sched_switch: prev_pid=4281 (worker) -> next_pid=4288 (tsuki-guard) latency=42µs</div>
-              <div class="text-[#0969DA]">[14:34:01.022] psi_group_change: /sys/fs/cgroup/system.slice delta=0.00%</div>
-              <div class="text-[#00875a]">[14:34:01.032] mm_vmscan_direct_reclaim: 0 pages scanned, 0 refaults</div>
-            </div>
-
-            <div class="px-space-md py-space-xs bg-[#11141A] border-t border-slate-800 flex justify-between items-center text-[10px] font-code-sm text-slate-400">
-              <span>eBPF Map FD: 7 | Ring buffer head: 0x4f1000</span>
-              <span class="text-secondary font-semibold">CONSUME LOOP OK</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </main>
-</div>
-
-<script>
-  function flushBuffers() {
-    const log = document.getElementById('traceLog');
-    const now = new Date().toISOString().substring(11, 23);
-    log.innerHTML += `<div class="text-secondary mt-1">[${now}] ring_buffer__flush(): 64KB drained across 14 tracepoint maps. Latency 0.04ms.</div>`;
-    log.scrollTop = log.scrollHeight;
-    alert("✅ Ring buffers flushed successfully (Zero event drops).");
-  }
-
-  function exportBpfTrace() {
-    const log = document.getElementById('traceLog');
-    const blob = new Blob([log.innerText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'tsuki_ebpf_trace_2026.log';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  // Live telemetry polling from FastAPI backend
-      function getAuthHeaders() {
-    const token = localStorage.getItem('tsuki_token') || 'tsuki-secure-dev-token';
-    return {
-      'Content-Type': 'application/json',
-      'X-Tsuki-Token': token,
-      'Authorization': 'Bearer ' + token
-    };
-  }
-  function getApiBase() {
-    return (localStorage.getItem('tsuki_api_url') || '').replace(/\/+$/, '');
-  }
-  async function fetchTelemetry() {
-    try {
-      const res = await fetch(getApiBase() + '/api/telemetry');
-      if (!res.ok) return;
-      const data = await res.json();
-
-      const hostEl = document.getElementById('top-host-val');
-      if (hostEl && data.host) hostEl.innerText = data.host;
-
-      const uptimeEl = document.getElementById('top-uptime-val');
-      if (uptimeEl && data.uptime) uptimeEl.innerText = data.uptime;
-
-      const psiEl = document.getElementById('top-psi-val');
-      if (psiEl && data.psi) {
-        const memSome = data.psi.memory_some || 0;
-        if (memSome > 10.0) {
-          psiEl.innerText = 'PSI ELEVATED (' + memSome.toFixed(2) + '% stall)';
-          psiEl.className = 'text-error font-label-sm text-label-sm';
-        } else {
-          psiEl.innerText = 'PSI NORMAL (' + memSome.toFixed(2) + '% stall)';
-          psiEl.className = 'text-secondary font-label-sm text-label-sm';
-        }
-
-        // Update gauges
-        const memVal = document.getElementById('psi-mem-val');
-        const memBar = document.getElementById('psi-mem-bar');
-        if (memVal && memBar) {
-          memVal.innerText = memSome.toFixed(2) + '%';
-          memBar.style.width = Math.min(100, Math.max(2, memSome * 5)) + '%';
-        }
-
-        const cpuSome = data.psi.cpu_some || 0;
-        const cpuVal = document.getElementById('psi-cpu-val');
-        const cpuBar = document.getElementById('psi-cpu-bar');
-        if (cpuVal && cpuBar) {
-          cpuVal.innerText = cpuSome.toFixed(2) + '%';
-          cpuBar.style.width = Math.min(100, Math.max(1, cpuSome * 5)) + '%';
-        }
-
-        const ioFull = data.psi.io_full || 0;
-        const ioVal = document.getElementById('psi-io-val');
-        const ioBar = document.getElementById('psi-io-bar');
-        if (ioVal && ioBar) {
-          ioVal.innerText = ioFull.toFixed(2) + '%';
-          ioBar.style.width = Math.min(100, Math.max(1, ioFull * 5)) + '%';
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ["Newsreader", "Georgia", "serif"],
+            sans: ["Space Grotesk", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+          },
+          colors: {
+            paper: "#F7F6F2",
+            ink: {
+              DEFAULT: "#141413",
+              soft: "#2A2A28",
+              muted: "#63635E",
+              faint: "#8E8E86",
+            },
+            accent: {
+              DEFAULT: "#006B44",
+              hover: "#005234",
+              light: "#EAF3ED",
+              border: "#9ECBB4",
+            },
+            amber: {
+              DEFAULT: "#A85208",
+              light: "#FDF5ED",
+            },
+            crimson: {
+              DEFAULT: "#9E1C24",
+              light: "#FBECEE",
+            },
+            border: {
+              DEFAULT: "#DEDCD4",
+              dark: "#141413",
+              subtle: "#EAE8E0",
+            }
+          }
         }
       }
-    } catch (e) {
-      console.debug('Telemetry poll error:', e);
     }
-  }
+  </script>
 
-  fetchTelemetry();
-  setInterval(fetchTelemetry, 3000);
-
-  // Operator Panic Trigger
-  async function triggerPanic() {
-    const btn = document.getElementById('btn-panic');
-    const btnText = document.getElementById('btn-panic-text');
-    if (!confirm('⚠️ TRIGGER EMERGENCY TSUKI PANIC?\n\nThis will immediately revert all active cgroup throttles and latch actuation disabled.')) return;
-    try {
-      if (btnText) btnText.innerText = 'PANICKING...';
-      const res = await fetch(getApiBase() + '/api/panic/trigger', { method: 'POST', headers: getAuthHeaders() });
-      const data = await res.json();
-      alert('🚨 EMERGENCY PANIC ENGAGED\n\n' + (data.message || 'Actuation latched closed.'));
-      if (btn && btnText) {
-        btnText.innerText = 'PANIC LATCHED';
-        btn.classList.remove('bg-error-container', 'text-on-error-container');
-        btn.classList.add('bg-error', 'text-on-error');
-      }
-    } catch (err) {
-      alert('Error triggering panic: ' + err);
+  <style>
+    :root {
+      --bg-paper: #F7F6F2;
+      --ink: #141413;
+      --border-crisp: #DEDCD4;
+      --accent-green: #006B44;
     }
-  }
-</script>
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-editorial-grid {
+      background-size: 48px 48px;
+      background-image: 
+        linear-gradient(to right, rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
+    }
+
+    .panel-editorial {
+      background: #FFFFFF;
+      border: 1px solid var(--border-crisp);
+      border-radius: 0px;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .editorial-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(520px, 80vw);
+      height: auto;
+      opacity: 0.16;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-[#006B44] selection:text-white">
+
+  <!-- Watermark & Blueprint Layer -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center pl-0 lg:pl-64 pt-16">
+    <div class="absolute inset-0 bg-editorial-grid"></div>
+    <img src="assets/watermark.png?v=2" alt="" aria-hidden="true" class="editorial-watermark" />
+  </div>
+
+  <!-- FIXED TOP HEADER -->
+  <header class="fixed top-0 left-0 right-0 h-16 z-50 bg-[#F7F6F2]/95 backdrop-blur-sm border-b border-[#DEDCD4]">
+    <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3.5">
+        <a href="landing_page.html" class="flex items-center gap-3 group" title="Return to Product Page">
+          <img src="assets/logo.png?v=4" alt="Tsuki Monogram" class="h-10 w-auto object-contain shrink-0" />
+          <div class="flex items-baseline gap-2">
+            <span class="font-serif font-semibold text-2xl tracking-tight text-[#141413]">Tsuki</span>
+            <span class="font-mono text-xs text-[#63635E] font-bold tracking-wider uppercase">// CONTROL PLANE</span>
+          </div>
+        </a>
+
+        <div class="hidden xl:flex items-center px-2 py-0.5 rounded-[1px] bg-[#F1EFEA] border border-[#DEDCD4] text-[#63635E] font-mono text-[11px]">
+          v1.0 • eBPF CO-RE
+        </div>
+
+        <div class="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-[1px] bg-[#EAF3ED] text-[#006B44] border border-[#9ECBB4] font-mono text-[11px] font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#006B44] animate-pulse"></span>
+          GUARD PLANE: ARMED &amp; LOCKED
+        </div>
+      </div>
+
+      <div class="hidden 2xl:flex items-center gap-6 font-mono text-xs text-[#63635E]">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[#8E8E86]">HOST:</span>
+          <span id="top-host-val" class="text-[#141413] font-semibold">prod-kernel-6.8-x86_64</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[#8E8E86]">UPTIME:</span>
+          <span id="top-uptime-val" class="text-[#141413] font-semibold">14d 06h 22m</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[#8E8E86]">PSI:</span>
+          <span id="top-psi-val" class="text-[#006B44] font-semibold">PSI NORMAL (0.00% stall)</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="btn-panic" onclick="triggerPanic()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] bg-[#FBECEE] text-[#9E1C24] hover:bg-[#9E1C24] hover:text-white border border-[#9E1C24]/40 font-mono text-xs font-semibold tracking-wider transition-colors cursor-pointer" type="button">
+          <span class="material-symbols-outlined text-[15px]">shield</span>
+          <span id="btn-panic-text">TSUKI PANIC</span>
+        </button>
+        <a href="landing_page.html" class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-mono font-medium text-[#141413] border border-[#DEDCD4] hover:border-[#141413] bg-white rounded-[2px] transition-colors">
+          OVERVIEW →
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- FIXED LEFT SIDEBAR -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-[#F1EFEA] border-r border-[#DEDCD4] z-40 flex flex-col justify-between py-6">
+    <div class="flex flex-col gap-6">
+      <div class="px-5">
+        <div class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-semibold mb-2.5">
+          Remediation Planes
+        </div>
+        <nav class="flex flex-col gap-1">
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="bootloader.html">
+            <span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+            <span>Bootloader Check</span>
+          </a>
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="cockpit.html">
+            <span class="material-symbols-outlined text-[16px]">monitoring</span>
+            <span>Autonomous Cockpit</span>
+          </a>
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="audit.html">
+            <span class="material-symbols-outlined text-[16px]">history_toggle_off</span>
+            <span>Audit Trail</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="px-5">
+        <div class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-semibold mb-2.5">
+          System Governance
+        </div>
+        <nav class="flex flex-col gap-1">
+          <a aria-current="page" class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono font-semibold bg-[#141413] text-white border border-[#141413] rounded-[1px] transition-all" href="telemetry.html">
+            <span class="material-symbols-outlined text-[16px]">radar</span>
+            <span>Telemetry &amp; Probes</span>
+          </a>
+          <a class="flex items-center gap-2.5 px-3 py-2 text-xs font-mono text-[#63635E] hover:text-[#141413] hover:bg-white/70 border border-transparent hover:border-[#DEDCD4] rounded-[1px] transition-all" href="settings.html">
+            <span class="material-symbols-outlined text-[16px]">tune</span>
+            <span>Settings</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="px-5">
+      <div class="p-3 bg-white border border-[#DEDCD4] rounded-[2px]">
+        <div class="flex items-center justify-between mb-1.5 font-mono text-xs">
+          <span class="text-[#141413] font-semibold">eBPF Stream</span>
+          <span class="text-[#006B44] font-bold">[100Hz]</span>
+        </div>
+        <div class="w-full bg-[#EAE8E0] h-1.5 rounded-[1px] overflow-hidden mb-2">
+          <div class="bg-[#006B44] h-1.5" style="width: 95%"></div>
+        </div>
+        <div class="flex justify-between font-mono text-[10px] text-[#63635E]">
+          <span>Drop: 0.00%</span>
+          <span>14 Probes Active</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN TELEMETRY VIEWPORT -->
+  <div class="pl-0 lg:pl-64">
+    <main class="relative z-10 pt-20 px-4 sm:px-6 lg:px-8 pb-12 max-w-[1600px]">
+      
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-[#DEDCD4]">
+        <div>
+          <div class="flex items-center gap-2 font-mono text-xs mb-1">
+            <span class="px-1.5 py-0.2 bg-[#EAF3ED] text-[#006B44] border border-[#9ECBB4] rounded-[1px] font-semibold">KERNEL SUB-100µs</span>
+            <span class="text-[#63635E]">•</span>
+            <span class="text-[#006B44] font-bold">100Hz RING POLL ACTIVE</span>
+          </div>
+          <h1 class="font-serif text-3xl font-bold text-[#141413]">eBPF Probes, Ring Buffers &amp; Kernel Telemetry</h1>
+          <p class="font-mono text-xs text-[#63635E] mt-1">
+            Continuous kernel telemetry, zero-drop ring buffer pipelines, sched_switch tracepoints, and pressure stall monitors.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 font-mono text-xs">
+          <button onclick="flushBuffers()" class="px-3 py-2 bg-white hover:bg-[#F1EFEA] text-[#141413] border border-[#DEDCD4] rounded-[2px] font-semibold transition-colors">
+            Flush Buffers
+          </button>
+          <button onclick="exportBpfTrace()" class="px-3 py-2 bg-[#141413] hover:bg-[#2A2A28] text-white border border-[#141413] rounded-[2px] font-semibold transition-colors">
+            Export BPF Trace
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. KPI SUMMARY CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div class="panel-editorial p-4 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">Active eBPF Probes</div>
+          <div class="font-mono text-3xl font-bold text-[#141413] tabular-nums">14 Attached</div>
+          <div class="font-mono text-xs text-[#006B44] mt-1 font-semibold">[CO-RE ARMED] vmlinux BTF Verified</div>
+        </div>
+
+        <div class="panel-editorial p-4 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">Event Throughput</div>
+          <div class="font-mono text-3xl font-bold text-[#141413] tabular-nums">14,280 <span class="text-xs font-normal text-[#63635E]">evt/s</span></div>
+          <div class="font-mono text-xs text-[#006B44] mt-1 font-semibold">0.00% Drop Rate (Zero Drops)</div>
+        </div>
+
+        <div class="panel-editorial p-4 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">Probe Hook Latency</div>
+          <div class="font-mono text-3xl font-bold text-[#006B44] tabular-nums">0.12 <span class="text-xl">ms</span></div>
+          <div class="font-mono text-xs text-[#63635E] mt-1">p99 sched_switch (&lt;0.05% CPU)</div>
+        </div>
+
+        <div class="panel-editorial p-4 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase mb-1">Continuous PSI Poll</div>
+          <div class="font-mono text-3xl font-bold text-[#141413] tabular-nums">10 ms</div>
+          <div class="font-mono text-xs text-[#006B44] mt-1 font-semibold">100Hz Epoll /proc/pressure</div>
+        </div>
+      </div>
+
+      <!-- 2. Attached eBPF Probes Directory -->
+      <div class="panel-editorial border border-[#DEDCD4] overflow-hidden mb-6">
+        <div class="px-4 py-2.5 bg-[#F1EFEA] border-b border-[#DEDCD4] flex items-center justify-between font-mono text-xs">
+          <div class="font-bold text-[#141413]">ATTACHED KERNEL PROBES &amp; BPF MAP DIRECTORY</div>
+          <span class="text-[#63635E] tabular-nums">14 Active Hook Points</span>
+        </div>
+
+        <div class="overflow-x-auto w-full">
+          <table class="w-full text-left font-mono text-xs border-collapse">
+            <thead>
+              <tr class="bg-[#FBFBF9] border-b border-[#DEDCD4] text-[11px] text-[#63635E] uppercase tracking-wider">
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Probe Identifier</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Kernel Hook Point</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">BPF Map Type</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Buffer Size</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Event Rate</th>
+                <th class="py-2.5 px-4 border-r border-[#DEDCD4]">Latency (p99)</th>
+                <th class="py-2.5 px-4 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#DEDCD4] tabular-nums">
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">tsuki_sched_switch</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">tracepoint:sched:sched_switch</td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">BPF_MAP_TYPE_RINGBUF</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">64 KB</td>
+                <td class="py-3 px-4 text-[#141413] font-medium border-r border-[#DEDCD4]">8,920/s</td>
+                <td class="py-3 px-4 text-[#006B44] font-semibold border-r border-[#DEDCD4]">0.08 ms</td>
+                <td class="py-3 px-4 text-right"><span class="px-1.5 py-0.2 rounded-[1px] bg-[#EAF3ED] text-[#006B44] font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
+              </tr>
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">tsuki_psi_monitor</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">kprobe:psi_group_change</td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">BPF_MAP_TYPE_HASH</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">16 KB</td>
+                <td class="py-3 px-4 text-[#141413] font-medium border-r border-[#DEDCD4]">2,450/s</td>
+                <td class="py-3 px-4 text-[#006B44] font-semibold border-r border-[#DEDCD4]">0.11 ms</td>
+                <td class="py-3 px-4 text-right"><span class="px-1.5 py-0.2 rounded-[1px] bg-[#EAF3ED] text-[#006B44] font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
+              </tr>
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">tsuki_page_reclaim</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">tracepoint:vmscan:mm_vmscan_kswapd_wake</td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">BPF_MAP_TYPE_RINGBUF</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">32 KB</td>
+                <td class="py-3 px-4 text-[#141413] font-medium border-r border-[#DEDCD4]">1,840/s</td>
+                <td class="py-3 px-4 text-[#006B44] font-semibold border-r border-[#DEDCD4]">0.14 ms</td>
+                <td class="py-3 px-4 text-right"><span class="px-1.5 py-0.2 rounded-[1px] bg-[#EAF3ED] text-[#006B44] font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
+              </tr>
+              <tr class="hover:bg-[#FBFBF9] transition-colors">
+                <td class="py-3 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">tsuki_cgroup_throttle</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">fentry:cgroup_memory_throttle</td>
+                <td class="py-3 px-4 text-[#141413] border-r border-[#DEDCD4]">BPF_MAP_TYPE_ARRAY</td>
+                <td class="py-3 px-4 text-[#63635E] border-r border-[#DEDCD4]">8 KB</td>
+                <td class="py-3 px-4 text-[#141413] font-medium border-r border-[#DEDCD4]">1,070/s</td>
+                <td class="py-3 px-4 text-[#006B44] font-semibold border-r border-[#DEDCD4]">0.06 ms</td>
+                <td class="py-3 px-4 text-right"><span class="px-1.5 py-0.2 rounded-[1px] bg-[#EAF3ED] text-[#006B44] font-bold text-[10px]">ACTIVE [CO-RE]</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function flushBuffers() {
+      alert("⚡ FLUSHING eBPF RING BUFFERS...\n\n- Ring buffer consume tick: complete\n- 0 dropped events\n- 64KB pinned maps re-synchronized");
+    }
+
+    function exportBpfTrace() {
+      const data = {
+        trace: "tsuki_bpf_trace_snapshot",
+        kernel: "6.8.0-x86_64",
+        probes: 14,
+        timestamp: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tsuki_ebpf_trace.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function getApiBase() { return (localStorage.getItem('tsuki_api_url') || '').replace(/\/+$/, ''); }
+    function getAuthHeaders() {
+      const token = localStorage.getItem('tsuki_token') || 'tsuki-secure-dev-token';
+      return { 'Content-Type': 'application/json', 'X-Tsuki-Token': token, 'Authorization': 'Bearer ' + token };
+    }
+
+    async function fetchTelemetry() {
+      try {
+        const res = await fetch(getApiBase() + '/api/telemetry');
+        if (!res.ok) return;
+        const data = await res.json();
+        const hostEl = document.getElementById('top-host-val');
+        if (hostEl && data.host) hostEl.innerText = data.host;
+        const uptimeEl = document.getElementById('top-uptime-val');
+        if (uptimeEl && data.uptime) uptimeEl.innerText = data.uptime;
+      } catch (e) {}
+    }
+
+    async function triggerPanic() {
+      if (!confirm('⚠️ TRIGGER EMERGENCY TSUKI PANIC?')) return;
+      try {
+        await fetch(getApiBase() + '/api/panic/trigger', { method: 'POST', headers: getAuthHeaders() });
+        alert('🚨 EMERGENCY PANIC ENGAGED');
+      } catch (e) { alert('Error: ' + e); }
+    }
+
+    fetchTelemetry();
+    setInterval(fetchTelemetry, 3000);
+  </script>
 </body>
 </html>
