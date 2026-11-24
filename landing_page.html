@@ -102,9 +102,11 @@
 </head>
 <body class="bg-[#F4F6F8] text-[#0F141C] antialiased selection:bg-[#0969DA]/10 selection:text-[#0969DA] font-sans min-h-screen relative overflow-x-hidden">
 
-  <!-- Background Technical Grid Layer -->
-  <div class="fixed inset-0 pointer-events-none z-0">
+  <!-- Background Technical Grid & Ambient Watermark Layer -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
     <div class="absolute inset-0 bg-tech-grid opacity-90"></div>
+    <!-- Ambient Large Tsukuyomi Watermark -->
+    <img src="assets/logo.png?v=4" alt="" aria-hidden="true" class="absolute w-[600px] sm:w-[850px] lg:w-[1100px] max-w-none opacity-[0.05] select-none filter grayscale contrast-125 pointer-events-none -translate-y-8 animate-pulse" style="animation-duration: 8s;" />
   </div>
 
   <!-- SECTION 1: GLOBAL CONTROL NAVIGATION (Edge-to-Edge Full Screen Top Bar) -->
