@@ -698,8 +698,63 @@
     </main>
   </div>
 
+  <!-- Editorial Custom Modal (Replaces Browser alert() / confirm()) -->
+  <div id="editorialModal" class="fixed inset-0 bg-black/45 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="panel-editorial max-w-lg w-full p-6 border-2 border-[#141413] shadow-2xl font-mono text-xs animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#DEDCD4]">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-[1px] bg-[#006B44]" id="modalDot"></span>
+          <span class="font-bold text-sm text-[#141413]" id="modalTitle">SYSTEM NOTIFICATION</span>
+        </div>
+        <button onclick="closeEditorialModal()" class="text-[#63635E] hover:text-[#141413] font-bold p-1">[ESC / ✕]</button>
+      </div>
+      <div id="modalBody" class="space-y-3 text-[#2A2A28] leading-relaxed"></div>
+      <div id="modalActions" class="mt-5 pt-3 border-t border-[#DEDCD4] flex items-center justify-end gap-2">
+        <button onclick="closeEditorialModal()" class="px-3 py-1.5 bg-[#141413] hover:bg-[#2A2A28] text-white font-mono text-xs rounded-[1px] transition-colors">
+          DISMISS
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- INTERACTIVITY & FASTAPI BACKEND CLIENT SCRIPT -->
   <script>
+    // Custom In-Page Editorial Modal Controller
+    function showEditorialModal(title, htmlContent, dotColor = '#006B44', actionButtons = null) {
+      const modal = document.getElementById('editorialModal');
+      const titleEl = document.getElementById('modalTitle');
+      const bodyEl = document.getElementById('modalBody');
+      const dotEl = document.getElementById('modalDot');
+      const actionsEl = document.getElementById('modalActions');
+
+      titleEl.innerText = title;
+      bodyEl.innerHTML = htmlContent;
+      dotEl.style.backgroundColor = dotColor;
+
+      if (actionButtons) {
+        actionsEl.innerHTML = actionButtons;
+      } else {
+        actionsEl.innerHTML = `
+          <button onclick="closeEditorialModal()" class="px-4 py-1.5 bg-[#141413] hover:bg-[#2A2A28] text-white font-mono text-xs rounded-[1px] transition-colors font-semibold">
+            DISMISS
+          </button>
+        `;
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditorialModal() {
+      const modal = document.getElementById('editorialModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Close on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeEditorialModal();
+    });
     let totalSeconds = 252; // 00:04:12
 
     function updateCountdowns() {
@@ -770,22 +825,48 @@
     setInterval(fetchTelemetry, 3000);
 
     async function triggerPanic() {
+      showEditorialModal(
+        'EMERGENCY PANIC DISPATCH',
+        `<div>
+          <p class="text-[#9E1C24] font-bold mb-2">⚠️ ENGAGE IMMEDIATE FAIL-SAFE LATCH?</p>
+          <p class="text-[#63635E] mb-2">This hardware/software fail-safe immediately unloads eBPF throttle filters and restores all cgroup v2 limits back to standard host baseline in &lt;10ms.</p>
+          <div class="p-2.5 bg-[#FBECEE] border border-[#9E1C24]/30 text-[#9E1C24] text-[11px]">
+            Action: Reverts memory.high and cpu.weight across all managed units.
+          </div>
+        </div>`,
+        '#9E1C24',
+        `<button onclick="closeEditorialModal()" class="px-3 py-1.5 bg-white text-[#141413] border border-[#DEDCD4] rounded-[1px] font-mono text-xs">CANCEL</button>
+         <button onclick="executePanic()" class="px-3 py-1.5 bg-[#9E1C24] hover:bg-[#80141A] text-white font-mono text-xs rounded-[1px] font-bold">TRIGGER PANIC NOW</button>`
+      );
+    }
+
+    async function executePanic() {
+      closeEditorialModal();
       const btn = document.getElementById('btn-panic');
       const btnText = document.getElementById('btn-panic-text');
-      if (!confirm('⚠️ TRIGGER EMERGENCY TSUKI PANIC?\n\nThis will immediately revert all active cgroup throttles and latch actuation disabled.')) return;
       try {
         if (btnText) btnText.innerText = 'PANICKING...';
         const res = await fetch(getApiBase() + '/api/panic/trigger', { method: 'POST', headers: getAuthHeaders() });
         const data = await res.json();
         totalSeconds = 0;
         updateCountdowns();
-        alert('🚨 EMERGENCY PANIC ENGAGED\n\n' + (data.message || 'Actuation latched closed.'));
+        showEditorialModal(
+          'PANIC LATCH CONFIRMED',
+          `<div>
+            <p class="text-[#006B44] font-bold mb-1">🚨 EMERGENCY PANIC ENGAGED</p>
+            <p class="text-[#141413] mb-2">${data.message || 'Actuation latched closed. All limits restored.'}</p>
+            <div class="p-2 bg-[#F1EFEA] border border-[#DEDCD4] text-[11px] text-[#63635E]">
+              Kernel State: All cgroup.high &amp; cpu.weight throttles zeroed out.
+            </div>
+          </div>`,
+          '#9E1C24'
+        );
         if (btn && btnText) {
           btnText.innerText = 'PANIC LATCHED';
           btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] bg-[#9E1C24] text-white border border-[#9E1C24] font-mono text-xs font-semibold tracking-wider';
         }
       } catch (err) {
-        alert('Error triggering panic: ' + err);
+        showEditorialModal('PANIC DISPATCH FAILED', `<p class="text-[#9E1C24]">Error triggering panic: ${err}</p>`, '#9E1C24');
       }
     }
 
@@ -800,28 +881,76 @@
           btnText.innerText = 'Extended (+300s)';
           setTimeout(() => { if (btnText) btnText.innerText = 'Extend (+300s)'; }, 2000);
         }
+        showEditorialModal(
+          'REMEDIATION LEASE EXTENDED',
+          `<div>
+            <p class="text-[#006B44] font-bold mb-1">✓ LEASE EXTENSION CONFIRMED</p>
+            <p class="text-[#141413]">Added +300 seconds to active cgroup mitigation window for <strong>/system.slice/build-worker.service</strong>.</p>
+            <div class="mt-2 text-[#63635E] text-[11px]">New remaining time: ${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s.</div>
+          </div>`,
+          '#006B44'
+        );
       } catch (err) {
-        alert('Failed to extend lease: ' + err);
+        showEditorialModal('EXTENSION ERROR', `<p class="text-[#9E1C24]">Failed to extend lease: ${err}</p>`, '#9E1C24');
       }
     }
 
     async function rollbackRemediation() {
+      showEditorialModal(
+        'CONFIRM IMMEDIATE ROLLBACK',
+        `<div>
+          <p class="text-[#141413] font-bold mb-2">Restoring baseline parameters for /system.slice/build-worker.service?</p>
+          <p class="text-[#63635E] mb-2">This will reset memory.high to <code class="bg-[#EAE8E0] px-1">max</code> and restore original CPU scheduling quotas.</p>
+          <div class="p-2.5 bg-[#F1EFEA] border border-[#DEDCD4] text-[11px] text-[#63635E]">
+            Target PID: 38412 (cc1plus)
+          </div>
+        </div>`,
+        '#A85208',
+        `<button onclick="closeEditorialModal()" class="px-3 py-1.5 bg-white text-[#141413] border border-[#DEDCD4] rounded-[1px] font-mono text-xs">ABORT</button>
+         <button onclick="executeRollback()" class="px-3 py-1.5 bg-[#141413] hover:bg-[#2A2A28] text-white font-mono text-xs rounded-[1px] font-bold">ROLLBACK NOW</button>`
+      );
+    }
+
+    async function executeRollback() {
+      closeEditorialModal();
       const btnText = document.getElementById('btn-rollback-text');
-      if (!confirm('Rollback active remediation (/sys/fs/cgroup/...)?')) return;
       try {
         const res = await fetch(getApiBase() + '/api/remediation/rollback', { method: 'POST', headers: getAuthHeaders() });
         const data = await res.json();
         totalSeconds = 0;
         updateCountdowns();
         if (btnText) btnText.innerText = 'Rolled Back';
-        alert('✅ Remediation rolled back:\n' + (data.message || 'cgroup restored'));
+        showEditorialModal(
+          'REMEDIATION RESTORED',
+          `<div>
+            <p class="text-[#006B44] font-bold mb-1">✓ CGROUP PARAMETERS RESTORED</p>
+            <p class="text-[#141413]">${data.message || 'Remediation lease cancelled. Standard scheduler baseline active.'}</p>
+          </div>`,
+          '#006B44'
+        );
       } catch (err) {
-        alert('Failed to rollback: ' + err);
+        showEditorialModal('ROLLBACK FAILED', `<p class="text-[#9E1C24]">Failed to rollback: ${err}</p>`, '#9E1C24');
       }
     }
 
     function traceIncident() {
-      alert('Tracing Incident INC-8921:\nTarget: /sys/fs/cgroup/system.slice/build-worker.service\neBPF Trace: sched_switch, memory.high (4GiB throttle active)');
+      showEditorialModal(
+        'INCIDENT eBPF TRACE AUDIT',
+        `<div class="space-y-3 font-mono text-xs">
+          <div class="p-3 bg-[#141413] text-white rounded-[1px] border border-[#2A2A28] space-y-1.5">
+            <div class="text-[#006B44] font-bold">// KERNEL TRACEPOINT: sched:sched_switch &amp; vmscan</div>
+            <div class="text-[#8E8E86]">Incident ID: <span class="text-white">INC-8921</span></div>
+            <div class="text-[#8E8E86]">Target Unit: <span class="text-white">/sys/fs/cgroup/system.slice/build-worker.service</span></div>
+            <div class="text-[#8E8E86]">Process: <span class="text-white">cc1plus (PID: 38412, PPID: 38100)</span></div>
+            <div class="text-[#8E8E86]">Active Policy: <span class="text-[#006B44]">memory.high = 4.0GiB (TTL: 300s)</span></div>
+            <div class="text-[#8E8E86]">Scheduler: <span class="text-[#A85208]">cpu.weight = 20 (Demoted)</span></div>
+          </div>
+          <div class="text-[#63635E] text-[11px] leading-relaxed">
+            eBPF ring buffer records 14 attached probes. Verified memory anon-RSS growth rate has fallen from 420 MB/s to nominal 18 MB/s. Zero SIGKILLs dispatched.
+          </div>
+        </div>`,
+        '#006B44'
+      );
     }
   </script>
 </body>
