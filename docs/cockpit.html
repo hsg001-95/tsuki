@@ -157,15 +157,15 @@
       <div class="hidden 2xl:flex items-center gap-6 font-mono text-xs text-[#63635E]">
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">HOST:</span>
-          <span id="top-host-val" class="text-[#141413] font-semibold">prod-kernel-6.8-x86_64</span>
+          <span id="top-host-val" class="text-[#141413] font-semibold">LOCAL_NODE</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">UPTIME:</span>
-          <span id="top-uptime-val" class="text-[#141413] font-semibold">14d 06h 22m</span>
+          <span id="top-uptime-val" class="text-[#141413] font-semibold">Polling...</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">PSI:</span>
-          <span id="top-psi-val" class="text-[#006B44] font-semibold">PSI NORMAL (0.00% stall)</span>
+          <span id="top-psi-val" class="text-[#006B44] font-semibold">CONNECTING...</span>
         </div>
       </div>
 
@@ -790,7 +790,12 @@
     }
 
     function getApiBase() {
-      return (localStorage.getItem('tsuki_api_url') || '').replace(/\/+$/, '');
+      const stored = localStorage.getItem('tsuki_api_url');
+      if (stored) return stored.replace(/\/+$/, '');
+      if (window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost') {
+        return 'http://127.0.0.1:8000';
+      }
+      return '';
     }
 
     async function fetchTelemetry() {
