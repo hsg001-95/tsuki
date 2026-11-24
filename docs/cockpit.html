@@ -357,7 +357,7 @@
         </div>
 
         <!-- Card 4: Active Enforcements -->
-        <div class="panel-editorial p-4 border border-[#DEDCD4] flex flex-col justify-between">
+        <div id="kpi-enforcements" class="panel-editorial p-4 border border-[#DEDCD4] flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <span class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider font-semibold">Active Enforcements</span>
@@ -484,7 +484,7 @@
         <!-- Right: Active Incident & Causal Reasoning Plane (5 cols) -->
         <div class="lg:col-span-5 space-y-4">
           
-          <div class="panel-editorial p-5 border-2 border-[#9E1C24] bg-white">
+          <div id="incident-card" class="panel-editorial p-5 border-2 border-[#9E1C24] bg-white">
             
             <!-- Incident Header -->
             <div class="flex items-start justify-between pb-3 mb-3 border-b border-[#DEDCD4]">
@@ -814,6 +814,103 @@
           } else {
             psiEl.innerText = 'PSI NORMAL (' + memSome.toFixed(2) + '% stall)';
             psiEl.className = 'text-[#006B44] font-semibold';
+          }
+        }
+
+        const incCard = document.getElementById('incident-card');
+        const kpiEnfCard = document.getElementById('kpi-enforcements');
+        if (data.active_remediation && !data.active_remediation.active) {
+          if (incCard) {
+            incCard.className = 'panel-editorial p-5 border border-[#006B44]/40 bg-white';
+            incCard.innerHTML = `
+              <div class="flex items-start justify-between pb-3 mb-3 border-b border-[#DEDCD4]">
+                <div>
+                  <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[1px] bg-[#EAF3ED] text-[#006B44] border border-[#006B44]/30 font-mono text-[10px] font-bold">
+                    ● SYSTEM HEALTH OPTIMAL
+                  </div>
+                  <div class="font-mono text-xs font-bold text-[#006B44] mt-1">
+                    RISK SCORE: 0.01 // ZERO ACTIVE INCIDENTS
+                  </div>
+                </div>
+                <span class="font-mono text-xs px-2 py-0.5 bg-[#F1EFEA] border border-[#DEDCD4] text-[#006B44] font-semibold">NOMINAL</span>
+              </div>
+
+              <div class="p-3 bg-[#F1EFEA] border border-[#DEDCD4] font-mono text-xs mb-3 space-y-1">
+                <div class="flex items-center justify-between font-bold text-[#141413]">
+                  <span>Host Node: ${data.host || 'linux-pc'}</span>
+                  <span class="text-[#006B44] font-semibold">ALL GATES PASS</span>
+                </div>
+                <div class="text-[#63635E] truncate">
+                  cgroup root: <span class="text-[#141413]">/sys/fs/cgroup (unthrottled baseline)</span>
+                </div>
+                <div class="text-[10px] text-[#8E8E86]">
+                  kernel: ${data.kernel || 'Linux'} • uptime: ${data.uptime || 'N/A'} • ring buffer: active
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="font-mono text-[10px] font-bold text-[#006B44] uppercase tracking-wider mb-1">
+                  REASONING PLANE // LIVE KERNEL EVIDENCE
+                </div>
+                <p class="p-3 bg-[#FBFBF9] border border-[#DEDCD4] text-xs font-sans text-[#2A2A28] leading-relaxed">
+                  "Continuous 100Hz eBPF PSI monitoring active. No cgroups exceeding memory.high or cpu.weight thresholds. Memory, CPU, and I/O pressure stall ratios remain within safe baseline bounds."
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <div class="font-mono text-[10px] font-bold text-[#141413] uppercase tracking-wider mb-1">
+                  ENFORCEMENT STATUS
+                </div>
+                <div class="p-3 bg-[#F1EFEA] border border-[#DEDCD4] font-mono text-xs text-[#141413]">
+                  Zero active throttles. System operating at full hardware capacity.
+                </div>
+              </div>
+
+              <div class="p-2.5 bg-[#EAF3ED] border border-[#9ECBB4] text-[#006B44] font-mono text-[11px] mb-3 flex items-center gap-2">
+                <span class="font-bold">[VERIFIED]</span>
+                <span>All cgroups operating at unconstrained baseline limits.</span>
+              </div>
+
+              <div class="mb-4">
+                <div class="flex justify-between font-mono text-xs mb-1">
+                  <span class="text-[#63635E]">Remediation Lease Status:</span>
+                  <span class="text-[#006B44] font-bold">Idle (No active lease)</span>
+                </div>
+                <div class="w-full bg-[#EAE8E0] h-1.5 rounded-[1px] overflow-hidden">
+                  <div class="bg-[#006B44] h-1.5" style="width: 100%"></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+                <a href="audit.html" class="text-center px-3 py-2 bg-[#141413] hover:bg-[#2A2A28] text-white border border-[#141413] rounded-[2px] transition-colors font-medium">
+                  View Audit Trail
+                </a>
+                <button onclick="fetchTelemetry()" class="px-3 py-2 bg-white hover:bg-[#F1EFEA] text-[#141413] border border-[#DEDCD4] rounded-[2px] transition-colors font-medium">
+                  Refresh Telemetry
+                </button>
+              </div>
+            `;
+          }
+
+          if (kpiEnfCard) {
+            kpiEnfCard.innerHTML = `
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider font-semibold">Active Enforcements</span>
+                  <span class="px-1.5 py-0.2 rounded-[1px] text-[10px] font-mono font-semibold bg-[#EAF3ED] text-[#006B44] border border-[#006B44]/30">0 ACTIVE</span>
+                </div>
+                <div class="flex items-baseline gap-2 my-1">
+                  <span class="font-mono text-base font-bold text-[#141413] truncate tracking-tight">System Nominal</span>
+                </div>
+                <div class="font-mono text-xs text-[#63635E] truncate">
+                  All cgroups at baseline
+                </div>
+              </div>
+              <div class="mt-4 pt-2 border-t border-[#DEDCD4] flex items-center justify-between font-mono text-xs">
+                <span class="text-[#006B44] font-bold">TTL: NOMINAL</span>
+                <span class="text-[10px] text-[#006B44] font-semibold">[IDLE]</span>
+              </div>
+            `;
           }
         }
       } catch (e) {

@@ -337,15 +337,7 @@
   </div>
 
   <script>
-    const rawAuditEvents = [
-      { id: "EVT-8921-A", timestamp: "2026-11-24 14:32:08.114", hash: "0x4a18b...92ff", category: "REMEDIATION", target: "/system.slice/build-worker.service", delta: "memory.high = 4GiB, cpu.weight = 20", authority: "ONNX INT8 TCN (confidence 0.94)", citation: "cgroup_v2: memory thrash mitigation lease", status: "APPLIED", severity: "HIGH" },
-      { id: "EVT-8920-C", timestamp: "2026-11-24 14:15:40.002", hash: "0x892a0...e12a", category: "ROLLBACK_VERIFIED", target: "/docker/c8f2a1b9e0f5...", delta: "cpu.weight restored: 25 -> 100", authority: "Safety Lease Watchdog (TTL Expired)", citation: "Kernel Invariant SAF-02 verified", status: "RESTORED", severity: "NOMINAL" },
-      { id: "EVT-8919-B", timestamp: "2026-11-24 13:58:12.780", hash: "0x2bc99...4410", category: "INVARIANT_CHECK", target: "/user.slice/user-1000.slice", delta: "echo 1 > drop_caches", authority: "Operator CLI (SAF-08 Authorized)", citation: "Page cache pressure relief", status: "VERIFIED", severity: "LOW" },
-      { id: "EVT-8918-A", timestamp: "2026-11-24 12:40:02.100", hash: "0x77ef1...bc99", category: "INVARIANT_CHECK", target: "/system/tsuki-guard.service", delta: "Guard Plane Watchdog Ping (12ms)", authority: "eBPF Ring Buffer Monitor", citation: "mlockall RSS memory invariant PASS", status: "VERIFIED", severity: "NOMINAL" },
-      { id: "EVT-8917-D", timestamp: "2026-11-24 11:20:15.420", hash: "0x33d12...88ab", category: "LEASE_EXTEND", target: "/system.slice/inference-job.service", delta: "Lease TTL extended +300s (total 600s)", authority: "Cockpit UI Operator Sign-Off", citation: "SLA batch preservation window", status: "EXTENDED", severity: "MEDIUM" },
-      { id: "EVT-8916-A", timestamp: "2026-11-24 09:12:44.890", hash: "0x99aa4...112c", category: "REMEDIATION", target: "/system.slice/data-indexer.service", delta: "memory.high = 2GiB (reclaim stabilized)", authority: "Predictive PSI TCN Model", citation: "Swap stall early warning (T-22s)", status: "APPLIED", severity: "HIGH" }
-    ];
-
+    let rawAuditEvents = [];
     let currentCategory = "ALL";
 
     function renderAuditRows() {
@@ -356,13 +348,18 @@
       const filtered = rawAuditEvents.filter(ev => {
         if (currentCategory !== "ALL" && ev.category !== currentCategory) return false;
         if (!q) return true;
-        return ev.id.toLowerCase().includes(q) ||
-               ev.target.toLowerCase().includes(q) ||
-               ev.delta.toLowerCase().includes(q) ||
-               ev.citation.toLowerCase().includes(q);
+        return (ev.id || '').toLowerCase().includes(q) ||
+               (ev.target || '').toLowerCase().includes(q) ||
+               (ev.delta || '').toLowerCase().includes(q) ||
+               (ev.citation || '').toLowerCase().includes(q);
       });
 
       document.getElementById('auditRowCount').innerText = `Showing ${filtered.length} verified transactions`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-[#63635E] font-mono text-xs">No active remediation transactions logged yet. System running in nominal state.</td></tr>`;
+        return;
+      }
 
       filtered.forEach(ev => {
         const tr = document.createElement('tr');
@@ -464,9 +461,24 @@
       } catch (e) { alert('Error: ' + e); }
     }
 
+    async function fetchAuditLogs() {
+      try {
+        const res = await fetch(getApiBase() + '/api/audit/logs');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          rawAuditEvents = data;
+          renderAuditRows();
+        }
+      } catch (e) {
+        console.debug('Audit log fetch error:', e);
+      }
+    }
+
     fetchTelemetry();
     setInterval(fetchTelemetry, 3000);
-    renderAuditRows();
+    fetchAuditLogs();
+    setInterval(fetchAuditLogs, 5000);
   </script>
 </body>
 </html>

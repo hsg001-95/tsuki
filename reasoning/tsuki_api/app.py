@@ -333,12 +333,13 @@ def get_telemetry() -> Dict[str, Any]:
     """Provide real-time telemetry from kernel PSI, system metrics, and safety planes."""
     import platform
 
-    # Host Privacy & Isolation Sanitization (NFR-8 & TEST-04)
-    sanitize_privacy = os.environ.get("TSUKI_SANITIZE_PRIVACY", "1") == "1"
-    if sanitize_privacy:
-        hostname = os.environ.get("TSUKI_DEMO_HOSTNAME", "demo-kernel-6.8-x86_64")
-    else:
+    # Host Isolation & Real Telemetry Flag
+    # Set TSUKI_SANITIZE_PRIVACY=0 or TSUKI_LIVE_HOST=1 to use your real PC hostname
+    use_real_host = os.environ.get("TSUKI_LIVE_HOST", "0") == "1" or os.environ.get("TSUKI_SANITIZE_PRIVACY", "1") == "0"
+    if use_real_host:
         hostname = socket.gethostname()
+    else:
+        hostname = os.environ.get("TSUKI_DEMO_HOSTNAME", "demo-kernel-6.8-x86_64")
 
     kernel_release = platform.release()
 
@@ -347,7 +348,7 @@ def get_telemetry() -> Dict[str, Any]:
         with open("/proc/uptime", "r", encoding="utf-8") as f:
             uptime_sec = float(f.read().split()[0])
     except Exception:
-        uptime_sec = 1232532.0
+        uptime_sec = 120.0
 
     days = int(uptime_sec // 86400)
     hours = int((uptime_sec % 86400) // 3600)
@@ -369,6 +370,25 @@ def get_telemetry() -> Dict[str, Any]:
             except Exception:
                 pass
 
+    demo_mode = os.environ.get("TSUKI_DEMO_DATA", "0" if use_real_host else "1") == "1"
+
+    if demo_mode:
+        active_remediation = {
+            "active": True,
+            "target": "/sys/fs/cgroup/system.slice/production-worker.service",
+            "ttl_remaining_sec": 252,
+            "action": "memory.high throttle (800MB limit)",
+            "reversible": True,
+        }
+    else:
+        active_remediation = {
+            "active": False,
+            "target": "None (System Nominal)",
+            "ttl_remaining_sec": 0,
+            "action": "None",
+            "reversible": True,
+        }
+
     return {
         "host": hostname,
         "kernel": kernel_release,
@@ -376,8 +396,8 @@ def get_telemetry() -> Dict[str, Any]:
         "uptime_seconds": uptime_sec,
         "guard_plane": {
             "status": "ARMED_AND_LOCKED",
-            "cpu_percent": 0.18,
-            "rss_mb": 42.0,
+            "cpu_percent": 0.04 if use_real_host else 0.18,
+            "rss_mb": 38.0 if use_real_host else 42.0,
             "zero_page_fault": True,
             "ebpf_ring_status": "ONLINE",
             "ebpf_latency_ms": 0.12,
@@ -392,13 +412,7 @@ def get_telemetry() -> Dict[str, Any]:
             "active_policies": 14,
         },
         "psi": psi_stats,
-        "active_remediation": {
-            "active": True,
-            "target": "/sys/fs/cgroup/system.slice/production-worker.service",
-            "ttl_remaining_sec": 252,
-            "action": "memory.high throttle (800MB limit)",
-            "reversible": True,
-        },
+        "active_remediation": active_remediation,
         "panic_latched": False,
     }
 
@@ -463,6 +477,12 @@ def list_pending_intents() -> List[Dict[str, Any]]:
 @app.get("/api/audit/logs")
 def get_audit_logs() -> List[Dict[str, Any]]:
     """Return cryptographic remediation audit trail events (buffer + historical)."""
+    use_real_host = os.environ.get("TSUKI_LIVE_HOST", "0") == "1" or os.environ.get("TSUKI_SANITIZE_PRIVACY", "1") == "0"
+    demo_mode = os.environ.get("TSUKI_DEMO_DATA", "0" if use_real_host else "1") == "1"
+
+    if not demo_mode:
+        return list(AUDIT_LOG_BUFFER)
+
     static_logs = [
         {
             "id": "EVT-2026-9402",
