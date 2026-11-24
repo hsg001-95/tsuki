@@ -161,11 +161,7 @@
         <a href="#how-it-works" class="hover:text-[#141413] transition-colors">02 / THREE-STAGE LOOP</a>
         <a href="#table" class="hover:text-[#141413] transition-colors">03 / INVARIANTS TABLE</a>
         <a href="#benchmarks" class="hover:text-[#141413] transition-colors">04 / FAULTBENCH LEDGER</a>
-        <a href="bootloader.html" class="hover:text-[#141413] transition-colors">BOOTLOADER</a>
-        <a href="cockpit.html" class="hover:text-[#141413] transition-colors">COCKPIT</a>
-        <a href="audit.html" class="hover:text-[#141413] transition-colors">AUDIT_TRAIL</a>
-        <a href="telemetry.html" class="hover:text-[#141413] transition-colors">TELEMETRY</a>
-        <a href="settings.html" class="hover:text-[#141413] transition-colors">SETTINGS</a>
+        <a href="#control-plane-modules" class="hover:text-[#141413] transition-colors">05 / MODULES</a>
       </nav>
 
       <!-- Action Button (Sharp 2px radius, High-Contrast Solid Ink) -->
@@ -785,6 +781,116 @@
             </div>
           </div>
         </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION: SYSTEM CONTROL PLANE MODULES (Relocated from Top Bar) -->
+    <section id="control-plane-modules" class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-16 border-t border-[#DEDCD4]">
+      
+      <div class="max-w-3xl mb-8">
+        <div class="font-mono text-xs text-[#006B44] font-semibold tracking-wider mb-2">05 / SYSTEM CONTROL MODULES</div>
+        <h2 class="display-title text-3xl sm:text-4xl text-[#141413] mb-2">
+          Local runtime interfaces &amp; telemetry harnesses.
+        </h2>
+        <p class="text-sm text-[#63635E] font-sans">
+          Select an active control plane module to monitor live pressure rings, audit reversible remediation leases, or inspect kernel bootloader invariants.
+        </p>
+      </div>
+
+      <!-- 5-Column Editorial Modular Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        <!-- Module 1: Cockpit -->
+        <a href="cockpit.html" class="panel-editorial p-5 border border-[#DEDCD4] hover:border-[#141413] transition-colors group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-[10px] uppercase tracking-wider text-[#006B44] font-bold">OPERATOR RUNTIME</span>
+              <span class="w-2 h-2 rounded-full bg-[#006B44]"></span>
+            </div>
+            <h3 class="font-mono font-bold text-base text-[#141413] group-hover:text-[#006B44] transition-colors mb-2">COCKPIT</h3>
+            <p class="text-xs text-[#63635E] font-sans leading-relaxed">
+              Real-time dual-plane telemetry cockpit with live PSI dials, memory velocity gauges, and interactive manual intervention latches.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-[#DEDCD4] font-mono text-[11px] text-[#141413] font-semibold flex items-center justify-between">
+            <span>LAUNCH COCKPIT</span>
+            <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Module 2: Audit Trail -->
+        <a href="audit.html" class="panel-editorial p-5 border border-[#DEDCD4] hover:border-[#141413] transition-colors group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-bold">HISTORICAL LOG</span>
+              <span class="font-mono text-[10px] text-[#63635E]">SQLITE</span>
+            </div>
+            <h3 class="font-mono font-bold text-base text-[#141413] group-hover:text-[#006B44] transition-colors mb-2">AUDIT_TRAIL</h3>
+            <p class="text-xs text-[#63635E] font-sans leading-relaxed">
+              Cryptographically verified journal of all kernel decisions, evidence citations, process IDs, and reversible lease expiration timestamps.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-[#DEDCD4] font-mono text-[11px] text-[#141413] font-semibold flex items-center justify-between">
+            <span>VIEW AUDIT LOG</span>
+            <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Module 3: Telemetry -->
+        <a href="telemetry.html" class="panel-editorial p-5 border border-[#DEDCD4] hover:border-[#141413] transition-colors group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-bold">METRICS STREAM</span>
+              <span class="font-mono text-[10px] text-[#63635E]">100Hz</span>
+            </div>
+            <h3 class="font-mono font-bold text-base text-[#141413] group-hover:text-[#006B44] transition-colors mb-2">TELEMETRY</h3>
+            <p class="text-xs text-[#63635E] font-sans leading-relaxed">
+              Sub-second eBPF event streams for Pressure Stall Information across CPU, I/O, and page cache reclamation queues.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-[#DEDCD4] font-mono text-[11px] text-[#141413] font-semibold flex items-center justify-between">
+            <span>STREAM METRICS</span>
+            <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Module 4: Settings -->
+        <a href="settings.html" class="panel-editorial p-5 border border-[#DEDCD4] hover:border-[#141413] transition-colors group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-bold">POLICY &amp; BOUNDS</span>
+              <span class="font-mono text-[10px] text-[#63635E]">CONFIG</span>
+            </div>
+            <h3 class="font-mono font-bold text-base text-[#141413] group-hover:text-[#006B44] transition-colors mb-2">SETTINGS</h3>
+            <p class="text-xs text-[#63635E] font-sans leading-relaxed">
+              Configurable PSI trigger thresholds, cgroup throttle quotas, protected whitelist entries, and operational execution modes (Shadow / Autonomous).
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-[#DEDCD4] font-mono text-[11px] text-[#141413] font-semibold flex items-center justify-between">
+            <span>CONFIGURE POLICY</span>
+            <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Module 5: Bootloader -->
+        <a href="bootloader.html" class="panel-editorial p-5 border border-[#DEDCD4] hover:border-[#141413] transition-colors group flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-[10px] uppercase tracking-wider text-[#63635E] font-bold">KERNEL INIT</span>
+              <span class="font-mono text-[10px] text-[#006B44] font-semibold">[PASS]</span>
+            </div>
+            <h3 class="font-mono font-bold text-base text-[#141413] group-hover:text-[#006B44] transition-colors mb-2">BOOTLOADER</h3>
+            <p class="text-xs text-[#63635E] font-sans leading-relaxed">
+              Pre-flight system integrity checks: eBPF CO-RE support, cgroup v2 controller delegation, kernel PSI presence, and memory locking privileges.
+            </p>
+          </div>
+          <div class="pt-4 mt-4 border-t border-[#DEDCD4] font-mono text-[11px] text-[#141413] font-semibold flex items-center justify-between">
+            <span>CHECK INVARIANTS</span>
+            <span class="group-hover:translate-x-0.5 transition-transform">→</span>
+          </div>
+        </a>
 
       </div>
 
