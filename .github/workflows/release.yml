@@ -1,0 +1,84 @@
+name: Tsuki Release & Supply Chain Pipeline
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+  id-token: write # Required for Sigstore cosign keyless OIDC signing
+
+jobs:
+  verify-and-audit:
+    name: Supply Chain Audit & Security Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run Cargo Audit (Rust Vulnerability Scanning)
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
+      - name: Run Pip-Audit (Python Dependency Vulnerability Scanning)
+        run: |
+          python -m pip install --upgrade pip pip-audit
+          pip-audit -r requirements.txt
+
+      - name: Run Safety Invariant Suite (Mandatory 10-Test Gate)
+        run: cargo test --test safety_suite
+
+  package-deb:
+    name: Build Ubuntu LTS .deb Package
+    needs: verify-and-audit
+    runs-on: ubuntu-22.04 # Standard LTS
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deb & syft
+        run: |
+          cargo install cargo-deb
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Install Cosign (Sigstore)
+        uses: sigstore/cosign-installer@v3.5.0
+
+      - name: Build Release Binaries
+        run: cargo build --workspace --release
+
+      - name: Build Debian Package
+        run: cargo deb -p tsuki-guard --output target/debian/
+
+      - name: Generate Software Bill of Materials (SBOM)
+        run: |
+          syft target/debian/*.deb -o spdx-json=target/debian/tsuki-sbom.spdx.json
+
+      - name: Sign Debian Package with Sigstore Cosign
+        run: |
+          cd target/debian
+          sha256sum *.deb > SHA256SUMS
+          cosign sign-blob --yes --bundle tsuki-deb.cosign.bundle $(ls *.deb | head -n1)
+          cosign sign-blob --yes --bundle checksums.cosign.bundle SHA256SUMS
+
+      - name: Publish GitHub Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            target/debian/*.deb
+            target/debian/SHA256SUMS
+            target/debian/tsuki-sbom.spdx.json
+            target/debian/*.bundle

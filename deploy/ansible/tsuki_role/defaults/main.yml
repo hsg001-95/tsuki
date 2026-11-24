@@ -1,0 +1,11 @@
+---
+# Defaults for tsuki_role
+tsuki_mode: "shadow" # "shadow", "approval", or "autonomous"
+tsuki_version: "0.1.0"
+tsuki_deb_url: "https://github.com/snoxx-tech/tsuki/releases/download/v{{ tsuki_version }}/tsuki-guard_{{ tsuki_version }}_amd64.deb"
+tsuki_deb_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+tsuki_install_reasoning: false
+tsuki_api_token: "tsuki-secure-dev-token"
+tsuki_max_rss_mb: 100
+tsuki_sampling_hz: 1.0

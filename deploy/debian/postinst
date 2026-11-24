@@ -1,0 +1,35 @@
+#!/bin/sh
+set -e
+
+# Tsuki Post-Installation Script
+case "$1" in
+    configure)
+        # Create dedicated system user if not present
+        if ! id -u tsuki >/dev/null 2>&1; then
+            useradd -r -s /usr/sbin/nologin -d /var/lib/tsuki -c "Tsuki Linux Control Plane" tsuki
+        fi
+
+        # Provision runtime and state directories
+        mkdir -p /var/run/tsuki/snapshots /var/run/tsuki/pending_intents /var/lib/tsuki /var/log/tsuki /etc/tsuki
+        chown -R root:tsuki /var/run/tsuki /var/lib/tsuki /var/log/tsuki
+        chmod 775 /var/run/tsuki /var/run/tsuki/snapshots /var/run/tsuki/pending_intents /var/lib/tsuki /var/log/tsuki
+
+        # Secure default config (0640)
+        if [ -f /etc/tsuki/tsuki.toml ]; then
+            chown root:tsuki /etc/tsuki/tsuki.toml
+            chmod 640 /etc/tsuki/tsuki.toml
+        fi
+
+        # Reload systemd and enable units in safe default shadow mode
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload
+            systemctl enable tsuki-guard.slice tsuki-reasoning.slice >/dev/null 2>&1 || true
+            systemctl enable tsuki-actuator.service tsuki-guard.service tsuki-rollbackd.service >/dev/null 2>&1 || true
+            
+            # Start guard daemon in shadow mode by default
+            systemctl start tsuki-actuator.service tsuki-guard.service tsuki-rollbackd.service >/dev/null 2>&1 || true
+        fi
+        ;;
+esac
+
+exit 0

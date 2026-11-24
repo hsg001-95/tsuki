@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsuki-control-plane
+  namespace: tsuki-system
+  labels:
+    app.kubernetes.io/name: tsuki-control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tsuki-control-plane
+  template:
+    metadata:
+      labels:
+        app: tsuki-control-plane
+    spec:
+      containers:
+        - name: web-control-plane
+          image: tsuki/reasoning:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: TSUKI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tsuki-secrets
+                  key: api-token
+          resources:
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tsuki-control-plane-svc
+  namespace: tsuki-system
+spec:
+  type: ClusterIP
+  selector:
+    app: tsuki-control-plane
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000

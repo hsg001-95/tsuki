@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tsuki-guard-agent
+  namespace: tsuki-system
+  labels:
+    app.kubernetes.io/name: tsuki-guard
+    app.kubernetes.io/part-of: tsuki-control-plane
+spec:
+  selector:
+    matchLabels:
+      app: tsuki-guard
+  template:
+    metadata:
+      labels:
+        app: tsuki-guard
+    spec:
+      hostPID: true
+      hostNetwork: true
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: tsuki-guard
+          image: tsuki/guard:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - SYS_RESOURCE
+                - SYS_ADMIN
+                - DAC_OVERRIDE
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "100Mi"
+            requests:
+              cpu: "20m"
+              memory: "50Mi"
+          volumeMounts:
+            - name: cgroup
+              mountPath: /sys/fs/cgroup
+              readOnly: false
+            - name: proc-pressure
+              mountPath: /proc/pressure
+              readOnly: true
+            - name: kernel-btf
+              mountPath: /sys/kernel/btf
+              readOnly: true
+            - name: runtime-sock
+              mountPath: /var/run/tsuki
+            - name: state-journal
+              mountPath: /var/lib/tsuki
+      volumes:
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: proc-pressure
+          hostPath:
+            path: /proc/pressure
+        - name: kernel-btf
+          hostPath:
+            path: /sys/kernel/btf
+        - name: runtime-sock
+          hostPath:
+            path: /var/run/tsuki
+            type: DirectoryOrCreate
+        - name: state-journal
+          hostPath:
+            path: /var/lib/tsuki
+            type: DirectoryOrCreate

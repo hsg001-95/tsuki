@@ -1,0 +1,33 @@
+[Unit]
+Description=Tsuki Reasoning Plane & Web Control Plane Service (FastAPI & Dashboard)
+Documentation=https://github.com/snoxx-tech/tsuki
+After=network.target tsuki-actuator.service
+Wants=tsuki-actuator.service
+
+[Service]
+Type=simple
+Slice=tsuki-reasoning.slice
+WorkingDirectory=/opt/tsuki
+ExecStart=/opt/tsuki/.venv/bin/uvicorn reasoning.tsuki_api.app:app --host 127.0.0.1 --port 8000 --workers 2
+Restart=always
+RestartSec=3s
+
+# Process security & sandboxing (PERF-04, SAF-05)
+User=tsuki
+Group=tsuki
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/run/tsuki /var/log/tsuki /var/lib/tsuki
+Environment=PYTHONPATH=/opt/tsuki/reasoning
+Environment=TSUKI_SOCKET_PATH=/var/run/tsuki/actuator.sock
+Environment=TSUKI_SNAPSHOT_DIR=/var/run/tsuki/snapshots
+Environment=TSUKI_PENDING_INTENTS_DIR=/var/run/tsuki/pending_intents
+Environment=TSUKI_API_TOKEN=tsuki-secure-dev-token
+
+# Sacrificial OOM priority (PERF-04: reasoning plane killed first before guard plane)
+OOMScoreAdjust=500
+
+[Install]
+WantedBy=multi-user.target

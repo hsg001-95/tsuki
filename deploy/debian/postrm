@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    purge)
+        rm -rf /var/run/tsuki /var/log/tsuki /var/lib/tsuki /etc/tsuki
+        if id -u tsuki >/dev/null 2>&1; then
+            userdel tsuki >/dev/null 2>&1 || true
+        fi
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload
+        fi
+        ;;
+    remove|upgrade)
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload
+        fi
+        ;;
+esac
+
+exit 0

@@ -132,7 +132,9 @@ def test_fastapi_endpoints(monkeypatch):
     assert panic_authed.json()["status"] == "panic_engaged"
     assert panic_authed.json()["reverted_count"] == 2
 
-    # Test approve intent with mock payload
+    # Test approve intent with mock payload in approval mode (SAF-07)
+    client.post("/api/mode", json={"mode": "approval"}, headers=auth_headers)
+
     intent_payload = {
         "intent_id": "test-intent-101",
         "timestamp": "2026-11-17T08:00:00Z",

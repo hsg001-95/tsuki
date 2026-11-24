@@ -1,0 +1,37 @@
+# ==============================================================================
+# Dockerfile.reasoning: Tsuki Python Reasoning Plane & Web Dashboard Service
+# Runs FastAPI, ONNX Runtime INT8, and serves the Web Control Plane
+# ==============================================================================
+FROM python:3.11-slim-bullseye
+
+WORKDIR /opt/tsuki
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir fastapi uvicorn
+
+COPY reasoning ./reasoning
+COPY assets ./assets
+COPY bin ./bin
+COPY *.html ./
+
+RUN useradd -r -s /usr/sbin/nologin tsuki && \
+    mkdir -p /var/run/tsuki/snapshots /var/run/tsuki/pending_intents /var/lib/tsuki && \
+    chown -R tsuki:tsuki /opt/tsuki /var/run/tsuki /var/lib/tsuki
+
+USER tsuki
+
+ENV PYTHONPATH=/opt/tsuki/reasoning
+ENV TSUKI_SOCKET_PATH=/var/run/tsuki/actuator.sock
+ENV TSUKI_SNAPSHOT_DIR=/var/run/tsuki/snapshots
+ENV TSUKI_PENDING_INTENTS_DIR=/var/run/tsuki/pending_intents
+ENV TSUKI_API_TOKEN=tsuki-secure-dev-token
+
+EXPOSE 8000
+
+CMD ["uvicorn", "reasoning.tsuki_api.app:app", "--host", "0.0.0.0", "--port", "8000"]

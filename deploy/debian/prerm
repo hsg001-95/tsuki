@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        if [ -d /run/systemd/system ]; then
+            # Emergency fallback: ensure panic trigger resets any active throttles before service stop
+            if [ -x /usr/local/bin/tsuki-actuator ] && [ -S /var/run/tsuki/actuator.sock ]; then
+                /usr/local/bin/tsuki-actuator panic >/dev/null 2>&1 || true
+            fi
+            systemctl stop tsuki-guard.service tsuki-rollbackd.service tsuki-actuator.service tsuki-api.service >/dev/null 2>&1 || true
+            systemctl disable tsuki-guard.service tsuki-rollbackd.service tsuki-actuator.service tsuki-api.service >/dev/null 2>&1 || true
+        fi
+        ;;
+esac
+
+exit 0

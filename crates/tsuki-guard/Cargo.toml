@@ -13,3 +13,28 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 nix.workspace = true
 chrono.workspace = true
+
+[package.metadata.deb]
+maintainer = "Snoxx Tech <support@snoxx.tech>"
+copyright = "2026, Tsuki Systems"
+depends = "$auto, systemd, libcap2-bin"
+section = "admin"
+priority = "optional"
+extended-description = """\
+Tsuki Guard Plane: Autonomous local-first Linux reliability, continuous PSI telemetry, \
+eBPF tracepoint ingestion, and deterministic cgroup v2 reversible actuation."""
+maintainer-scripts = "../../deploy/debian"
+assets = [
+    ["target/release/tsuki-guard", "usr/local/bin/", "755"],
+    ["target/release/tsuki-actuator", "usr/local/bin/", "755"],
+    ["target/release/tsuki-rollbackd", "usr/local/bin/", "755"],
+    ["../../bin/tsukictl", "usr/local/bin/", "755"],
+    ["../../tsuki.toml.example", "etc/tsuki/tsuki.toml", "640"],
+    ["../../deploy/systemd/tsuki-guard.slice", "etc/systemd/system/", "644"],
+    ["../../deploy/systemd/tsuki-reasoning.slice", "etc/systemd/system/", "644"],
+    ["../../deploy/systemd/tsuki-guard.service", "etc/systemd/system/", "644"],
+    ["../../deploy/systemd/tsuki-actuator.service", "etc/systemd/system/", "644"],
+    ["../../deploy/systemd/tsuki-rollbackd.service", "etc/systemd/system/", "644"],
+    ["../../deploy/systemd/tsuki-api.service", "etc/systemd/system/", "644"],
+]
+conf-files = ["/etc/tsuki/tsuki.toml"]

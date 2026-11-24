@@ -1,0 +1,30 @@
+# ==============================================================================
+# Dockerfile.guard: Tsuki Rust Guard Plane Daemon Container
+# Requires --privileged, --pid=host, and cgroup v2 mounts on the host
+# ==============================================================================
+FROM rust:1.80-bullseye AS builder
+
+WORKDIR /src
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+
+RUN cargo build --workspace --release
+
+FROM debian:bullseye-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcap2-bin \
+    procps \
+    socat \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /src/target/release/tsuki-guard /usr/local/bin/tsuki-guard
+COPY --from=builder /src/target/release/tsuki-actuator /usr/local/bin/tsuki-actuator
+COPY --from=builder /src/target/release/tsuki-rollbackd /usr/local/bin/tsuki-rollbackd
+COPY tsuki.toml.example /etc/tsuki/tsuki.toml
+
+RUN mkdir -p /var/run/tsuki/snapshots /var/run/tsuki/pending_intents /var/lib/tsuki /var/log/tsuki
+
+# Entrypoint manages daemon lifecycle
+CMD ["/usr/local/bin/tsuki-actuator", "--config", "/etc/tsuki/tsuki.toml", "daemon"]

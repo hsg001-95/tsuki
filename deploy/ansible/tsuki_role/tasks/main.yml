@@ -1,0 +1,51 @@
+---
+- name: Verify kernel PSI subsystem support
+  ansible.builtin.stat:
+    path: /proc/pressure/memory
+  register: psi_stat
+  failed_when: not psi_stat.stat.exists
+
+- name: Verify cgroup v2 unified hierarchy
+  ansible.builtin.command: grep -q "cgroup2 /sys/fs/cgroup cgroup2" /proc/mounts
+  changed_when: false
+
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name:
+      - libcap2-bin
+      - procps
+      - socat
+    state: present
+    update_cache: yes
+
+- name: Download signed Tsuki .deb package
+  ansible.builtin.get_url:
+    url: "{{ tsuki_deb_url }}"
+    dest: "/tmp/tsuki-guard_{{ tsuki_version }}_amd64.deb"
+    checksum: "sha256:{{ tsuki_deb_sha256 }}"
+    mode: '0644'
+
+- name: Install Tsuki package
+  ansible.builtin.apt:
+    deb: "/tmp/tsuki-guard_{{ tsuki_version }}_amd64.deb"
+    state: present
+
+- name: Template Tsuki configuration (/etc/tsuki/tsuki.toml)
+  ansible.builtin.template:
+    src: tsuki.toml.j2
+    dest: /etc/tsuki/tsuki.toml
+    owner: root
+    group: tsuki
+    mode: '0640'
+  notify: Restart Tsuki Daemons
+
+- name: Ensure Tsuki service units are enabled and running in {{ tsuki_mode }} mode
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop:
+    - tsuki-guard.slice
+    - tsuki-actuator.service
+    - tsuki-guard.service
+    - tsuki-rollbackd.service

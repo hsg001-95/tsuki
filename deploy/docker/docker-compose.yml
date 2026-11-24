@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Guard Plane (Privileged Host Node Daemon)
+  # ---------------------------------------------------------------------------
+  tsuki-guard:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.guard
+    container_name: tsuki-guard
+    privileged: true
+    pid: "host"
+    network_mode: "host"
+    restart: always
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /proc/pressure:/proc/pressure:ro
+      - /sys/kernel/btf:/sys/kernel/btf:ro
+      - tsuki-runtime:/var/run/tsuki
+      - tsuki-data:/var/lib/tsuki
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 100M
+
+  # ---------------------------------------------------------------------------
+  # 2. Reasoning Plane & Web Control Plane (FastAPI + Dashboards)
+  # ---------------------------------------------------------------------------
+  tsuki-reasoning:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.reasoning
+    container_name: tsuki-reasoning
+    restart: always
+    depends_on:
+      - tsuki-guard
+    ports:
+      - "8000:8000"
+    volumes:
+      - tsuki-runtime:/var/run/tsuki
+      - tsuki-data:/var/lib/tsuki
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 4096M
+
+volumes:
+  tsuki-runtime:
+  tsuki-data:
