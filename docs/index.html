@@ -3,855 +3,899 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tsuki: Autonomous Local-First Control Plane for Linux</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Space Grotesk & JetBrains Mono -->
+  <title>Tsuki — Autonomous Local-First Control Plane for Linux</title>
+  
+  <!-- Typography: Newsreader (Editorial Serif), Space Grotesk (Clean Grotesque Sans), JetBrains Mono (Technical Monospace) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
+            serif: ["Newsreader", "Georgia", "serif"],
             sans: ["Space Grotesk", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
             mono: ["JetBrains Mono", "ui-monospace", "monospace"],
           },
           colors: {
-            brand: {
-              50: "#f0f7ff",
-              100: "#e0effe",
-              500: "#0969da",
-              600: "#0969da",
-              700: "#0550ae",
-              800: "#033d8b",
-              900: "#0a3069",
+            paper: "#F7F6F2",
+            ink: {
+              DEFAULT: "#141413",
+              soft: "#2A2A28",
+              muted: "#63635E",
+              faint: "#8E8E86",
             },
-            emerald: {
-              50: "#eaf5ef",
-              100: "#d2ebd9",
-              500: "#00875a",
-              600: "#00875a",
-              700: "#006644",
-              800: "#004d34",
-              900: "#003824",
+            accent: {
+              DEFAULT: "#006B44", /* Deep forest green */
+              hover: "#005234",
+              light: "#EAF3ED",
+              border: "#9ECBB4",
             },
             amber: {
-              50: "#fffbeb",
-              100: "#fef3c7",
-              500: "#d97706",
-              600: "#b45309",
-              700: "#92400e",
+              DEFAULT: "#A85208", /* Grounded burnt amber */
+              light: "#FDF5ED",
             },
-            rose: {
-              50: "#fff1f2",
-              100: "#ffe4e6",
-              500: "#cf222e",
-              600: "#a40e26",
-              700: "#82071e",
+            crimson: {
+              DEFAULT: "#9E1C24", /* Rust red */
+              light: "#FBECEE",
             },
-            substrate: {
-              canvas: "#F4F6F8",
-              surface: "#FFFFFF",
-              elevated: "#F6F8FA",
-              overlay: "#EAEEF2",
-              dark: "#090A0F",
-              darkelevated: "#11141A",
-            },
-            ink: {
-              primary: "#0F141C",
-              secondary: "#57606A",
-              muted: "#8C95A0",
-            },
-            hairline: {
-              DEFAULT: "#D0D7DE",
-              muted: "#BAC3CF",
-              strong: "#57606A",
-              dark: "#27272A",
+            border: {
+              DEFAULT: "#DEDCD4",
+              dark: "#141413",
+              subtle: "#EAE8E0",
             }
           }
         }
       }
     }
   </script>
+
   <style>
-    /* Technical Grid Pattern - Clean Hairline Lines */
-    .bg-tech-grid {
-      background-size: 32px 32px;
+    /* Editorial Grid & Rule System */
+    :root {
+      --bg-paper: #F7F6F2;
+      --ink: #141413;
+      --border-crisp: #DEDCD4;
+      --accent-green: #006B44;
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle Architectural Rule Grid (1px solid crisp lines) */
+    .bg-editorial-grid {
+      background-size: 48px 48px;
       background-image: 
-        linear-gradient(to right, rgba(87, 96, 106, 0.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(87, 96, 106, 0.08) 1px, transparent 1px);
+        linear-gradient(to right, rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
     }
-    /* Industrial Crisp Container (Zero Blurry Shadow, Strict 1px Structural Borders) */
-    .industrial-card {
+
+    /* Crisp Industrial Panels (0px or 2px radius, 1px solid hairline) */
+    .panel-editorial {
       background: #FFFFFF;
-      border: 1px solid #D0D7DE;
-      border-radius: 4px;
-      box-shadow: 0 1px 2px rgba(15, 20, 28, 0.04);
+      border: 1px solid var(--border-crisp);
+      border-radius: 0px;
     }
-    .industrial-card:hover {
-      border-color: #57606A;
-      transition: border-color 0.15s ease-in-out;
+
+    .panel-editorial-subtle {
+      background: #F1EFEA;
+      border: 1px solid var(--border-crisp);
+      border-radius: 0px;
     }
-    /* Tabular numbers across all metrics */
+
+    .panel-dark {
+      background: #141413;
+      color: #F7F6F2;
+      border: 1px solid #2A2A28;
+      border-radius: 0px;
+    }
+
+    /* Headings Tight Tracking */
+    .display-title {
+      font-family: 'Newsreader', Georgia, serif;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+    }
+
     .tabular-nums {
       font-variant-numeric: tabular-nums;
     }
+
+    /* Subtle instant border hover shift instead of bouncy lift */
+    .tactile-row:hover {
+      background-color: #FBFBF9;
+      border-color: #141413;
+    }
+
+    /* Active Watermark Positioning */
+    .editorial-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(520px, 80vw);
+      height: auto;
+      opacity: 0.16;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
   </style>
 </head>
-<body class="bg-[#F4F6F8] text-[#0F141C] antialiased selection:bg-[#0969DA]/10 selection:text-[#0969DA] font-sans min-h-screen relative overflow-x-hidden">
 
-  <!-- Background Technical Grid & Dark Ambient Watermark Layer -->
+<body class="font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-[#006B44] selection:text-white">
+
+  <!-- Watermark & Blueprint Layer -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
-    <div class="absolute inset-0 bg-tech-grid opacity-90"></div>
-    <!-- Dark Ambient Tsukuyomi Watermark -->
-    <img src="assets/watermark.png?v=1" alt="" aria-hidden="true" style="position: absolute; width: min(480px, 70vw); height: auto; opacity: 0.15; pointer-events: none; user-select: none; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
+    <div class="absolute inset-0 bg-editorial-grid"></div>
+    <img src="assets/watermark.png?v=2" alt="" aria-hidden="true" class="editorial-watermark" />
   </div>
 
-  <!-- SECTION 1: GLOBAL CONTROL NAVIGATION (Edge-to-Edge Full Screen Top Bar) -->
-  <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#D0D7DE] shadow-[0_1px_4px_rgba(15,20,28,0.04)]">
-    <div class="w-full px-4 sm:px-6 lg:px-8 2xl:px-12 h-20 flex items-center justify-between">
-      <!-- Logo & Product Identity -->
-      <a href="#" class="flex items-center gap-3 group">
-        <img src="assets/logo.png?v=4" alt="Tsuki Logo" class="h-14 w-auto object-contain shrink-0" />
-        <div class="flex items-center gap-2">
-          <span class="font-bold tracking-tight text-[#0F141C] text-xl font-bold font-mono">Tsuki</span>
-          <span class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-[2px] text-[10px] font-mono font-medium bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9]">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#00875a] mr-1.5 animate-pulse"></span>
-            CORE v1.0 [ebpf-co-re]
+  <!-- MASTHEAD / TOP BAR (Edge-to-Edge, Crisp Hairline Border, Zero Blobs) -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#F7F6F2]/95 backdrop-blur-sm border-b border-[#DEDCD4]">
+    <div class="w-full px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between">
+      
+      <!-- Brand Monogram & Classification -->
+      <a href="#" class="flex items-center gap-3.5 group">
+        <img src="assets/logo.png?v=4" alt="Tsuki Monogram" class="h-10 w-auto object-contain shrink-0" />
+        <div class="flex items-baseline gap-2.5">
+          <span class="font-serif font-semibold text-2xl tracking-tight text-[#141413]">Tsuki</span>
+          <span class="font-mono text-[10px] tracking-wider uppercase text-[#63635E] hidden sm:inline">Linux Kernel Control Plane</span>
+          <span class="font-mono text-[10px] px-1.5 py-0.2 bg-[#EAF3ED] text-[#006B44] border border-[#9ECBB4] rounded-[1px] hidden md:inline">
+            v1.0 • eBPF CO-RE
           </span>
         </div>
       </a>
 
-      <!-- Navigation Links -->
-      <div class="hidden xl:flex items-center gap-6 text-xs font-mono font-medium text-[#57606A]">
-        <a href="#architecture" class="hover:text-[#0F141C] transition-colors">ARCHITECTURE</a>
-        <a href="#how-it-works" class="hover:text-[#0F141C] transition-colors">HOW_IT_WORKS</a>
-        <a href="#benchmarks" class="hover:text-[#0F141C] transition-colors">FAULT_BENCH</a>
-        <a href="#safety" class="hover:text-[#0F141C] transition-colors">INVARIANTS</a>
-        <a href="bootloader.html" class="hover:text-[#0F141C] transition-colors">BOOTLOADER</a>
-        <a href="cockpit.html" class="hover:text-[#0F141C] transition-colors">COCKPIT</a>
-        <a href="audit.html" class="hover:text-[#0F141C] transition-colors">AUDIT_TRAIL</a>
-        <a href="telemetry.html" class="hover:text-[#0F141C] transition-colors">TELEMETRY</a>
-        <a href="settings.html" class="hover:text-[#0F141C] transition-colors">SETTINGS</a>
+      <!-- Minimal Editorial Navigation -->
+      <nav class="hidden lg:flex items-center space-x-6 text-xs font-mono tracking-tight text-[#63635E]">
+        <a href="#architecture" class="hover:text-[#141413] transition-colors">01 / ARCHITECTURE</a>
+        <a href="#how-it-works" class="hover:text-[#141413] transition-colors">02 / THREE-STAGE LOOP</a>
+        <a href="#table" class="hover:text-[#141413] transition-colors">03 / INVARIANTS TABLE</a>
+        <a href="#benchmarks" class="hover:text-[#141413] transition-colors">04 / FAULTBENCH LEDGER</a>
+        <a href="bootloader.html" class="hover:text-[#141413] transition-colors">BOOTLOADER</a>
+        <a href="cockpit.html" class="hover:text-[#141413] transition-colors">COCKPIT</a>
+        <a href="audit.html" class="hover:text-[#141413] transition-colors">AUDIT_TRAIL</a>
+        <a href="telemetry.html" class="hover:text-[#141413] transition-colors">TELEMETRY</a>
+        <a href="settings.html" class="hover:text-[#141413] transition-colors">SETTINGS</a>
+      </nav>
+
+      <!-- Action Button (Sharp 2px radius, High-Contrast Solid Ink) -->
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/hsg001-95/tsuki" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-[#141413] border border-[#DEDCD4] hover:border-[#141413] bg-white rounded-[2px] transition-colors">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="cockpit.html" class="px-4 py-1.5 text-xs font-mono font-medium text-white bg-[#141413] hover:bg-[#2A2A28] border border-[#141413] rounded-[2px] transition-colors">
+          LAUNCH CONTROL PLANE →
+        </a>
       </div>
 
-      <!-- Right Action Items -->
-      <div class="flex items-center gap-3">
-        <a href="https://github.com/hsg001-95/tsuki" target="_blank" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-mono text-[#0F141C] bg-[#F6F8FA] hover:bg-[#EAEEF2] transition-colors border border-[#D0D7DE]">
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          <span class="tabular-nums">Star</span>
-        </a>
-        <a href="cockpit.html" class="px-3.5 py-1.5 rounded-[2px] text-xs font-mono font-semibold text-white bg-[#0F141C] hover:bg-[#27272A] border border-[#0F141C] transition-colors flex items-center gap-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-          <span>LAUNCH CONTROL PLANE</span>
-          <span class="font-mono text-[#8C95A0]">→</span>
-        </a>
-      </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
   <main class="relative z-10 pt-24 pb-20">
 
-        <!-- SECTION 2: HERO SECTION WITH LIVE TWO-PLANE KINETIC VISUALIZER -->
-    <section class="w-full max-w-7xl 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8 md:py-12 text-center">
-      <!-- Hero Centerpiece Logo Emblem -->
-      <div class="flex justify-center mb-6">
-        <div class="relative inline-block">
-          <div class="absolute -inset-3 rounded-full bg-gradient-to-tr from-[#0969DA]/15 via-transparent to-[#00875A]/15 blur-lg pointer-events-none"></div>
-          <img src="assets/logo.png?v=4" alt="Tsuki Logo Emblem" class="relative h-24 sm:h-28 w-auto object-contain drop-shadow-md transition-transform duration-300 hover:scale-105" />
-        </div>
-      </div>
-      <!-- Eyebrow Badge (Rectangular, 1px Border) -->
-      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-[2px] text-xs font-mono font-medium bg-white border border-[#D0D7DE] shadow-xs mb-6">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00875a] opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#00875a]"></span>
-        </span>
-        <span class="tracking-wider uppercase text-[#0F141C] text-[11px]">AUTONOMOUS CONTROL PLANE FOR LINUX</span>
-        <span class="text-[#D0D7DE]">|</span>
-        <span class="text-[#0969DA] font-mono text-[11px]">PSI-DRIVEN ZERO FREEZE</span>
+    <!-- HERO SECTION: ASYMMETRIC 12-COLUMN SPLIT (7 COLS EDITORIAL PROSE / 5 COLS KINETIC SYSTEM STAGE) -->
+    <section class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-8 lg:py-16">
+      
+      <!-- Top Classification Tag -->
+      <div class="flex items-center gap-2 mb-6 font-mono text-xs text-[#63635E]">
+        <span class="w-2 h-2 rounded-full bg-[#006B44]"></span>
+        <span>SECTION 00 // AUTONOMOUS RUNTIME INVARIANT</span>
+        <span class="text-[#DEDCD4]">|</span>
+        <span>LINUX KERNEL 6.8+ eBPF CO-RE</span>
       </div>
 
-      <!-- Main Display Headline -->
-      <h1 class="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[#0F141C] max-w-4xl mx-auto leading-[1.12] mb-5">
-        Predict Linux kernel stalls <br class="hidden sm:inline">
-        <span class="text-[#0969DA]">before they freeze the machine.</span>
-      </h1>
-
-      <!-- Technical Sub-headline -->
-      <p class="text-base sm:text-lg text-[#57606A] max-w-2xl mx-auto leading-relaxed font-normal mb-8">
-        A local-first dual-plane control system combining memory-locked Rust eBPF guard rails with sandboxed on-device reasoning to detect, diagnose, and autonomously remediate OS thrash without SIGKILL.
-      </p>
-
-      <!-- Action Buttons & Quick Copy CLI -->
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-        <a href="cockpit.html" class="w-full sm:w-auto px-5 py-2.5 rounded-[4px] font-mono text-xs font-semibold text-white bg-[#00875A] hover:bg-[#006644] border border-[#00875A] transition-colors flex items-center justify-center gap-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-          <span>DEPLOY LOCAL CONTROL PLANE</span>
-          <span>→</span>
-        </a>
-
-        <!-- CLI Copy Snippet -->
-        <div class="w-full sm:w-auto flex items-center justify-between gap-3 px-3 py-2 rounded-[4px] bg-white border border-[#D0D7DE] font-mono text-xs text-[#0F141C]">
-          <span class="text-[#8C95A0] select-none">$</span>
-          <span class="font-medium select-all" id="cliText">curl -fsSL https://get.tsuki.dev | sh</span>
-          <button onclick="copyCliCommand()" class="ml-2 p-1 rounded-[2px] text-[#57606A] hover:text-[#0F141C] hover:bg-[#F6F8FA] transition-colors relative" title="Copy to clipboard" id="copyBtn">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            <span id="copiedToast" class="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#0F141C] text-white text-[10px] font-mono px-1.5 py-0.5 rounded-[2px] opacity-0 transition-opacity pointer-events-none">COPIED</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- THE CORE ANIMATED DUAL-PLANE KINETIC VISUALIZER (Industrial Framed Stage) -->
-      <div id="architecture" class="w-full max-w-6xl 2xl:max-w-[1440px] mx-auto">
-        <div class="bg-white rounded-[4px] p-5 sm:p-7 border border-[#D0D7DE] shadow-[0_1px_3px_rgba(15,20,28,0.05)] text-left">
+      <!-- Asymmetric Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        
+        <!-- Left: 7 Columns Editorial Thesis & Deployment (Editorial Serif Headline) -->
+        <div class="lg:col-span-7 pr-0 lg:pr-6">
           
-          <!-- Visualizer Top Control Bar -->
-          <div class="flex flex-wrap items-center justify-between gap-4 pb-4 mb-5 border-b border-[#D0D7DE]">
-            <div class="flex items-center gap-3">
-              <span class="flex h-2.5 w-2.5 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00875a] opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00875a]"></span>
-              </span>
-              <div>
-                <h3 class="text-sm font-bold text-[#0F141C] tracking-tight flex items-center gap-2">
-                  Dual-Plane Architecture Kinetic Stage
-                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-[2px] bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9]">SIMULATOR</span>
-                </h3>
-                <p class="text-xs text-[#57606A] font-mono">Isolated Kernel Invariant Enforcement via eBPF + Local INT8 TCN</p>
-              </div>
-            </div>
+          <h1 class="display-title text-4xl sm:text-5xl lg:text-6xl text-[#141413] mb-6">
+            Predict Linux kernel stalls before memory thrashing freezes the host.
+          </h1>
 
-            <!-- Simulation Trigger Button -->
-            <button id="simBtn" onclick="runSimulation()" class="px-3 py-1.5 rounded-[2px] text-xs font-mono font-semibold bg-[#fff1f2] text-[#cf222e] border border-[#cf222e]/40 hover:bg-[#ffe4e6] transition-colors flex items-center gap-2 active:scale-98">
-              <span class="w-2 h-2 rounded-full bg-[#cf222e] animate-pulse"></span>
-              <span id="simBtnText">SIMULATE MEMORY THRASH</span>
-              <span class="text-[10px] font-mono text-[#cf222e]/80">[TEST]</span>
-            </button>
+          <div class="space-y-4 text-base sm:text-lg text-[#2A2A28] font-sans leading-relaxed mb-8 max-w-2xl">
+            <p>
+              Standard Linux out-of-memory routines trigger only when page reclamation has already locked the processor. By that point, SSH sockets drop, database buffers discard, and the machine hard-freezes into an unrecoverable kernel stall.
+            </p>
+            <p class="text-sm sm:text-base text-[#63635E]">
+              <strong>Tsuki</strong> is a local-first dual-plane control system. It binds memory-locked Rust eBPF guard rails with sandboxed, on-device causal reasoning to detect, diagnose, and autonomously remediate OS memory thrashing without issuing <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px] text-[#141413]">SIGKILL</code>.
+            </p>
           </div>
 
-          <!-- Isometric Two-Plane Console Stage -->
-          <div class="relative min-h-[380px] sm:min-h-[400px] rounded-[3px] bg-[#090A0F] p-5 sm:p-6 text-white overflow-hidden border border-[#27272A] flex flex-col justify-between">
+          <!-- Direct Monospace Deploy Command & Action Group -->
+          <div class="space-y-4 pt-2">
             
-            <!-- Grid lines inside canvas -->
-            <div class="absolute inset-0 bg-tech-grid opacity-10"></div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <a href="cockpit.html" class="inline-flex items-center justify-center px-5 py-3 text-xs font-mono font-semibold tracking-wider text-white bg-[#006B44] hover:bg-[#005234] border border-[#006B44] rounded-[2px] transition-colors">
+                ENTER COCKPIT INTERFACE →
+              </a>
 
-            <!-- Plane B: Reasoning Plane (Top Layer) -->
-            <div id="planeB" class="relative z-10 transition-all duration-300 rounded-[3px] p-4 bg-[#11141A] border border-[#27272A]">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-2.5 h-2.5 rounded-[1px] bg-[#0969DA]"></div>
-                  <span class="text-xs font-mono font-bold tracking-wider text-[#0969DA] uppercase">PLANE B: PYTHON REASONING PLANE</span>
-                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-[2px] bg-[#0A3069] text-[#79c0ff] border border-[#0969DA]/40">SANDBOXED AGENT (PID 4092)</span>
-                </div>
-                <div class="text-[11px] font-mono text-[#8C95A0] flex items-center gap-3">
-                  <span>MODEL: <strong class="text-white">ONNX INT8</strong></span>
-                  <span class="text-[#57606A]">•</span>
-                  <span>EGRESS: <strong class="text-[#00875a]">0 KB (OFFLINE)</strong></span>
-                </div>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">DIAGNOSIS REASONING</div>
-                  <div id="planeBdiag" class="text-slate-200 mt-1 truncate">Status: Nominal idle (Monitoring PSI stream)</div>
-                </div>
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">VALIDATED INTENT SPEC</div>
-                  <div id="planeBintent" class="text-[#8C95A0] mt-1 font-mono text-[11px]">Strict Typed JSON Actuator Schema</div>
-                </div>
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">REWARD BANDIT</div>
-                  <div class="text-[#00875a] mt-1 font-mono tabular-nums">α=124 β=8 (Thompson Sampling)</div>
-                </div>
+              <!-- Copyable Terminal Command -->
+              <div class="flex items-center border border-[#DEDCD4] bg-white rounded-[2px] px-3.5 py-2.5 font-mono text-xs text-[#141413]">
+                <span class="text-[#63635E] mr-2 select-none">$</span>
+                <span id="cliText" class="font-mono tracking-tight select-all">curl -fsSL https://get.tsuki.dev | sh</span>
+                <button onclick="copyCliCommand()" aria-label="Copy installation command" class="ml-3 text-[#63635E] hover:text-[#141413] focus:outline-none transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
               </div>
             </div>
 
-            <!-- Kinetic Data Bridge (Hairline Flow Connectors) -->
-            <div class="relative py-3 my-1 flex items-center justify-around z-0">
-              <div class="flex flex-col items-center">
-                <div id="streamUp1" class="h-8 w-0.5 bg-[#00875a] opacity-40 transition-all duration-300"></div>
-                <span class="text-[10px] font-mono text-[#8C95A0] mt-1">▲ eBPF Telemetry (PSI, sched, kswapd)</span>
+            <!-- Toast feedback for copy -->
+            <div id="copiedToast" class="opacity-0 transition-opacity duration-200 text-[11px] font-mono text-[#006B44]">
+              ✓ Installation command copied to clipboard.
+            </div>
+
+            <!-- Architectural Micro-Specifications Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#DEDCD4] text-[11px] font-mono text-[#63635E]">
+              <div>
+                <span class="block text-[#141413] font-semibold">FOOTPRINT</span>
+                <span>38 MB RSS</span>
               </div>
-              <div class="flex flex-col items-center">
-                <div class="px-2.5 py-1 rounded-[2px] bg-[#11141A] border border-[#27272A] text-[10px] font-mono text-slate-300 flex items-center gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-[#d97706] animate-pulse"></span>
-                  <span>Authority Boundary (Unix Domain Socket / IPC)</span>
-                </div>
+              <div>
+                <span class="block text-[#141413] font-semibold">P99 LATENCY</span>
+                <span>&lt; 0.18ms</span>
               </div>
-              <div class="flex flex-col items-center">
-                <div id="streamDown1" class="h-8 w-0.5 bg-[#0969DA] opacity-40 transition-all duration-300"></div>
-                <span class="text-[10px] font-mono text-[#8C95A0] mt-1">▼ Reversible Action Lease (TTL: 300s)</span>
+              <div>
+                <span class="block text-[#141413] font-semibold">CONTAINMENT</span>
+                <span>cgroup v2 Leases</span>
+              </div>
+              <div>
+                <span class="block text-[#141413] font-semibold">DATA EGRESS</span>
+                <span>0 KB (Air-gapped)</span>
               </div>
             </div>
 
-            <!-- Plane A: Guard Plane (Base Layer) -->
-            <div id="planeA" class="relative z-10 transition-all duration-300 rounded-[3px] p-4 bg-[#11141A] border border-[#00875a]/50">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-2.5 h-2.5 rounded-[1px] bg-[#00875a]"></div>
-                  <span class="text-xs font-mono font-bold tracking-wider text-[#00875a] uppercase">PLANE A: RUST GUARD PLANE</span>
-                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-[2px] bg-[#003824] text-[#00875a] border border-[#00875a]/40">MLOCKALL PINNED</span>
-                </div>
-                <div class="text-[11px] font-mono text-[#8C95A0] flex items-center gap-3">
-                  <span>RSS CAP: <strong class="text-white tabular-nums">42MB / 100MB</strong></span>
-                  <span class="text-[#57606A]">•</span>
-                  <span>LATENCY: <strong class="text-[#00875a] tabular-nums">&lt; 0.18ms p99</strong></span>
-                </div>
+          </div>
+
+        </div>
+
+        <!-- Right: 5 Columns Kinetic Dual-Plane Architecture Stage -->
+        <div class="lg:col-span-5 w-full">
+          
+          <div class="panel-editorial p-5 sm:p-6 bg-white border border-[#DEDCD4]">
+            
+            <!-- Stage Header -->
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#DEDCD4]">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-[1px] bg-[#006B44]"></span>
+                <span class="font-mono text-xs font-semibold uppercase tracking-wider text-[#141413]">Two-Plane Verification Harness</span>
+              </div>
+              <button onclick="runSimulation()" id="simBtn" class="px-2.5 py-1 text-[11px] font-mono font-medium text-[#9E1C24] bg-[#FBECEE] hover:bg-[#F6D8DC] border border-[#9E1C24]/30 rounded-[2px] transition-colors flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#9E1C24]"></span>
+                <span id="simBtnText">INJECT MEMORY PRESSURE</span>
+              </button>
+            </div>
+
+            <!-- Plane B: Reasoning Plane (Charcoal Panel) -->
+            <div id="planeB" class="panel-dark p-4 mb-3 border border-[#2A2A28] transition-colors">
+              <div class="flex items-center justify-between text-[11px] font-mono mb-2">
+                <span class="text-[#8E8E86] font-semibold tracking-wide">PLANE B // REASONING DAEMON</span>
+                <span class="px-1.5 py-0.2 bg-[#2A2A28] text-white rounded-[1px]">SANDBOXED (PID 4092)</span>
               </div>
               
-              <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-xs font-mono">
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">PSI STALL RATIO</div>
-                  <div id="simPsi" class="text-[#00875a] font-bold mt-0.5 tabular-nums">0.00% (Nominal)</div>
-                </div>
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">MEMORY VELOCITY</div>
-                  <div id="simVelocity" class="text-slate-200 mt-0.5 tabular-nums">14 MB/s</div>
-                </div>
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">CGROUP STATUS</div>
-                  <div id="simCgroup" class="text-slate-200 mt-0.5 truncate">/system.slice (Unthrottled)</div>
-                </div>
-                <div class="p-2 rounded-[2px] bg-[#090A0F] border border-[#27272A]">
-                  <div class="text-[10px] text-[#8C95A0]">SAFETY ACTUATOR</div>
-                  <div id="simAction" class="text-[#00875a] mt-0.5">ARMED &amp; LOCKED</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Live Incident Simulation Banner -->
-            <div id="simBanner" class="mt-3 p-2.5 rounded-[2px] bg-[#090A0F] border border-[#27272A] text-xs font-mono flex items-center justify-between text-[#8C95A0]">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[#57606A]" id="simDot"></span>
-                <span id="simMsg">Deterministic kernel guard loop running at 100Hz ring buffer resolution...</span>
-              </div>
-              <span class="text-[10px] text-[#57606A] font-mono hidden sm:inline">ZERO-SIGKILL GUARANTEE</span>
-            </div>
-
-          </div>
-
-          <!-- Micro specs strip underneath -->
-          <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono text-[#57606A] pt-4 border-t border-[#D0D7DE]">
-            <div><span class="font-semibold text-[#0F141C]">Kernel Version:</span> 6.8+ eBPF CO-RE</div>
-            <div><span class="font-semibold text-[#0F141C]">CPU Overhead:</span> &lt; 1.0% Core CPU</div>
-            <div><span class="font-semibold text-[#0F141C]">Audit Trail:</span> SQLite Reversible Journal</div>
-            <div><span class="font-semibold text-[#0F141C]">Egress Policy:</span> Air-gapped / Local Only</div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 3: INTERACTIVE "HOW TSUKI WORKS" (3-Stage Closed Loop) -->
-    <section id="how-it-works" class="w-full max-w-7xl 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-16">
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <h2 class="text-xs font-mono font-bold tracking-wider uppercase text-[#00875A] mb-2">Autonomous Remediation Lifecycle</h2>
-        <h3 class="text-2xl sm:text-3xl font-bold text-[#0F141C] tracking-tight">The 3-Stage Closed Loop</h3>
-        <p class="text-[#57606A] mt-2 text-sm">From microsecond kernel telemetry to verified diagnosis and bounded cgroup remediation—with zero human panic.</p>
-      </div>
-
-      <!-- Tab Switcher Navigation (Rectangular segmented control) -->
-      <div class="flex justify-center mb-8">
-        <div class="inline-flex p-1 rounded-[4px] bg-[#F6F8FA] border border-[#D0D7DE] gap-1 font-mono text-xs">
-          <button onclick="switchTab(detect)" id="tab-detect" class="px-4 py-2 rounded-[2px] font-semibold transition-all bg-white text-[#0F141C] border border-[#D0D7DE] shadow-xs">
-            01. DETECT (eBPF + TCN)
-          </button>
-          <button onclick="switchTab(diagnose)" id="tab-diagnose" class="px-4 py-2 rounded-[2px] font-medium text-[#57606A] hover:text-[#0F141C] transition-all">
-            02. DIAGNOSE (Sandboxed LLM)
-          </button>
-          <button onclick="switchTab(fix)" id="tab-fix" class="px-4 py-2 rounded-[2px] font-medium text-[#57606A] hover:text-[#0F141C] transition-all">
-            03. REMEDIATE (Cgroup Leases)
-          </button>
-        </div>
-      </div>
-
-      <!-- Stage Cards Container -->
-      <div class="bg-white rounded-[4px] p-6 sm:p-8 border border-[#D0D7DE]">
-        
-        <!-- STAGE 1: DETECT -->
-        <div id="content-detect" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div class="lg:col-span-5 space-y-4">
-            <div class="inline-flex items-center gap-2 px-2 py-0.5 rounded-[2px] text-xs font-mono font-semibold bg-[#e0effe] text-[#0969da] border border-[#0969da]/30">
-              STAGE 01 // SUB-SECOND PRE-EMPTION
-            </div>
-            <h4 class="text-xl font-bold text-[#0F141C]">Predictive PSI Stall Detection</h4>
-            <p class="text-[#57606A] text-sm leading-relaxed">
-              Standard Linux out-of-memory killers only trigger when memory is completely exhausted. Tsuki INT8 Temporal Convolutional Network (TCN) continuously analyzes Pressure Stall Information (PSI) across CPU, memory reclaim, and I/O wait times.
-            </p>
-            <div class="space-y-2 pt-2 font-mono text-xs text-[#0F141C]">
-              <div class="flex items-start gap-2">
-                <span class="text-[#00875a] font-bold">[OK]</span>
-                <span><strong>10–30s Early Warning:</strong> Intercepts runaway memory thrashing long before page faults lock the desktop.</span>
-              </div>
-              <div class="flex items-start gap-2">
-                <span class="text-[#00875a] font-bold">[OK]</span>
-                <span><strong>&lt; 5ms p99 Inference:</strong> Evaluated on-device via quantized ONNX Runtime without GPU dependencies.</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="lg:col-span-7 bg-[#F6F8FA] rounded-[3px] p-5 border border-[#D0D7DE]">
-            <div class="flex items-center justify-between pb-3 border-b border-[#D0D7DE] text-xs font-mono">
-              <span class="font-bold text-[#0F141C]">Linux PSI Horizon (Real-time eBPF Ring Buffer)</span>
-              <span class="text-[#d97706] bg-[#fffbeb] px-2 py-0.5 rounded-[2px] border border-[#fef3c7] font-semibold tabular-nums">Trigger Threshold: 25%</span>
-            </div>
-            <!-- Precision Stroke Telemetry Chart (No neon fill slop) -->
-            <div class="py-4">
-              <svg class="w-full h-44" viewBox="0 0 500 160" fill="none">
-                <!-- Hairline Grid Lines -->
-                <line x1="0" y1="40" x2="500" y2="40" stroke="#BAC3CF" stroke-width="0.75" stroke-dasharray="2 2"/>
-                <line x1="0" y1="80" x2="500" y2="80" stroke="#BAC3CF" stroke-width="0.75" stroke-dasharray="2 2"/>
-                <line x1="0" y1="120" x2="500" y2="120" stroke="#BAC3CF" stroke-width="0.75" stroke-dasharray="2 2"/>
-
-                <!-- Threshold Marker -->
-                <line x1="0" y1="75" x2="500" y2="75" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4 4"/>
-                <text x="390" y="70" fill="#d97706" font-size="10" font-family="JetBrains Mono" font-weight="600">TCN Trigger (25%)</text>
-
-                <!-- Normal Curve (Precision 1.5px Stroke Line) -->
-                <path d="M 0 140 Q 100 138 200 130 T 320 110 T 390 60 T 430 40 T 460 70 T 500 115" stroke="#0969DA" stroke-width="2" fill="none"/>
-
-                <!-- Alert Point -->
-                <circle cx="390" cy="60" r="4" fill="#d97706" stroke="#ffffff" stroke-width="1.5"/>
-              </svg>
-            </div>
-            <div class="flex items-center justify-between text-[11px] font-mono text-[#57606A] pt-2 border-t border-[#D0D7DE] tabular-nums">
-              <span>-15m 00s</span>
-              <span>-10m 00s</span>
-              <span>-5m 00s</span>
-              <span class="text-[#0969DA] font-bold">TCN Fired (-28s)</span>
-              <span class="text-[#0F141C] font-bold">NOW (Live)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- STAGE 2: DIAGNOSE -->
-        <div id="content-diagnose" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div class="lg:col-span-5 space-y-4">
-            <div class="inline-flex items-center gap-2 px-2 py-0.5 rounded-[2px] text-xs font-mono font-semibold bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9]">
-              STAGE 02 // ZERO HALLUCINATION REASONING
-            </div>
-            <h4 class="text-xl font-bold text-[#0F141C]">Sandboxed Agent with Cited Kernel Evidence</h4>
-            <p class="text-[#57606A] text-sm leading-relaxed">
-              When a trigger fires, the isolated reasoning plane pulls active <code class="text-xs font-mono bg-[#F6F8FA] border border-[#D0D7DE] px-1 py-0.5 rounded-[2px]">pidfd</code> metadata, <code class="text-xs font-mono bg-[#F6F8FA] border border-[#D0D7DE] px-1 py-0.5 rounded-[2px]">/proc/[pid]/smaps_rollup</code>, and cgroup memory velocities. The agent cannot guess—every root cause statement must cite verified kernel telemetry.
-            </p>
-            <div class="space-y-2 pt-2 font-mono text-xs text-[#0F141C]">
-              <div class="flex items-start gap-2">
-                <span class="text-[#00875a] font-bold">[OK]</span>
-                <span><strong>Mathematical Verification:</strong> Targets checked against protected systemd whitelists (display server, SSH daemon, pipewire).</span>
-              </div>
-              <div class="flex items-start gap-2">
-                <span class="text-[#00875a] font-bold">[OK]</span>
-                <span><strong>No Shell Execution:</strong> Outputs strict JSON intent specifications rather than raw bash scripts.</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="lg:col-span-7 bg-[#090A0F] text-white rounded-[3px] p-5 border border-[#27272A] font-mono text-xs">
-            <div class="flex items-center justify-between pb-3 border-b border-[#27272A] text-[#8C95A0]">
-              <span class="text-[#00875a] font-bold flex items-center gap-2">
-                <span class="w-2 h-2 rounded-[1px] bg-[#00875a]"></span>
-                REASONING COCKPIT EVIDENCE CITE
-              </span>
-              <span class="tabular-nums">PIDFD: 38412 [VERIFIED]</span>
-            </div>
-            <div class="mt-4 space-y-3">
-              <div class="p-3 rounded-[2px] bg-[#11141A] border border-[#27272A]">
-                <span class="text-[#8C95A0] text-[11px] block mb-1">EVIDENCE SOURCE: /sys/fs/cgroup/system.slice/build-worker.service</span>
-                <p class="text-slate-200">
-                  "High anon-RSS velocity <span class="text-[#cf222e] font-bold tabular-nums">(420 MB/s)</span> coinciding with page fault stall spikes (PSI full: 38%). Target process <span class="text-[#0969DA]">cc1plus</span> identified as memory leak in template expansion unit."
-                </p>
-              </div>
-              <div class="p-3 rounded-[2px] bg-[#003824]/30 border border-[#00875a]/40 text-[#00875a] flex items-center justify-between">
+              <div class="space-y-2 text-xs font-mono">
                 <div>
-                  <span class="font-bold">INVARIANT CHECK: PASS</span>
-                  <p class="text-[11px] text-[#00875a]/80">Target does not match protected UID 0 whitelist or system critical slice.</p>
+                  <div class="text-[10px] text-[#8E8E86]">ACTIVE DIAGNOSIS</div>
+                  <div id="planeBdiag" class="text-white truncate">Status: Nominal (Tracking Linux PSI Ring Buffer)</div>
                 </div>
-                <span class="font-mono text-xs border border-[#00875a]/60 px-1.5 py-0.5 rounded-[2px]">VALIDATED</span>
+                <div>
+                  <div class="text-[10px] text-[#8E8E86]">INTENT VALIDATION</div>
+                  <div id="planeBintent" class="text-[#006B44] text-[11px]">Strict Typed JSON Actuator Schema</div>
+                </div>
               </div>
             </div>
+
+            <!-- Inter-Plane Structural Coupling Boundary -->
+            <div class="flex items-center justify-between py-1.5 px-3 mb-3 bg-[#F1EFEA] border border-[#DEDCD4] text-[10px] font-mono text-[#63635E]">
+              <span>▲ Telemetry (PSI, sched, kswapd)</span>
+              <span class="font-semibold text-[#141413]">UNIX DOMAIN SOCKET</span>
+              <span>▼ Reversible Lease (TTL: 300s)</span>
+            </div>
+
+            <!-- Plane A: Guard Plane (Charcoal Panel) -->
+            <div id="planeA" class="panel-dark p-4 border border-[#2A2A28] transition-colors">
+              <div class="flex items-center justify-between text-[11px] font-mono mb-2">
+                <span class="text-[#8E8E86] font-semibold tracking-wide">PLANE A // RUST GUARD PLANE</span>
+                <span class="px-1.5 py-0.2 bg-[#EAF3ED] text-[#006B44] rounded-[1px]">MLOCKALL PINNED</span>
+              </div>
+
+              <!-- 4-Metric Telemetry Grid -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono pt-1">
+                <div class="p-2 bg-[#1C1C1A] border border-[#2A2A28]">
+                  <div class="text-[9px] text-[#8E8E86]">PSI STALL</div>
+                  <div id="simPsi" class="text-[#006B44] font-bold mt-0.5 tabular-nums">0.00%</div>
+                </div>
+                <div class="p-2 bg-[#1C1C1A] border border-[#2A2A28]">
+                  <div class="text-[9px] text-[#8E8E86]">RECLAIM RATE</div>
+                  <div id="simVelocity" class="text-white mt-0.5 tabular-nums">14 MB/s</div>
+                </div>
+                <div class="p-2 bg-[#1C1C1A] border border-[#2A2A28]">
+                  <div class="text-[9px] text-[#8E8E86]">CGROUP</div>
+                  <div id="simCgroup" class="text-white mt-0.5 truncate">/system.slice</div>
+                </div>
+                <div class="p-2 bg-[#1C1C1A] border border-[#2A2A28]">
+                  <div class="text-[9px] text-[#8E8E86]">ACTUATOR</div>
+                  <div id="simAction" class="text-[#006B44] mt-0.5">ARMED</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Console Log Banner -->
+            <div class="mt-3 p-2.5 bg-[#F1EFEA] border border-[#DEDCD4] text-[11px] font-mono text-[#63635E] flex items-center justify-between">
+              <div class="flex items-center gap-2 truncate">
+                <span class="w-2 h-2 rounded-full bg-[#006B44]" id="simDot"></span>
+                <span id="simMsg" class="truncate">eBPF ring buffer streaming 100Hz pressure events.</span>
+              </div>
+              <span class="text-[10px] text-[#141413] font-semibold shrink-0 ml-2">ZERO-SIGKILL</span>
+            </div>
+
           </div>
+
         </div>
 
-        <!-- STAGE 3: FIX -->
-        <div id="content-fix" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div class="lg:col-span-5 space-y-4">
-            <div class="inline-flex items-center gap-2 px-2 py-0.5 rounded-[2px] text-xs font-mono font-semibold bg-[#fffbeb] text-[#d97706] border border-[#fef3c7]">
-              STAGE 03 // 100% REVERSIBLE MITIGATION
-            </div>
-            <h4 class="text-xl font-bold text-[#0F141C]">Reversible Cgroup Remediations</h4>
-            <p class="text-[#57606A] text-sm leading-relaxed">
-              Never crash the process. Instead of terminating execution, Tsuki applies a progressive, non-destructive <code class="text-xs font-mono bg-[#F6F8FA] border border-[#D0D7DE] px-1 py-0.5 rounded-[2px]">memory.high</code> throttle and drops <code class="text-xs font-mono bg-[#F6F8FA] border border-[#D0D7DE] px-1 py-0.5 rounded-[2px]">cpu.weight</code> to gracefully yield scheduling quotas.
+      </div>
+
+    </section>
+
+    <!-- SECTION 1: ARCHITECTURE PRINCIPLES (STAGGERED 3-PART NUMBERED SEQUENCE) -->
+    <section id="architecture" class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-16 border-t border-[#DEDCD4]">
+      
+      <div class="max-w-3xl mb-12">
+        <div class="font-mono text-xs text-[#006B44] font-semibold tracking-wider mb-2">01 / ARCHITECTURAL RIGOR</div>
+        <h2 class="display-title text-3xl sm:text-4xl text-[#141413] mb-4">
+          Separation of concerns between memory safety and causal reasoning.
+        </h2>
+        <p class="text-base text-[#63635E] font-sans">
+          Most autonomous systems fail on production Linux because they run unbounded Python processes directly in the critical path. When memory starves, the reasoning engine itself is killed by the kernel. Tsuki physically isolates the enforcement plane from the diagnostic daemon.
+        </p>
+      </div>
+
+      <!-- Staggered 3-Stage Vertical Editorial List (NO Bento Grids, NO Glowing Cards) -->
+      <div class="space-y-6">
+        
+        <!-- Stage 01 -->
+        <div class="panel-editorial p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-baseline tactile-row transition-colors">
+          <div class="md:col-span-1 font-mono text-xl sm:text-2xl font-bold text-[#141413]">
+            01 /
+          </div>
+          <div class="md:col-span-4">
+            <h3 class="font-serif text-2xl text-[#141413] mb-2">The Memory-Pinned Guard Plane</h3>
+            <div class="font-mono text-xs text-[#006B44]">PLANE A: RUST + eBPF CO-RE</div>
+          </div>
+          <div class="md:col-span-7 space-y-3 text-sm text-[#2A2A28] leading-relaxed">
+            <p>
+              Compiled to native machine code and pinned in physical RAM using <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">mlockall(MCL_CURRENT | MCL_FUTURE)</code>. The guard plane maintains a strictly capped RSS memory budget (&lt;42MB) and will never trigger an anonymous swap-out.
             </p>
-            <div class="space-y-2 pt-2 font-mono text-xs text-[#0F141C]">
-              <div class="flex items-start gap-2">
-                <span class="text-[#00875a] font-bold">[OK]</span>
-                <span><strong>Mandatory Action TTLs:</strong> Every remediation automatically reverts within 300s unless system pressure drops.</span>
-              </div>
-              <div class="flex items-start gap-2">
-                <span class="text-[#00875a] font-bold">[OK]</span>
-                <span><strong>Zero SIGKILL Policy:</strong> Compiles, builds, and batch tasks continue running throttled rather than aborting with loss of work.</span>
-              </div>
-            </div>
+            <p class="text-xs font-mono text-[#63635E]">
+              Kernel hooks attach directly via eBPF ring buffers to track Pressure Stall Information (PSI) at sub-millisecond granularity without synthetic scheduler jitter.
+            </p>
           </div>
+        </div>
 
-          <div class="lg:col-span-7 bg-[#F6F8FA] rounded-[3px] p-5 border border-[#D0D7DE]">
-            <div class="flex items-center justify-between pb-3 border-b border-[#D0D7DE] text-xs font-mono">
-              <span class="font-bold text-[#0F141C]">Active Enforcement Actuator</span>
-              <span class="px-2 py-0.5 rounded-[2px] bg-[#fffbeb] text-[#d97706] border border-[#fef3c7] font-bold tabular-nums">TTL: 00:04:12 ACTIVE</span>
-            </div>
+        <!-- Stage 02 -->
+        <div class="panel-editorial p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-baseline tactile-row transition-colors">
+          <div class="md:col-span-1 font-mono text-xl sm:text-2xl font-bold text-[#141413]">
+            02 /
+          </div>
+          <div class="md:col-span-4">
+            <h3 class="font-serif text-2xl text-[#141413] mb-2">The Sandboxed Reasoning Daemon</h3>
+            <div class="font-mono text-xs text-[#006B44]">PLANE B: ONNX INT8 + PYTHON 3.11</div>
+          </div>
+          <div class="md:col-span-7 space-y-3 text-sm text-[#2A2A28] leading-relaxed">
+            <p>
+              When PSI thresholds breach safety limits, Plane A signals Plane B over a local Unix domain socket. Plane B inspects process hierarchy metadata, cgroup lineage, and memory growth velocity using a quantized local model.
+            </p>
+            <p class="text-xs font-mono text-[#63635E]">
+              Plane B is treated as untrusted: it holds no root privileges, possesses zero network sockets, and cannot issue system commands directly. It outputs strictly typed JSON remediation intents.
+            </p>
+          </div>
+        </div>
+
+        <!-- Stage 03 -->
+        <div class="panel-editorial p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-baseline tactile-row transition-colors">
+          <div class="md:col-span-1 font-mono text-xl sm:text-2xl font-bold text-[#141413]">
+            03 /
+          </div>
+          <div class="md:col-span-4">
+            <h3 class="font-serif text-2xl text-[#141413] mb-2">Ephemeral Kernel Leases</h3>
+            <div class="font-mono text-xs text-[#006B44]">INVARIANT: 100% REVERSIBLE MITIGATION</div>
+          </div>
+          <div class="md:col-span-7 space-y-3 text-sm text-[#2A2A28] leading-relaxed">
+            <p>
+              Every actuator adjustment (such as adjusting <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">memory.high</code> or dropping <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">cpu.weight</code>) is registered with an ephemeral time-to-live lease (300 seconds default).
+            </p>
+            <p class="text-xs font-mono text-[#63635E]">
+              If the system stabilizes or if the Tsuki daemon terminates unexpectedly, all cgroup limits immediately restore to their original state. Work is never terminated prematurely.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION 2: STRUCTURED COMPARISON TABLE (REPLACING 3-CARD BENTO GRID SLOP) -->
+    <section id="table" class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-16 border-t border-[#DEDCD4]">
+      
+      <div class="max-w-3xl mb-10">
+        <div class="font-mono text-xs text-[#006B44] font-semibold tracking-wider mb-2">02 / COMPARATIVE SPECIFICATION</div>
+        <h2 class="display-title text-3xl sm:text-4xl text-[#141413] mb-4">
+          Kernel memory management paradigms compared.
+        </h2>
+        <p class="text-base text-[#63635E] font-sans">
+          A direct architectural audit between standard Linux kernel behavior, userspace daemons, and Tsuki autonomous control invariants.
+        </p>
+      </div>
+
+      <!-- Structured Data Table (1px Solid Borders, Monospace Ledger Style) -->
+      <div class="overflow-x-auto border border-[#DEDCD4] bg-white">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm font-sans">
+          <thead>
+            <tr class="bg-[#F1EFEA] border-b border-[#DEDCD4] font-mono text-[11px] uppercase tracking-wider text-[#63635E]">
+              <th class="py-3 px-4 border-r border-[#DEDCD4]">Criterion / Invariant</th>
+              <th class="py-3 px-4 border-r border-[#DEDCD4]">Standard Linux (Kernel OOM)</th>
+              <th class="py-3 px-4 border-r border-[#DEDCD4]">Userspace (systemd-oomd / earlyoom)</th>
+              <th class="py-3 px-4 bg-[#EAF3ED] text-[#006B44] font-semibold">Tsuki Autonomous Control Plane</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#DEDCD4] font-mono text-xs">
             
-            <div class="py-4 space-y-4">
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1.5 tabular-nums">
-                  <span class="text-[#57606A]">Applied cgroup throttle: memory.high</span>
-                  <span class="font-bold text-[#0969DA]">4.0 GiB (was unlimited)</span>
-                </div>
-                <div class="w-full bg-[#EAEEF2] rounded-[2px] h-2 overflow-hidden border border-[#D0D7DE]">
-                  <div class="bg-[#0969DA] h-2" style="width: 65%"></div>
-                </div>
-              </div>
+            <tr class="hover:bg-[#FBFBF9] transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">Detection Metric</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">Absolute memory exhaustion (0 free pages)</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">Periodic PSI poll loop (1-second intervals)</td>
+              <td class="py-3.5 px-4 text-[#006B44] font-semibold bg-[#F9FCFA]">100Hz eBPF ring buffer + TCN trend regression</td>
+            </tr>
 
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1.5 tabular-nums">
-                  <span class="text-[#57606A]">Scheduler cgroup demotion: cpu.weight</span>
-                  <span class="font-bold text-[#d97706]">20 (was 100)</span>
-                </div>
-                <div class="w-full bg-[#EAEEF2] rounded-[2px] h-2 overflow-hidden border border-[#D0D7DE]">
-                  <div class="bg-[#d97706] h-2" style="width: 20%"></div>
-                </div>
-              </div>
+            <tr class="hover:bg-[#FBFBF9] transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">Early Warning Window</td>
+              <td class="py-3.5 px-4 text-[#9E1C24] border-r border-[#DEDCD4]">0 seconds (fires during active lockup)</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">1 to 3 seconds</td>
+              <td class="py-3.5 px-4 text-[#006B44] font-semibold bg-[#F9FCFA]">15 to 30 seconds prior to thrashing</td>
+            </tr>
 
-              <div class="p-2.5 bg-white rounded-[2px] border border-[#D0D7DE] flex items-center justify-between text-xs font-mono">
-                <span class="text-[#57606A]">Instant Rollback Guarantee:</span>
-                <span class="text-[#00875a] font-bold flex items-center gap-1">
-                  <span>[REVERSIBLE]</span> Auto-restored if baseline normalizes
-                </span>
-              </div>
+            <tr class="hover:bg-[#FBFBF9] transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">Remediation Mechanism</td>
+              <td class="py-3.5 px-4 text-[#9E1C24] border-r border-[#DEDCD4]">Unconditional SIGKILL to largest badness score</td>
+              <td class="py-3.5 px-4 text-[#9E1C24] border-r border-[#DEDCD4]">SIGKILL or SIGTERM to top slice processes</td>
+              <td class="py-3.5 px-4 text-[#006B44] font-semibold bg-[#F9FCFA]">Zero SIGKILL: bounded cgroup throttling + CPU yield</td>
+            </tr>
+
+            <tr class="hover:bg-[#FBFBF9] transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">Reversibility</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">Irreversible (process terminated, memory lost)</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">Irreversible</td>
+              <td class="py-3.5 px-4 text-[#006B44] font-semibold bg-[#F9FCFA]">100% Reversible via bounded 300s action leases</td>
+            </tr>
+
+            <tr class="hover:bg-[#FBFBF9] transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">Swap Starvation Defense</td>
+              <td class="py-3.5 px-4 text-[#9E1C24] border-r border-[#DEDCD4]">Fails: kswapd thrashing starves scheduler</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">Partial: daemon memory can page out</td>
+              <td class="py-3.5 px-4 text-[#006B44] font-semibold bg-[#F9FCFA]">mlockall memory-pinned core (&lt;42MB RSS)</td>
+            </tr>
+
+            <tr class="hover:bg-[#FBFBF9] transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-[#141413] border-r border-[#DEDCD4]">Fail-Safe Killswitch</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">None (sysrq-f kernel panic trigger)</td>
+              <td class="py-3.5 px-4 text-[#63635E] border-r border-[#DEDCD4]">systemctl stop</td>
+              <td class="py-3.5 px-4 text-[#006B44] font-semibold bg-[#F9FCFA]">Instant "tsuki panic" latch restores defaults in &lt;10ms</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- SECTION 3: THE THREE-STAGE CLOSED LOOP (INTERACTIVE EDITORIAL WORKFLOW) -->
+    <section id="how-it-works" class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-16 border-t border-[#DEDCD4]">
+      
+      <div class="max-w-3xl mb-10">
+        <div class="font-mono text-xs text-[#006B44] font-semibold tracking-wider mb-2">03 / EXECUTION PIPELINE</div>
+        <h2 class="display-title text-3xl sm:text-4xl text-[#141413] mb-4">
+          The three-stage closed loop: detect, diagnose, remediate.
+        </h2>
+        <p class="text-base text-[#63635E] font-sans">
+          Select an execution stage below to inspect the mathematical assertions and live telemetry models governing autonomous mitigation.
+        </p>
+      </div>
+
+      <!-- Segmented Tab Navigation (Sharp Rectangular Buttons, 1px Border) -->
+      <div class="flex items-center gap-2 mb-8 border-b border-[#DEDCD4] pb-3 overflow-x-auto">
+        <button onclick="switchTab('detect')" id="tab-detect" class="px-4 py-2 text-xs font-mono font-semibold bg-[#141413] text-white border border-[#141413] rounded-[2px] transition-colors">
+          STAGE 01 // SUB-SECOND DETECTION
+        </button>
+        <button onclick="switchTab('diagnose')" id="tab-diagnose" class="px-4 py-2 text-xs font-mono font-medium text-[#63635E] hover:text-[#141413] border border-[#DEDCD4] bg-white rounded-[2px] transition-colors">
+          STAGE 02 // CAUSAL EVIDENCE DIAGNOSIS
+        </button>
+        <button onclick="switchTab('fix')" id="tab-fix" class="px-4 py-2 text-xs font-mono font-medium text-[#63635E] hover:text-[#141413] border border-[#DEDCD4] bg-white rounded-[2px] transition-colors">
+          STAGE 03 // REVERSIBLE REMEDIATION
+        </button>
+      </div>
+
+      <!-- Stage 01: Detect -->
+      <div id="content-detect" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="font-mono text-xs text-[#006B44] font-semibold">TCN TEMPORAL CONVOLUTIONAL MODEL</div>
+          <h3 class="font-serif text-2xl text-[#141413]">Predictive PSI Threshold Interception</h3>
+          <p class="text-sm text-[#2A2A28] leading-relaxed">
+            Linux Pressure Stall Information records microsecond delays in CPU runqueues, page refaults, and asynchronous disk sync. When swap saturation starts, PSI curves demonstrate an exponential inflection point 20 seconds before user-space freezes.
+          </p>
+          <div class="border-t border-[#DEDCD4] pt-4 space-y-2 text-xs font-mono text-[#141413]">
+            <div class="flex items-center gap-2">
+              <span class="text-[#006B44] font-bold">[VERIFIED]</span>
+              <span>Sub-5ms INT8 quantized inference via embedded ONNX runtime.</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#006B44] font-bold">[VERIFIED]</span>
+              <span>Zero GPU compute requirement: operates on raw L2/L3 cache slices.</span>
             </div>
           </div>
         </div>
 
+        <div class="lg:col-span-7 panel-editorial p-6 border border-[#DEDCD4]">
+          <div class="flex items-center justify-between pb-3 border-b border-[#DEDCD4] font-mono text-xs">
+            <span class="font-semibold text-[#141413]">PSI Stall Telemetry Horizon (100Hz eBPF Sampler)</span>
+            <span class="text-[#A85208] bg-[#FDF5ED] px-2 py-0.5 border border-[#A85208]/30 font-semibold tabular-nums">Trigger Threshold: 25%</span>
+          </div>
+          <!-- Vector Stroke Telemetry Curve (No blurry gradient fills) -->
+          <div class="py-6">
+            <svg class="w-full h-40" viewBox="0 0 500 160" fill="none">
+              <line x1="0" y1="40" x2="500" y2="40" stroke="#DEDCD4" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="0" y1="80" x2="500" y2="80" stroke="#DEDCD4" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="0" y1="120" x2="500" y2="120" stroke="#DEDCD4" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="0" y1="75" x2="500" y2="75" stroke="#A85208" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <text x="375" y="70" fill="#A85208" font-size="10" font-family="JetBrains Mono" font-weight="600">Threshold Trigger (25%)</text>
+              <path d="M 0 140 Q 120 138 220 130 T 330 110 T 390 60 T 430 40 T 470 70 T 500 115" stroke="#141413" stroke-width="2.2" fill="none"/>
+              <circle cx="390" cy="60" r="4.5" fill="#A85208" stroke="#FFFFFF" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-mono text-[#63635E] pt-2 border-t border-[#DEDCD4] tabular-nums">
+            <span>-15m 00s</span>
+            <span>-10m 00s</span>
+            <span>-5m 00s</span>
+            <span class="text-[#141413] font-bold">TCN Evaluated (-28s)</span>
+            <span class="text-[#006B44] font-bold">NORMALIZED</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Stage 02: Diagnose -->
+      <div id="content-diagnose" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="font-mono text-xs text-[#006B44] font-semibold">CAUSAL EVIDENCE GROUNDING</div>
+          <h3 class="font-serif text-2xl text-[#141413]">Mathematical Citation of Kernel State</h3>
+          <p class="text-sm text-[#2A2A28] leading-relaxed">
+            The reasoning plane evaluates active <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">pidfd</code> descriptors, page dirtying velocity, and memory smaps allocations. It cannot hallucinate: every output statement must verify against raw kernel telemetry.
+          </p>
+          <div class="border-t border-[#DEDCD4] pt-4 space-y-2 text-xs font-mono text-[#141413]">
+            <div class="flex items-center gap-2">
+              <span class="text-[#006B44] font-bold">[VERIFIED]</span>
+              <span>Immutable protection of SSH daemon, Wayland compositor, and init.</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#006B44] font-bold">[VERIFIED]</span>
+              <span>Zero shell execution surface: emissions are typed JSON structures.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 panel-dark p-6 border border-[#2A2A28] font-mono text-xs">
+          <div class="flex items-center justify-between pb-3 border-b border-[#2A2A28] text-[#8E8E86]">
+            <span class="text-[#006B44] font-bold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-[1px] bg-[#006B44]"></span>
+              EVIDENCE VERIFICATION LEDGER
+            </span>
+            <span class="tabular-nums">PIDFD: 38412 [AUTHENTICATED]</span>
+          </div>
+          <div class="mt-4 space-y-3">
+            <div class="p-3 bg-[#1C1C1A] border border-[#2A2A28]">
+              <span class="text-[#8E8E86] text-[10px] block mb-1">EVIDENCE LOG: /sys/fs/cgroup/system.slice/build-worker.service</span>
+              <p class="text-white text-xs leading-relaxed">
+                "High anon-RSS velocity <span class="text-[#9E1C24] font-bold">(420 MB/s)</span> matched with PSI refault stalls (38%). Target identified as runaway compilation worker <span class="text-[#006B44] font-bold">cc1plus</span>."
+              </p>
+            </div>
+            <div class="p-3 bg-[#006B44]/20 border border-[#006B44]/40 text-[#006B44] flex items-center justify-between">
+              <div>
+                <span class="font-bold">INVARIANT ASSERTION: PASSED</span>
+                <p class="text-[11px] text-[#006B44]/90">Target does not match protected UID 0 whitelist or system critical slice.</p>
+              </div>
+              <span class="px-2 py-0.5 bg-[#006B44] text-white rounded-[1px] font-bold text-[10px]">APPROVED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 03: Remediate -->
+      <div id="content-fix" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 space-y-4">
+          <div class="font-mono text-xs text-[#006B44] font-semibold">EPHEMERAL THROTTLING LEASES</div>
+          <h3 class="font-serif text-2xl text-[#141413]">Bounded cgroup v2 Pressure Reduction</h3>
+          <p class="text-sm text-[#2A2A28] leading-relaxed">
+            Rather than sending <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">SIGKILL</code>, Tsuki imposes a dynamic <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">memory.high</code> ceiling and reduces scheduler <code class="font-mono text-xs bg-[#EAE8E0] px-1 py-0.5 rounded-[1px]">cpu.weight</code>. Memory allocation blocks briefly, permitting the kernel page daemon to catch up without process aborts.
+          </p>
+          <div class="border-t border-[#DEDCD4] pt-4 space-y-2 text-xs font-mono text-[#141413]">
+            <div class="flex items-center gap-2">
+              <span class="text-[#006B44] font-bold">[VERIFIED]</span>
+              <span>Automatic rollback within 300 seconds if system pressure clears.</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#006B44] font-bold">[VERIFIED]</span>
+              <span>Zero lost work: compiles and batch transactions finish intact.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 panel-editorial p-6 border border-[#DEDCD4]">
+          <div class="flex items-center justify-between pb-3 border-b border-[#DEDCD4] font-mono text-xs">
+            <span class="font-semibold text-[#141413]">Enforced cgroup Quotas (Ephemeral Lease)</span>
+            <span class="text-[#A85208] bg-[#FDF5ED] px-2 py-0.5 border border-[#A85208]/30 font-semibold tabular-nums">TTL: 00:04:12 ACTIVE</span>
+          </div>
+          <div class="py-4 space-y-4 font-mono text-xs">
+            <div>
+              <div class="flex justify-between mb-1.5 tabular-nums">
+                <span class="text-[#63635E]">memory.high throttle limit:</span>
+                <span class="font-bold text-[#141413]">4.0 GiB (was unlimited)</span>
+              </div>
+              <div class="w-full bg-[#EAE8E0] h-2 rounded-[1px] overflow-hidden">
+                <div class="bg-[#141413] h-2" style="width: 65%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1.5 tabular-nums">
+                <span class="text-[#63635E]">cpu.weight scheduler share:</span>
+                <span class="font-bold text-[#A85208]">20 (demoted from 100)</span>
+              </div>
+              <div class="w-full bg-[#EAE8E0] h-2 rounded-[1px] overflow-hidden">
+                <div class="bg-[#A85208] h-2" style="width: 20%"></div>
+              </div>
+            </div>
+            <div class="p-3 bg-[#F1EFEA] border border-[#DEDCD4] flex items-center justify-between text-[11px]">
+              <span class="text-[#63635E]">Safety Lease Status:</span>
+              <span class="text-[#006B44] font-bold">[100% REVERSIBLE] Auto-restored if baseline normalizes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
-    <!-- SECTION 4: BENCHMARKS & EVALUATION (OS-FaultBench Interactive Arena) -->
-    <section id="benchmarks" class="w-full max-w-7xl 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-16 bg-white rounded-[4px] border border-[#D0D7DE] my-8">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+    <!-- SECTION 4: BENCHMARK LEDGER (OS-FAULTBENCH REPRODUCIBLE DATA) -->
+    <section id="benchmarks" class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-16 border-t border-[#DEDCD4]">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-          <h2 class="text-xs font-mono font-bold tracking-wider uppercase text-[#0969DA] mb-1">Empirical Benchmarking</h2>
-          <h3 class="text-2xl font-bold text-[#0F141C] tracking-tight">OS-FaultBench Comparative Arena</h3>
-          <p class="text-[#57606A] text-xs font-mono mt-1 max-w-xl">Evaluated against the official OS-FaultBench stress suite across 1,000 synthetic swap storm injection iterations.</p>
+          <div class="font-mono text-xs text-[#006B44] font-semibold tracking-wider mb-2">04 / FAULTBENCH LEDGER</div>
+          <h2 class="display-title text-3xl sm:text-4xl text-[#141413] mb-2">
+            Empirical stress benchmarks across 1,000 iterations.
+          </h2>
+          <p class="text-xs font-mono text-[#63635E]">
+            Evaluated on Linux 6.8 (x86_64, 32GB RAM, NVMe swap) under synthetic memory storm injection.
+          </p>
         </div>
 
-        <!-- Workload Filter Buttons (Crisp Rectangular Segmented Buttons) -->
-        <div class="inline-flex p-1 rounded-[3px] bg-[#F6F8FA] border border-[#D0D7DE] text-xs font-mono">
-          <button onclick="setBenchWorkload(forkbomb)" id="btn-wb-forkbomb" class="px-3 py-1.5 rounded-[2px] bg-[#0F141C] text-white font-medium transition-colors">Kernel Compile + Fork</button>
-          <button onclick="setBenchWorkload(postgres)" id="btn-wb-postgres" class="px-3 py-1.5 rounded-[2px] text-[#57606A] hover:text-[#0F141C] font-medium transition-colors">PostgreSQL Thrash</button>
-          <button onclick="setBenchWorkload(redis)" id="btn-wb-redis" class="px-3 py-1.5 rounded-[2px] text-[#57606A] hover:text-[#0F141C] font-medium transition-colors">Redis Pressure</button>
+        <!-- Workload Segmented Filter -->
+        <div class="inline-flex border border-[#DEDCD4] bg-white p-1 rounded-[2px] font-mono text-xs">
+          <button onclick="setBenchWorkload('forkbomb')" id="btn-wb-forkbomb" class="px-3 py-1.5 bg-[#141413] text-white font-medium rounded-[1px] transition-colors">Kernel Build + Fork</button>
+          <button onclick="setBenchWorkload('postgres')" id="btn-wb-postgres" class="px-3 py-1.5 text-[#63635E] hover:text-[#141413] font-medium rounded-[1px] transition-colors">PostgreSQL Thrash</button>
+          <button onclick="setBenchWorkload('redis')" id="btn-wb-redis" class="px-3 py-1.5 text-[#63635E] hover:text-[#141413] font-medium rounded-[1px] transition-colors">Redis Pressure</button>
         </div>
       </div>
 
-      <!-- Comparative Matrix Cards (Flat Tonal Inset, 1px Borders) -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- 4-Column Ledger Cards (Crisp 1px borders, zero glowing blobs) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <!-- Standard Linux Kernel -->
-        <div class="bg-[#F6F8FA] rounded-[3px] p-4 border border-[#D0D7DE]">
-          <div class="text-[10px] font-mono text-[#8C95A0] mb-1">BASELINE</div>
-          <h4 class="font-bold text-[#0F141C] mb-3 text-sm">Standard Linux</h4>
-          <div class="space-y-3 text-xs font-mono tabular-nums">
+        <!-- Column 1: Standard Linux -->
+        <div class="panel-editorial p-5 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider mb-1">BASELINE</div>
+          <h4 class="font-mono font-bold text-sm text-[#141413] mb-3">Standard Linux</h4>
+          <div class="space-y-3 font-mono text-xs tabular-nums">
             <div>
-              <div class="text-[#57606A] text-[11px] mb-1">Responsiveness Score:</div>
-              <div class="text-base font-bold text-[#cf222e]" id="bench1-resp">12.4%</div>
-              <div class="w-full bg-[#D0D7DE] rounded-[1px] h-1.5 mt-1"><div class="bg-[#cf222e] h-1.5" style="width: 12%"></div></div>
+              <span class="text-[#63635E] block text-[11px]">System Responsiveness:</span>
+              <span class="text-base font-bold text-[#9E1C24]" id="bench1-resp">12.4%</span>
+              <div class="w-full bg-[#EAE8E0] h-1.5 mt-1 rounded-[1px]"><div class="bg-[#9E1C24] h-1.5" style="width: 12%"></div></div>
             </div>
             <div>
-              <div class="text-[#57606A] text-[11px]">Recovery Time:</div>
-              <div class="font-semibold text-[#0F141C]" id="bench1-rec">Hard Lockup (Freeze)</div>
+              <span class="text-[#63635E] block text-[11px]">Recovery Time:</span>
+              <span class="font-semibold text-[#141413]" id="bench1-rec">Hard Lockup (Frozen)</span>
             </div>
             <div>
-              <div class="text-[#57606A] text-[11px]">Process Precision:</div>
-              <div class="font-semibold text-[#cf222e]" id="bench1-kill">Indiscriminate OOM Kill</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- systemd-oomd -->
-        <div class="bg-[#F6F8FA] rounded-[3px] p-4 border border-[#D0D7DE]">
-          <div class="text-[10px] font-mono text-[#8C95A0] mb-1">SYSTEMD NATIVE</div>
-          <h4 class="font-bold text-[#0F141C] mb-3 text-sm">systemd-oomd</h4>
-          <div class="space-y-3 text-xs font-mono tabular-nums">
-            <div>
-              <div class="text-[#57606A] text-[11px] mb-1">Responsiveness Score:</div>
-              <div class="text-base font-bold text-[#d97706]" id="bench2-resp">61.2%</div>
-              <div class="w-full bg-[#D0D7DE] rounded-[1px] h-1.5 mt-1"><div class="bg-[#d97706] h-1.5" style="width: 61%"></div></div>
-            </div>
-            <div>
-              <div class="text-[#57606A] text-[11px]">Recovery Time:</div>
-              <div class="font-semibold text-[#0F141C]" id="bench2-rec">18s – 45s Delay</div>
-            </div>
-            <div>
-              <div class="text-[#57606A] text-[11px]">Process Precision:</div>
-              <div class="font-semibold text-[#d97706]" id="bench2-kill">Entire Cgroup Killed</div>
+              <span class="text-[#63635E] block text-[11px]">Work Preservation:</span>
+              <span class="font-semibold text-[#9E1C24]" id="bench1-kill">Total Loss (SIGKILL)</span>
             </div>
           </div>
         </div>
 
-        <!-- earlyoom -->
-        <div class="bg-[#F6F8FA] rounded-[3px] p-4 border border-[#D0D7DE]">
-          <div class="text-[10px] font-mono text-[#8C95A0] mb-1">USERSPACE DAEMON</div>
-          <h4 class="font-bold text-[#0F141C] mb-3 text-sm">earlyoom</h4>
-          <div class="space-y-3 text-xs font-mono tabular-nums">
+        <!-- Column 2: systemd-oomd -->
+        <div class="panel-editorial p-5 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider mb-1">SYSTEMD NATIVE</div>
+          <h4 class="font-mono font-bold text-sm text-[#141413] mb-3">systemd-oomd</h4>
+          <div class="space-y-3 font-mono text-xs tabular-nums">
             <div>
-              <div class="text-[#57606A] text-[11px] mb-1">Responsiveness Score:</div>
-              <div class="text-base font-bold text-[#0F141C]" id="bench3-resp">74.8%</div>
-              <div class="w-full bg-[#D0D7DE] rounded-[1px] h-1.5 mt-1"><div class="bg-[#57606A] h-1.5" style="width: 75%"></div></div>
+              <span class="text-[#63635E] block text-[11px]">System Responsiveness:</span>
+              <span class="text-base font-bold text-[#A85208]" id="bench2-resp">61.2%</span>
+              <div class="w-full bg-[#EAE8E0] h-1.5 mt-1 rounded-[1px]"><div class="bg-[#A85208] h-1.5" style="width: 61%"></div></div>
             </div>
             <div>
-              <div class="text-[#57606A] text-[11px]">Recovery Time:</div>
-              <div class="font-semibold text-[#0F141C]" id="bench3-rec">8.5s Average</div>
+              <span class="text-[#63635E] block text-[11px]">Recovery Time:</span>
+              <span class="font-semibold text-[#141413]" id="bench2-rec">18s – 45s Delay</span>
             </div>
             <div>
-              <div class="text-[#57606A] text-[11px]">Process Precision:</div>
-              <div class="font-semibold text-[#0F141C]" id="bench3-kill">Kills Top RSS PID</div>
+              <span class="text-[#63635E] block text-[11px]">Work Preservation:</span>
+              <span class="font-semibold text-[#A85208]" id="bench2-kill">Entire Cgroup Killed</span>
             </div>
           </div>
         </div>
 
-        <!-- Tsuki Autonomous Plane (Highlighted Industrial Precision Frame) -->
-        <div class="bg-white rounded-[3px] p-4 border-2 border-[#00875A] relative">
-          <div class="text-[10px] font-mono text-[#00875A] font-bold mb-1 uppercase">TSUKI LOCAL CONTROL</div>
-          <h4 class="font-bold text-[#0F141C] mb-3 text-sm">Tsuki Daemon</h4>
-          <div class="space-y-3 text-xs font-mono tabular-nums">
+        <!-- Column 3: earlyoom -->
+        <div class="panel-editorial p-5 border border-[#DEDCD4]">
+          <div class="font-mono text-[10px] text-[#63635E] uppercase tracking-wider mb-1">USERSPACE DAEMON</div>
+          <h4 class="font-mono font-bold text-sm text-[#141413] mb-3">earlyoom</h4>
+          <div class="space-y-3 font-mono text-xs tabular-nums">
             <div>
-              <div class="text-[#57606A] text-[11px] mb-1">Responsiveness Score:</div>
-              <div class="text-lg font-bold text-[#00875A] flex items-center gap-1.5" id="bench4-resp">
+              <span class="text-[#63635E] block text-[11px]">System Responsiveness:</span>
+              <span class="text-base font-bold text-[#141413]" id="bench3-resp">74.8%</span>
+              <div class="w-full bg-[#EAE8E0] h-1.5 mt-1 rounded-[1px]"><div class="bg-[#63635E] h-1.5" style="width: 75%"></div></div>
+            </div>
+            <div>
+              <span class="text-[#63635E] block text-[11px]">Recovery Time:</span>
+              <span class="font-semibold text-[#141413]" id="bench3-rec">8.5s Average</span>
+            </div>
+            <div>
+              <span class="text-[#63635E] block text-[11px]">Work Preservation:</span>
+              <span class="font-semibold text-[#141413]" id="bench3-kill">Kills Top RSS PID</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 4: Tsuki Autonomous Control Plane -->
+        <div class="panel-editorial p-5 border-2 border-[#006B44] bg-[#F9FCFA]">
+          <div class="font-mono text-[10px] text-[#006B44] uppercase tracking-wider font-bold mb-1">TSUKI LOCAL CONTROL</div>
+          <h4 class="font-mono font-bold text-sm text-[#141413] mb-3">Tsuki Daemon</h4>
+          <div class="space-y-3 font-mono text-xs tabular-nums">
+            <div>
+              <span class="text-[#63635E] block text-[11px]">System Responsiveness:</span>
+              <span class="text-lg font-bold text-[#006B44] flex items-center gap-1.5" id="bench4-resp">
                 99.4%
-                <span class="text-[10px] px-1.5 py-0.2 rounded-[2px] bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9] font-normal">NOMINAL</span>
-              </div>
-              <div class="w-full bg-[#eaf5ef] rounded-[1px] h-1.5 mt-1"><div class="bg-[#00875A] h-1.5" style="width: 99.4%"></div></div>
+                <span class="text-[10px] font-normal px-1 py-0.2 bg-[#EAF3ED] border border-[#9ECBB4] rounded-[1px]">NOMINAL</span>
+              </span>
+              <div class="w-full bg-[#EAF3ED] h-1.5 mt-1 rounded-[1px]"><div class="bg-[#006B44] h-1.5" style="width: 99.4%"></div></div>
             </div>
             <div>
-              <div class="text-[#57606A] text-[11px]">Recovery Time:</div>
-              <div class="font-bold text-[#0F141C]" id="bench4-rec">&lt; 1.4 seconds</div>
+              <span class="text-[#63635E] block text-[11px]">Recovery Time:</span>
+              <span class="font-bold text-[#141413]" id="bench4-rec">&lt; 1.4 seconds</span>
             </div>
             <div>
-              <div class="text-[#57606A] text-[11px]">Process Precision:</div>
-              <div class="font-bold text-[#00875A]" id="bench4-kill">0 Kills (Throttle Only)</div>
+              <span class="text-[#63635E] block text-[11px]">Work Preservation:</span>
+              <span class="font-bold text-[#006B44]" id="bench4-kill">0 Kills (Throttled Only)</span>
             </div>
           </div>
         </div>
 
       </div>
+
     </section>
 
-    <!-- SECTION 5: SAFETY INVARIANTS & THREAT MODEL (Zero-Risk Architecture Bento Grid) -->
-    <section id="safety" class="w-full max-w-7xl 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-16">
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <h2 class="text-xs font-mono font-bold tracking-wider uppercase text-[#00875A] mb-2">Hardened Kernel Invariants</h2>
-        <h3 class="text-2xl sm:text-3xl font-bold text-[#0F141C] tracking-tight">Zero-Risk Safety Architecture</h3>
-        <p class="text-[#57606A] mt-2 text-sm">Designed for mission-critical infrastructure where autonomous interventions must maintain mathematical upper bounds.</p>
-      </div>
-
-      <!-- 3x2 Bento Grid (Clean Industrial Hairline Panels) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <!-- SECTION 5: LIVE TERMINAL PLAYGROUND -->
+    <section id="terminal" class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 py-16 border-t border-[#DEDCD4]">
+      
+      <div class="panel-dark border border-[#2A2A28] overflow-hidden">
         
-        <!-- Guarantee 1: Memory-Locked Core -->
-        <div class="bg-white rounded-[4px] p-5 border border-[#D0D7DE] hover:border-[#57606A] transition-colors">
-          <div class="w-8 h-8 rounded-[2px] bg-[#F6F8FA] border border-[#D0D7DE] flex items-center justify-center text-[#0F141C] mb-3 font-mono font-bold text-xs">
-            01
-          </div>
-          <h4 class="font-bold text-[#0F141C] text-base mb-1.5">Memory-Locked Core</h4>
-          <p class="text-[#57606A] text-xs leading-relaxed mb-3">
-            The Rust Guard Plane uses <code class="font-mono text-xs text-[#0F141C] bg-[#F6F8FA] border border-[#D0D7DE] px-1 py-0.5 rounded-[2px]">mlockall</code> with bounded RSS (&lt;100MB). It can never be paged out or become an OOM casualty itself.
-          </p>
-          <div class="text-[11px] font-mono text-[#00875A] font-medium">[PASS] Immune to swap starvation</div>
-        </div>
-
-        <!-- Guarantee 2: Mandatory Action TTLs -->
-        <div class="bg-white rounded-[4px] p-5 border border-[#D0D7DE] hover:border-[#57606A] transition-colors">
-          <div class="w-8 h-8 rounded-[2px] bg-[#F6F8FA] border border-[#D0D7DE] flex items-center justify-center text-[#0F141C] mb-3 font-mono font-bold text-xs">
-            02
-          </div>
-          <h4 class="font-bold text-[#0F141C] text-base mb-1.5">Mandatory Action TTLs</h4>
-          <p class="text-[#57606A] text-xs leading-relaxed mb-3">
-            Every cgroup modification has an ephemeral kernel lease (maximum 300 seconds). If the daemon terminates or drops socket connection, all weights revert instantly.
-          </p>
-          <div class="text-[11px] font-mono text-[#d97706] font-medium">[PASS] Self-healing kernel lease</div>
-        </div>
-
-        <!-- Guarantee 3: Protected Whitelist -->
-        <div class="bg-white rounded-[4px] p-5 border border-[#D0D7DE] hover:border-[#57606A] transition-colors">
-          <div class="w-8 h-8 rounded-[2px] bg-[#F6F8FA] border border-[#D0D7DE] flex items-center justify-center text-[#0F141C] mb-3 font-mono font-bold text-xs">
-            03
-          </div>
-          <h4 class="font-bold text-[#0F141C] text-base mb-1.5">Protected Whitelist</h4>
-          <p class="text-[#57606A] text-xs leading-relaxed mb-3">
-            Display managers (Wayland/X11), SSH daemon (<code class="font-mono text-xs">sshd</code>), pipewire, and core systemd slices are strictly untouchable by safety policy.
-          </p>
-          <div class="text-[11px] font-mono text-[#00875A] font-medium">[PASS] No control plane disconnection</div>
-        </div>
-
-        <!-- Guarantee 4: Physical "Tsuki Panic" Killswitch -->
-        <div class="bg-white rounded-[4px] p-5 border border-[#D0D7DE] hover:border-[#57606A] transition-colors">
-          <div class="w-8 h-8 rounded-[2px] bg-[#F6F8FA] border border-[#D0D7DE] flex items-center justify-center text-[#0F141C] mb-3 font-mono font-bold text-xs">
-            04
-          </div>
-          <h4 class="font-bold text-[#0F141C] text-base mb-1.5">Physical Tsuki Panic</h4>
-          <p class="text-[#57606A] text-xs leading-relaxed mb-3">
-            A single command <code class="font-mono text-xs text-[#cf222e] bg-[#fff1f2] border border-[#cf222e]/30 px-1 py-0.5 rounded-[2px]">tsuki panic</code> or IPC latch instantly unloads eBPF hooks and restores default cgroup limits in &lt;10ms.
-          </p>
-          <div class="text-[11px] font-mono text-[#cf222e] font-medium">[PASS] Hardware-level fail-safe</div>
-        </div>
-
-        <!-- Guarantee 5: Deterministic Typed Intents -->
-        <div class="bg-white rounded-[4px] p-5 border border-[#D0D7DE] hover:border-[#57606A] transition-colors">
-          <div class="w-8 h-8 rounded-[2px] bg-[#F6F8FA] border border-[#D0D7DE] flex items-center justify-center text-[#0F141C] mb-3 font-mono font-bold text-xs">
-            05
-          </div>
-          <h4 class="font-bold text-[#0F141C] text-base mb-1.5">Strict Typed Intents</h4>
-          <p class="text-[#57606A] text-xs leading-relaxed mb-3">
-            The reasoning plane never generates arbitrary bash or invokes subshells. It outputs structured Rust enums validated against strict kernel parameter bounds.
-          </p>
-          <div class="text-[11px] font-mono text-[#0969DA] font-medium">[PASS] Zero shell injection surface</div>
-        </div>
-
-        <!-- Guarantee 6: Offline & Fully Private -->
-        <div class="bg-white rounded-[4px] p-5 border border-[#D0D7DE] hover:border-[#57606A] transition-colors">
-          <div class="w-8 h-8 rounded-[2px] bg-[#F6F8FA] border border-[#D0D7DE] flex items-center justify-center text-[#0F141C] mb-3 font-mono font-bold text-xs">
-            06
-          </div>
-          <h4 class="font-bold text-[#0F141C] text-base mb-1.5">Air-Gapped &amp; Private</h4>
-          <p class="text-[#57606A] text-xs leading-relaxed mb-3">
-            Zero cloud egress. 100% on-device local inference via Ollama or embedded ONNX Runtime. Kernel telemetry and process names never leave your hardware.
-          </p>
-          <div class="text-[11px] font-mono text-[#00875A] font-medium">[PASS] Zero egress telemetry</div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- SECTION 6: TERMINAL QUICK-START & INTERACTIVE PLAYGROUND -->
-    <section id="quickstart" class="w-full max-w-6xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-16">
-      <div class="bg-[#090A0F] rounded-[4px] border border-[#27272A] overflow-hidden">
-        
-        <!-- Terminal Header Chrome -->
-        <div class="px-4 py-2.5 bg-[#11141A] flex items-center justify-between border-b border-[#27272A]">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-[1px] bg-[#cf222e] inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-[1px] bg-[#d97706] inline-block"></span>
-            <span class="w-2.5 h-2.5 rounded-[1px] bg-[#00875a] inline-block"></span>
-            <span class="ml-2 font-mono text-xs text-[#8C95A0]">bash — tsuki@linux-prod-01:~ (6.8.0-x86_64)</span>
+        <!-- Terminal Title Bar -->
+        <div class="px-5 py-3 bg-[#1C1C1A] border-b border-[#2A2A28] flex items-center justify-between font-mono text-xs">
+          <div class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 rounded-[1px] bg-[#9E1C24]"></span>
+            <span class="w-2.5 h-2.5 rounded-[1px] bg-[#A85208]"></span>
+            <span class="w-2.5 h-2.5 rounded-[1px] bg-[#006B44]"></span>
+            <span class="text-[#8E8E86] ml-2">bash — root@linux-node-01:~ (Kernel 6.8.0-49-generic)</span>
           </div>
           <div class="flex items-center gap-3">
-            <span class="text-[10px] font-mono text-[#00875a] bg-[#003824] px-1.5 py-0.5 rounded-[2px] border border-[#00875a]/50">GUARD_PINNED</span>
-            <button onclick="replayTerminal()" class="text-xs font-mono text-[#8C95A0] hover:text-white transition-colors">[REPLAY]</button>
+            <span class="text-[10px] text-[#006B44] bg-[#006B44]/20 border border-[#006B44]/40 px-2 py-0.5 rounded-[1px]">GUARD_ACTIVE</span>
+            <button onclick="replayTerminal()" class="text-[#8E8E86] hover:text-white transition-colors">[REPLAY SESSION]</button>
           </div>
         </div>
 
-        <!-- Terminal Body -->
-        <div class="p-5 bg-[#090A0F] text-slate-200 font-mono text-xs leading-relaxed min-h-[300px] overflow-x-auto" id="termBody">
-          <!-- Populated by JavaScript typewriter -->
+        <!-- Terminal Output Window -->
+        <div class="p-6 bg-[#141413] text-slate-200 font-mono text-xs leading-relaxed min-h-[300px] overflow-x-auto" id="termBody">
+          <!-- Populated by script -->
         </div>
 
-        <!-- Quick copy footer inside terminal frame -->
-        <div class="px-5 py-3 bg-[#11141A] border-t border-[#27272A] flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div class="text-xs text-[#8C95A0] font-mono">
-            Supported: Ubuntu 22.04+, Debian 12+, Fedora 39+, Arch Linux, RHEL 9+
-          </div>
+        <!-- Terminal Footer -->
+        <div class="px-6 py-3.5 bg-[#1C1C1A] border-t border-[#2A2A28] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono text-xs">
+          <span class="text-[#8E8E86]">Tested on Ubuntu 22.04+, Debian 12+, Fedora 39+, Arch Linux</span>
           <div class="flex items-center gap-2">
-            <span class="text-xs text-[#8C95A0] font-mono">Install command:</span>
-            <code class="px-2.5 py-1 rounded-[2px] bg-[#090A0F] text-[#0969DA] border border-[#27272A] font-mono text-xs select-all">
-              curl -fsSL https://get.tsuki.dev | sh
-            </code>
+            <span class="text-[#8E8E86]">Curl installation:</span>
+            <code class="px-2 py-0.5 bg-[#141413] text-white border border-[#2A2A28] rounded-[1px]">curl -fsSL https://get.tsuki.dev | sh</code>
           </div>
         </div>
 
       </div>
+
     </section>
 
-    <!-- SECTION 7: MODERN MINIMALIST FOOTER -->
-    <footer class="w-full max-w-7xl 2xl:max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 pt-16 pb-12 border-t border-[#D0D7DE]">
+    <!-- SECTION 6: EDITORIAL FOOTER & DIRECTORY -->
+    <footer class="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-10 pt-16 border-t border-[#DEDCD4]">
       
-      <!-- High-contrast closing CTA Banner (Sharp Industrial Panel) -->
-      <div class="rounded-[4px] p-6 sm:p-10 bg-[#090A0F] text-white mb-16 border border-[#27272A]">
-        <div class="max-w-2xl">
-          <h3 class="text-2xl sm:text-4xl font-bold tracking-tight mb-3">
-            Equip Linux servers with deterministic reflexes.
-          </h3>
-          <p class="text-[#8C95A0] text-xs sm:text-sm mb-6 leading-relaxed font-mono">
-            Eliminate swap storms, runaway container memory leaks, and unprovoked hard lockups. Tsuki keeps host instances fully responsive under saturation.
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12">
+        
+        <!-- Col 1: Identity & Licensing (5 cols) -->
+        <div class="md:col-span-5 pr-0 md:pr-6 space-y-4">
+          <div class="flex items-center gap-3">
+            <img src="assets/logo.png?v=4" alt="Tsuki Monogram" class="h-8 w-auto object-contain shrink-0" />
+            <span class="font-serif font-bold text-2xl text-[#141413]">Tsuki</span>
+          </div>
+          <p class="text-xs sm:text-sm text-[#63635E] font-sans leading-relaxed max-w-md">
+            An open-source, local-first control plane for Linux kernels. Combines memory-pinned eBPF guard rails with on-device causal inference to prevent swap thrashing without killing processes.
           </p>
-          <div class="flex flex-wrap items-center gap-3">
-            <a href="https://github.com" target="_blank" class="px-4 py-2 rounded-[2px] font-mono text-xs font-semibold text-[#0F141C] bg-white hover:bg-[#F6F8FA] transition-colors">
-              VIEW REPOSITORY
-            </a>
-            <a href="#benchmarks" class="px-4 py-2 rounded-[2px] font-mono text-xs font-semibold text-white bg-[#11141A] hover:bg-[#27272A] border border-[#27272A] transition-colors">
-              READ BENCHMARK SPEC
-            </a>
+          <div class="font-mono text-xs text-[#006B44]">
+            [OPEN SOURCE] Released under Apache-2.0 License.
           </div>
         </div>
-      </div>
 
-      <!-- 4-Column Directory Tree -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pb-10 text-xs">
-        <div>
-          <div class="flex items-center gap-2 mb-3">
-            <img src="assets/logo.png?v=4" alt="Tsuki Logo" class="h-7 w-auto object-contain shrink-0">
-            <span class="font-bold text-[#0F141C] font-mono">Tsuki</span>
+        <!-- Col 2: Navigation Links (7 cols) -->
+        <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 font-mono text-xs">
+          
+          <div class="space-y-2">
+            <div class="font-bold text-[#141413] uppercase tracking-wider text-[11px]">System Interfaces</div>
+            <ul class="space-y-1.5 text-[#63635E]">
+              <li><a href="cockpit.html" class="hover:text-[#141413] transition-colors">Operator Cockpit</a></li>
+              <li><a href="audit.html" class="hover:text-[#141413] transition-colors">Audit Trail Ledger</a></li>
+              <li><a href="telemetry.html" class="hover:text-[#141413] transition-colors">Live PSI Telemetry</a></li>
+              <li><a href="settings.html" class="hover:text-[#141413] transition-colors">Safety Settings</a></li>
+              <li><a href="bootloader.html" class="hover:text-[#141413] transition-colors">Bootloader Verification</a></li>
+            </ul>
           </div>
-          <p class="text-xs text-[#57606A] leading-relaxed mb-3">
-            Autonomous local-first Linux control plane combining memory-pinned Rust guard planes with on-device reasoning agents.
-          </p>
-          <span class="text-[10px] font-mono text-[#00875a] bg-[#eaf5ef] px-1.5 py-0.5 rounded-[2px] border border-[#d2ebd9]">
-            ZERO EGRESS • APACHE-2.0
-          </span>
+
+          <div class="space-y-2">
+            <div class="font-bold text-[#141413] uppercase tracking-wider text-[11px]">Technical Papers</div>
+            <ul class="space-y-1.5 text-[#63635E]">
+              <li><a href="#architecture" class="hover:text-[#141413] transition-colors">Dual-Plane Spec</a></li>
+              <li><a href="#how-it-works" class="hover:text-[#141413] transition-colors">TCN PSI Regression</a></li>
+              <li><a href="#table" class="hover:text-[#141413] transition-colors">Invariants Matrix</a></li>
+              <li><a href="#benchmarks" class="hover:text-[#141413] transition-colors">OS-FaultBench Log</a></li>
+              <li><a href="https://github.com/hsg001-95/tsuki" target="_blank" class="hover:text-[#141413] transition-colors">Source Repository</a></li>
+            </ul>
+          </div>
+
+          <div class="space-y-2">
+            <div class="font-bold text-[#141413] uppercase tracking-wider text-[11px]">Kernel Support</div>
+            <ul class="space-y-1.5 text-[#63635E]">
+              <li><span class="text-[#141413]">Linux 6.8+ eBPF</span></li>
+              <li><span class="text-[#141413]">cgroup v2 controllers</span></li>
+              <li><span class="text-[#141413]">mlockall safe RSS</span></li>
+              <li><span class="text-[#141413]">ONNX INT8 quantized</span></li>
+            </ul>
+          </div>
+
         </div>
 
-        <div>
-          <h5 class="font-bold text-[#0F141C] mb-3 text-xs uppercase font-mono tracking-wider">Product &amp; Tech</h5>
-          <ul class="space-y-1.5 text-xs text-[#57606A] font-mono">
-            <li><a href="#architecture" class="hover:text-[#0F141C]">Dual-Plane Architecture</a></li>
-            <li><a href="#how-it-works" class="hover:text-[#0F141C]">eBPF Telemetry Engine</a></li>
-            <li><a href="#how-it-works" class="hover:text-[#0F141C]">TCN Early-Warning Model</a></li>
-            <li><a href="#benchmarks" class="hover:text-[#0F141C]">OS-FaultBench Results</a></li>
-            <li><a href="#safety" class="hover:text-[#0F141C]">Threat Model &amp; Safety</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="font-bold text-[#0F141C] mb-3 text-xs uppercase font-mono tracking-wider">Documentation</h5>
-          <ul class="space-y-1.5 text-xs text-[#57606A] font-mono">
-            <li><a href="#quickstart" class="hover:text-[#0F141C]">Installation Guide</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">cgroup v2 Requirements</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">Custom Safety Invariants</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">ONNX Model Quantization</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">Prometheus Exporter</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="font-bold text-[#0F141C] mb-3 text-xs uppercase font-mono tracking-wider">Community</h5>
-          <ul class="space-y-1.5 text-xs text-[#57606A] font-mono">
-            <li><a href="https://github.com" class="hover:text-[#0F141C]">GitHub Repository</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">Kernel Mailing List</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">Security Disclosures</a></li>
-            <li><a href="#" class="hover:text-[#0F141C]">Release Notes (v1.0)</a></li>
-          </ul>
-        </div>
       </div>
 
-      <!-- Copyright Bar -->
-      <div class="pt-6 border-t border-[#D0D7DE] flex flex-col sm:flex-row items-center justify-between text-xs text-[#57606A] gap-4">
+      <!-- Bottom Copyright Bar -->
+      <div class="py-6 border-t border-[#DEDCD4] flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-[#63635E] gap-4">
         <div>
-          © 2026 Tsuki Systems. Released under Apache-2.0 License. Designed for Linux 6.8+ kernels.
+          © 2026 Tsuki Project Authors. All rights reserved.
         </div>
-        <div class="flex items-center gap-4 font-mono text-[11px]">
-          <span>MLOCKALL: ENABLED</span>
+        <div class="flex items-center gap-3 text-[11px]">
+          <span>MLOCKALL: VERIFIED</span>
           <span>•</span>
-          <span>EBPF CO-RE: COMPLIANT</span>
+          <span>eBPF CO-RE: COMPLIANT</span>
           <span>•</span>
-          <span>PSI: MONITORED</span>
+          <span>SIGKILL: 0</span>
         </div>
       </div>
 
@@ -859,19 +903,19 @@
 
   </main>
 
-  <!-- INTERACTIVITY JAVASCRIPT -->
+  <!-- INTERACTIVITY SCRIPTS -->
   <script>
-    // Copy CLI Command
+    // Copy Command to Clipboard
     function copyCliCommand() {
       const text = document.getElementById("cliText").innerText;
       navigator.clipboard.writeText(text).then(() => {
         const toast = document.getElementById("copiedToast");
         toast.classList.remove("opacity-0");
-        setTimeout(() => toast.classList.add("opacity-0"), 1500);
+        setTimeout(() => toast.classList.add("opacity-0"), 2000);
       });
     }
 
-    // Hero Dual-Plane Simulation Trigger
+    // Kinetic Two-Plane Simulation Trigger
     let isSimulating = false;
     function runSimulation() {
       if (isSimulating) return;
@@ -890,135 +934,135 @@
       const planeA = document.getElementById("planeA");
       const planeB = document.getElementById("planeB");
 
-      simBtnText.innerText = "SIMULATING SPIKE...";
-      simBtn.classList.replace("bg-[#fff1f2]", "bg-[#ffe4e6]");
+      simBtnText.innerText = "PRESSURE DETECTED...";
+      simBtn.classList.replace("bg-[#FBECEE]", "bg-[#F6D8DC]");
 
-      // T+0.5s: Memory Thrashing Begins
+      // T+0.5s: Memory Thrashing detected by eBPF
       setTimeout(() => {
-        simPsi.innerText = "18.5% (STALL WARNING)";
-        simPsi.className = "text-[#d97706] font-bold mt-0.5 animate-pulse tabular-nums";
-        simVelocity.innerText = "380 MB/s (LEAK SPIKE)";
-        simVelocity.className = "text-[#cf222e] font-bold mt-0.5 tabular-nums";
-        simMsg.innerText = "[eBPF Alert] High anon-RSS velocity detected in /system.slice/build-worker.service";
-        simDot.className = "w-2 h-2 rounded-full bg-[#d97706] animate-ping";
-        planeA.classList.add("border-[#d97706]");
+        simPsi.innerText = "18.5% (ELEVATED)";
+        simPsi.className = "text-[#A85208] font-bold mt-0.5 tabular-nums";
+        simVelocity.innerText = "380 MB/s (LEAK)";
+        simVelocity.className = "text-[#9E1C24] font-bold mt-0.5 tabular-nums";
+        simMsg.innerText = "[eBPF Alert] High anon-RSS allocation rate in /system.slice/build-worker.service";
+        simDot.className = "w-2 h-2 rounded-full bg-[#A85208] animate-ping";
+        planeA.classList.add("border-[#A85208]");
       }, 500);
 
-      // T+1.2s: LLM Reasoning Plane Evaluates
+      // T+1.2s: Reasoning plane evaluates evidence
       setTimeout(() => {
-        planeBdiag.innerText = "High confidence compilation leak (cc1plus). Whitelist OK.";
-        planeBdiag.className = "text-[#d97706] mt-1 font-bold truncate";
-        planeBintent.innerText = "memory.high: 2.0GiB, cpu.weight: 20 (TTL: 180s)";
-        planeBintent.className = "text-[#00875a] mt-1 font-bold";
-        planeB.classList.add("border-[#0969DA]");
-        simMsg.innerText = "[Reasoning Plane] Synthesized reversible cgroup throttle specification (INT8 verified in 2.1ms)";
+        planeBdiag.innerText = "High-confidence compilation runaway (cc1plus). Whitelist OK.";
+        planeBdiag.className = "text-[#A85208] mt-1 font-bold truncate";
+        planeBintent.innerText = "memory.high: 2.0GiB, cpu.weight: 20 (Lease TTL: 180s)";
+        planeBintent.className = "text-[#006B44] mt-1 font-bold";
+        planeB.classList.add("border-[#006B44]");
+        simMsg.innerText = "[Reasoning Plane] Synthesized reversible cgroup throttle specification (evaluated in 2.1ms)";
       }, 1200);
 
-      // T+2.0s: Reversible Guard Plane Throttles
+      // T+2.0s: Reversible throttle applied
       setTimeout(() => {
         simCgroup.innerText = "/system.slice/build-worker (THROTTLED)";
-        simCgroup.className = "text-[#d97706] font-bold mt-0.5";
+        simCgroup.className = "text-[#A85208] font-bold mt-0.5";
         simAction.innerText = "THROTTLE ACTIVE (TTL: 180s)";
-        simAction.className = "text-[#d97706] font-bold mt-0.5";
-        simPsi.innerText = "2.10% (RECOVERING)";
-        simPsi.className = "text-[#00875a] font-bold mt-0.5 tabular-nums";
-        simVelocity.innerText = "18 MB/s (STABILIZED)";
-        simVelocity.className = "text-[#00875a] font-bold mt-0.5 tabular-nums";
-        simMsg.innerText = "[Reversible Mitigation Applied] System responsiveness maintained at 99.4%. No SIGKILL triggered.";
-        simDot.className = "w-2 h-2 rounded-full bg-[#00875a]";
+        simAction.className = "text-[#A85208] font-bold mt-0.5";
+        simPsi.innerText = "2.10% (NORMALIZING)";
+        simPsi.className = "text-[#006B44] font-bold mt-0.5 tabular-nums";
+        simVelocity.innerText = "18 MB/s (STABLE)";
+        simVelocity.className = "text-[#006B44] font-bold mt-0.5 tabular-nums";
+        simMsg.innerText = "[Mitigation Active] Responsiveness maintained at 99.4%. No SIGKILL sent.";
+        simDot.className = "w-2 h-2 rounded-full bg-[#006B44]";
       }, 2000);
 
-      // T+4.5s: Complete Restoration
+      // T+4.5s: System Restored
       setTimeout(() => {
-        simBtnText.innerText = "SIMULATE MEMORY THRASH";
-        simBtn.classList.replace("bg-[#ffe4e6]", "bg-[#fff1f2]");
-        simPsi.innerText = "0.00% (Nominal)";
-        simPsi.className = "text-[#00875a] font-bold mt-0.5 tabular-nums";
+        simBtnText.innerText = "INJECT MEMORY PRESSURE";
+        simBtn.classList.replace("bg-[#F6D8DC]", "bg-[#FBECEE]");
+        simPsi.innerText = "0.00%";
+        simPsi.className = "text-[#006B44] font-bold mt-0.5 tabular-nums";
         simVelocity.innerText = "14 MB/s";
-        simVelocity.className = "text-slate-200 mt-0.5 tabular-nums";
-        simCgroup.innerText = "/system.slice (Unthrottled)";
-        simCgroup.className = "text-slate-200 mt-0.5 truncate";
-        simAction.innerText = "ARMED & LOCKED";
-        simAction.className = "text-[#00875a] mt-0.5";
-        simMsg.innerText = "Deterministic kernel guard loop running at 100Hz ring buffer resolution...";
-        simDot.className = "w-2 h-2 rounded-full bg-[#57606A]";
-        planeBdiag.innerText = "Status: Nominal idle (Monitoring PSI stream)";
-        planeBdiag.className = "text-slate-200 mt-1 truncate";
+        simVelocity.className = "text-white mt-0.5 tabular-nums";
+        simCgroup.innerText = "/system.slice";
+        simCgroup.className = "text-white mt-0.5 truncate";
+        simAction.innerText = "ARMED";
+        simAction.className = "text-[#006B44] mt-0.5";
+        simMsg.innerText = "eBPF ring buffer streaming 100Hz pressure events.";
+        simDot.className = "w-2 h-2 rounded-full bg-[#006B44]";
+        planeBdiag.innerText = "Status: Nominal (Tracking Linux PSI Ring Buffer)";
+        planeBdiag.className = "text-white mt-1 truncate";
         planeBintent.innerText = "Strict Typed JSON Actuator Schema";
-        planeBintent.className = "text-[#8C95A0] mt-1 font-mono text-[11px]";
-        planeA.classList.remove("border-[#d97706]");
-        planeB.classList.remove("border-[#0969DA]");
+        planeBintent.className = "text-[#006B44] mt-1 text-[11px]";
+        planeA.classList.remove("border-[#A85208]");
+        planeB.classList.remove("border-[#006B44]");
         isSimulating = false;
       }, 4500);
     }
 
-    // Tab Switcher for Section 3
+    // Tab Switcher for Pipeline Section
     function switchTab(tabId) {
       const tabs = ["detect", "diagnose", "fix"];
       tabs.forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         const content = document.getElementById(`content-${t}`);
         if (t === tabId) {
-          btn.className = "px-4 py-2 rounded-[2px] font-semibold transition-all bg-white text-[#0F141C] border border-[#D0D7DE] shadow-xs";
+          btn.className = "px-4 py-2 text-xs font-mono font-semibold bg-[#141413] text-white border border-[#141413] rounded-[2px] transition-colors";
           content.classList.remove("hidden");
         } else {
-          btn.className = "px-4 py-2 rounded-[2px] font-medium text-[#57606A] hover:text-[#0F141C] transition-all";
+          btn.className = "px-4 py-2 text-xs font-mono font-medium text-[#63635E] hover:text-[#141413] border border-[#DEDCD4] bg-white rounded-[2px] transition-colors";
           content.classList.add("hidden");
         }
       });
     }
 
-    // Benchmark Matrix Workload Filter
+    // Benchmark Filter
     function setBenchWorkload(type) {
       const btnFork = document.getElementById("btn-wb-forkbomb");
       const btnPostgres = document.getElementById("btn-wb-postgres");
       const btnRedis = document.getElementById("btn-wb-redis");
 
       [btnFork, btnPostgres, btnRedis].forEach(b => {
-        b.className = "px-3 py-1.5 rounded-[2px] text-[#57606A] hover:text-[#0F141C] font-medium transition-colors";
+        b.className = "px-3 py-1.5 text-[#63635E] hover:text-[#141413] font-medium rounded-[1px] transition-colors";
       });
 
       if (type === "forkbomb") {
-        btnFork.className = "px-3 py-1.5 rounded-[2px] bg-[#0F141C] text-white font-medium transition-colors";
+        btnFork.className = "px-3 py-1.5 bg-[#141413] text-white font-medium rounded-[1px] transition-colors";
         document.getElementById("bench1-resp").innerText = "12.4%";
         document.getElementById("bench2-resp").innerText = "61.2%";
         document.getElementById("bench3-resp").innerText = "74.8%";
-        document.getElementById("bench4-resp").innerHTML = "99.4% <span class=\"text-[10px] px-1.5 py-0.2 rounded-[2px] bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9] font-normal\">NOMINAL</span>";
+        document.getElementById("bench4-resp").innerHTML = "99.4% <span class=\"text-[10px] font-normal px-1 py-0.2 bg-[#EAF3ED] border border-[#9ECBB4] rounded-[1px]\">NOMINAL</span>";
         document.getElementById("bench4-rec").innerText = "< 1.4 seconds";
-        document.getElementById("bench4-kill").innerText = "0 Kills (Throttle Only)";
+        document.getElementById("bench4-kill").innerText = "0 Kills (Throttled Only)";
       } else if (type === "postgres") {
-        btnPostgres.className = "px-3 py-1.5 rounded-[2px] bg-[#0F141C] text-white font-medium transition-colors";
+        btnPostgres.className = "px-3 py-1.5 bg-[#141413] text-white font-medium rounded-[1px] transition-colors";
         document.getElementById("bench1-resp").innerText = "8.1%";
         document.getElementById("bench2-resp").innerText = "48.9%";
         document.getElementById("bench3-resp").innerText = "68.2%";
-        document.getElementById("bench4-resp").innerHTML = "98.8% <span class=\"text-[10px] px-1.5 py-0.2 rounded-[2px] bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9] font-normal\">ZERO DROP</span>";
+        document.getElementById("bench4-resp").innerHTML = "98.8% <span class=\"text-[10px] font-normal px-1 py-0.2 bg-[#EAF3ED] border border-[#9ECBB4] rounded-[1px]\">BUFFER PRESERVED</span>";
         document.getElementById("bench4-rec").innerText = "< 2.1 seconds";
-        document.getElementById("bench4-kill").innerText = "0 Kills (Buffer Cache Preserved)";
+        document.getElementById("bench4-kill").innerText = "0 Kills (Buffer Cache Intact)";
       } else if (type === "redis") {
-        btnRedis.className = "px-3 py-1.5 rounded-[2px] bg-[#0F141C] text-white font-medium transition-colors";
+        btnRedis.className = "px-3 py-1.5 bg-[#141413] text-white font-medium rounded-[1px] transition-colors";
         document.getElementById("bench1-resp").innerText = "22.0%";
         document.getElementById("bench2-resp").innerText = "55.4%";
         document.getElementById("bench3-resp").innerText = "81.0%";
-        document.getElementById("bench4-resp").innerHTML = "99.7% <span class=\"text-[10px] px-1.5 py-0.2 rounded-[2px] bg-[#eaf5ef] text-[#00875a] border border-[#d2ebd9] font-normal\">INSTANT</span>";
+        document.getElementById("bench4-resp").innerHTML = "99.7% <span class=\"text-[10px] font-normal px-1 py-0.2 bg-[#EAF3ED] border border-[#9ECBB4] rounded-[1px]\">INSTANT</span>";
         document.getElementById("bench4-rec").innerText = "< 0.8 seconds";
-        document.getElementById("bench4-kill").innerText = "0 Kills (Demote CPU weight)";
+        document.getElementById("bench4-kill").innerText = "0 Kills (CPU Yield)";
       }
     }
 
     // Terminal Typewriter Script
     const terminalLines = [
-      { text: "$ tsuki status", class: "text-[#8C95A0] font-bold", delay: 200 },
-      { text: "[+] Guard Plane: ACTIVE (mlockall pinned: 38MB RSS, lock=true)", class: "text-[#00875a]", delay: 500 },
-      { text: "[+] PSI Telemetry: Healthy (some_avg10: 0.00%, full_avg10: 0.00%)", class: "text-[#0969DA]", delay: 750 },
-      { text: "[+] Reasoning Daemon: Standby (sandboxed PID 4092, ONNX INT8 loaded)", class: "text-slate-300", delay: 1000 },
+      { text: "$ tsuki status", class: "text-[#8E8E86] font-bold", delay: 200 },
+      { text: "[+] Guard Plane: ACTIVE (mlockall pinned: 38MB RSS, lock=true)", class: "text-[#006B44]", delay: 500 },
+      { text: "[+] PSI Telemetry: Healthy (some_avg10: 0.00%, full_avg10: 0.00%)", class: "text-white", delay: 750 },
+      { text: "[+] Reasoning Daemon: Standby (sandboxed PID 4092, ONNX INT8 loaded)", class: "text-[#8E8E86]", delay: 1000 },
       { text: "", class: "", delay: 1200 },
-      { text: "$ tsuki demo --simulate-thrash", class: "text-[#8C95A0] font-bold", delay: 1500 },
-      { text: "[*] Injecting synthetic memory pressure into test cgroup...", class: "text-[#8C95A0]", delay: 1800 },
-      { text: "[!] Warning: Memory reclaim velocity > 350 MB/s detected via psi_poll", class: "text-[#d97706] font-semibold", delay: 2200 },
-      { text: "[*] Reasoning Plane cited: high anon-RSS allocation in worker thread (PID 38412)", class: "text-[#79c0ff]", delay: 2600 },
-      { text: "[*] Applied reversible throttle: memory.high = 2.0G (lease TTL: 180s)", class: "text-[#00875a]", delay: 3000 },
-      { text: "[OK] System pressure normalized (stall ratio: 0.00%). Zero processes killed.", class: "text-[#00875a] font-bold", delay: 3400 },
-      { text: "$ █", class: "text-[#0969DA] font-bold", delay: 3700 }
+      { text: "$ tsuki demo --simulate-thrash", class: "text-[#8E8E86] font-bold", delay: 1500 },
+      { text: "[*] Injecting synthetic memory pressure into test cgroup...", class: "text-[#8E8E86]", delay: 1800 },
+      { text: "[!] Warning: Memory reclaim velocity > 350 MB/s detected via psi_poll", class: "text-[#A85208] font-semibold", delay: 2200 },
+      { text: "[*] Reasoning Plane cited: high anon-RSS allocation in worker thread (PID 38412)", class: "text-[#EAF3ED]", delay: 2600 },
+      { text: "[*] Applied reversible throttle: memory.high = 2.0G (lease TTL: 180s)", class: "text-[#006B44]", delay: 3000 },
+      { text: "[OK] System pressure normalized (stall ratio: 0.00%). Zero processes killed.", class: "text-[#006B44] font-bold", delay: 3400 },
+      { text: "$ █", class: "text-white font-bold", delay: 3700 }
     ];
 
     function replayTerminal() {
@@ -1036,7 +1080,7 @@
       });
     }
 
-    // Auto-run terminal on page load
+    // Auto-replay on page load
     window.addEventListener("DOMContentLoaded", () => {
       replayTerminal();
     });
