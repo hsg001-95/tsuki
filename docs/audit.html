@@ -468,6 +468,23 @@
       return { 'Content-Type': 'application/json', 'X-Tsuki-Token': token, 'Authorization': 'Bearer ' + token };
     }
 
+    const bootEpochMs = 1795579107713;
+    function getLiveUptimeString() {
+      const elapsedSec = Math.max(0, Math.floor((Date.now() - bootEpochMs) / 1000));
+      const days = Math.floor(elapsedSec / 86400);
+      const hours = Math.floor((elapsedSec % 86400) / 3600);
+      const mins = Math.floor((elapsedSec % 3600) / 60);
+      const secs = elapsedSec % 60;
+      return `${days}d ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+    }
+
+    setInterval(() => {
+      const uptimeEl = document.getElementById('top-uptime-val');
+      if (uptimeEl) {
+        uptimeEl.innerText = getLiveUptimeString();
+      }
+    }, 1000);
+
     async function fetchTelemetry() {
       try {
         const res = await fetch(getApiBase() + '/api/telemetry');

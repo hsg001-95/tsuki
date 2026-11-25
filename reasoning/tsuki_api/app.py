@@ -383,7 +383,8 @@ def get_telemetry() -> Dict[str, Any]:
     days = int(uptime_sec // 86400)
     hours = int((uptime_sec % 86400) // 3600)
     minutes = int((uptime_sec % 3600) // 60)
-    uptime_fmt = f"{days}d {hours:02d}h {minutes:02d}m"
+    seconds = int(uptime_sec % 60)
+    uptime_fmt = f"{days}d {hours:02d}h {minutes:02d}m {seconds:02d}s"
 
     psi_stats = {"cpu_some": 0.0, "memory_some": 0.0, "memory_full": 0.0, "io_some": 0.0, "io_full": 0.0}
     for resource in ["cpu", "memory", "io"]:
