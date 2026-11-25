@@ -281,8 +281,9 @@ def test_cors_origin_policy():
 # 6. PRIVACY & INFORMATION LEAK AUDIT
 # ==============================================================================
 
-def test_hostname_sanitization():
+def test_hostname_sanitization(monkeypatch):
     """Verify host metadata in telemetry returns sanitized string rather than real OS credentials."""
+    monkeypatch.setenv("TSUKI_SANITIZE_PRIVACY", "1")
     client = TestClient(app)
     resp = client.get("/api/telemetry")
     assert resp.status_code == 200

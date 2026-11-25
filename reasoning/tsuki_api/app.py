@@ -349,9 +349,8 @@ def get_telemetry() -> Dict[str, Any]:
     """Provide real-time telemetry from kernel PSI, system metrics, and safety planes."""
     import platform
 
-    # Host Isolation & Real Telemetry Flag
-    # Set TSUKI_SANITIZE_PRIVACY=0 or TSUKI_LIVE_HOST=1 to use your real PC hostname
-    use_real_host = os.environ.get("TSUKI_LIVE_HOST", "0") == "1" or os.environ.get("TSUKI_SANITIZE_PRIVACY", "1") == "0"
+    # Live Real Host Telemetry by default
+    use_real_host = os.environ.get("TSUKI_SANITIZE_PRIVACY", "0") != "1"
     if use_real_host:
         hostname = socket.gethostname()
     else:
@@ -493,8 +492,8 @@ def list_pending_intents() -> List[Dict[str, Any]]:
 @app.get("/api/audit/logs")
 def get_audit_logs() -> List[Dict[str, Any]]:
     """Return cryptographic remediation audit trail events (buffer + historical)."""
-    use_real_host = os.environ.get("TSUKI_LIVE_HOST", "0") == "1" or os.environ.get("TSUKI_SANITIZE_PRIVACY", "1") == "0"
-    demo_mode = os.environ.get("TSUKI_DEMO_DATA", "0" if use_real_host else "1") == "1"
+    use_real_host = os.environ.get("TSUKI_SANITIZE_PRIVACY", "0") != "1"
+    demo_mode = os.environ.get("TSUKI_DEMO_DATA", "0") == "1"
 
     if not demo_mode:
         return list(AUDIT_LOG_BUFFER)
