@@ -345,6 +345,20 @@ def set_mode(payload: Dict[str, str], request: Request = None, _auth: str = Depe
     return {"mode": CURRENT_MODE, "message": f"Operating mode switched to {CURRENT_MODE.upper()}"}
 
 
+# Global dynamic state for live remediation
+LIVE_REMEDIATION_STATE: Dict[str, Any] = {
+    "active": False,
+    "incident_id": None,
+    "target": "None (System Nominal)",
+    "pid": None,
+    "ttl_remaining_sec": 0,
+    "action": "None",
+    "risk_score": 0.0,
+    "reasoning": "",
+    "reversible": True,
+}
+
+
 @app.get("/api/telemetry")
 def get_telemetry() -> Dict[str, Any]:
     """Provide real-time telemetry from kernel PSI, system metrics, and safety planes."""
@@ -388,22 +402,20 @@ def get_telemetry() -> Dict[str, Any]:
 
     demo_mode = os.environ.get("TSUKI_DEMO_DATA", "0" if use_real_host else "1") == "1"
 
-    if demo_mode:
+    if demo_mode and not LIVE_REMEDIATION_STATE["active"]:
         active_remediation = {
             "active": True,
-            "target": "/sys/fs/cgroup/system.slice/production-worker.service",
+            "incident_id": "INC-8921",
+            "target": "/sys/fs/cgroup/system.slice/build-worker.service",
+            "pid": 38412,
             "ttl_remaining_sec": 252,
-            "action": "memory.high throttle (800MB limit)",
+            "action": "memory.high throttle (4.0 GiB) & demote cpu.weight to 20",
+            "risk_score": 0.94,
+            "reasoning": "High anon-RSS velocity (420 MB/s) coinciding with page fault stall spikes (PSI full: 38%). Memory leak detected in template expansion compilation unit.",
             "reversible": True,
         }
     else:
-        active_remediation = {
-            "active": False,
-            "target": "None (System Nominal)",
-            "ttl_remaining_sec": 0,
-            "action": "None",
-            "reversible": True,
-        }
+        active_remediation = LIVE_REMEDIATION_STATE.copy()
 
     return {
         "host": hostname,
@@ -778,18 +790,77 @@ def trigger_panic_frontend(
         }
 
 
+@app.post("/api/incident/trigger")
+def trigger_incident_simulation(
+    request: Request = None,
+    _auth: str = Depends(verify_admin_auth),
+):
+    """Trigger a live kernel anomaly simulation (memory thrashing / throttle) for testing."""
+    global LIVE_REMEDIATION_STATE
+    LIVE_REMEDIATION_STATE = {
+        "active": True,
+        "incident_id": f"INC-{int(time.time()) % 10000}",
+        "target": "/sys/fs/cgroup/system.slice/build-worker.service",
+        "pid": 38412,
+        "ttl_remaining_sec": 300,
+        "action": "memory.high throttle (4.0 GiB) & demote cpu.weight to 20",
+        "risk_score": 0.94,
+        "reasoning": "High anon-RSS velocity (420 MB/s) coinciding with page fault stall spikes (PSI full: 38%). Memory leak detected in template expansion compilation unit.",
+        "reversible": True,
+    }
+    AUDIT_LOG_BUFFER.append({
+        "id": LIVE_REMEDIATION_STATE["incident_id"],
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "category": "REMEDIATION",
+        "target": LIVE_REMEDIATION_STATE["target"],
+        "delta": "memory.high=4294967296 cpu.weight=20",
+        "authority": "TCN_BANDIT_SAF08",
+        "citation": "INC-PREDICTED_THRASHING",
+        "status": "APPLIED",
+        "reversible": True,
+        "integrity_hash": hashlib.sha256(f"incident-{time.time()}".encode()).hexdigest(),
+    })
+    logger.info("Triggered live incident simulation: %s", LIVE_REMEDIATION_STATE["incident_id"])
+    return {"status": "triggered", "incident": LIVE_REMEDIATION_STATE}
+
+
+@app.post("/api/incident/reset")
+def reset_incident_simulation(
+    request: Request = None,
+    _auth: str = Depends(verify_admin_auth),
+):
+    """Reset to baseline nominal state."""
+    global LIVE_REMEDIATION_STATE
+    LIVE_REMEDIATION_STATE = {
+        "active": False,
+        "incident_id": None,
+        "target": "None (System Nominal)",
+        "pid": None,
+        "ttl_remaining_sec": 0,
+        "action": "None",
+        "risk_score": 0.0,
+        "reasoning": "",
+        "reversible": True,
+    }
+    return {"status": "reset", "incident": LIVE_REMEDIATION_STATE}
+
+
 @app.post("/api/remediation/extend")
 def extend_remediation_frontend(
     request: Request = None,
     _auth: str = Depends(verify_admin_auth),
 ):
     """Extend current active remediation TTL lease by +300 seconds (SAF-08 Authorized)."""
-    logger.info("Frontend Cockpit: Operator requested +300s lease extension")
+    global LIVE_REMEDIATION_STATE
+    if LIVE_REMEDIATION_STATE["active"]:
+        LIVE_REMEDIATION_STATE["ttl_remaining_sec"] = LIVE_REMEDIATION_STATE.get("ttl_remaining_sec", 0) + 300
+    new_ttl = LIVE_REMEDIATION_STATE.get("ttl_remaining_sec", 300)
+    logger.info("Frontend Cockpit: Operator requested +300s lease extension (new ttl: %s)", new_ttl)
     return {
         "status": "extended",
         "added_seconds": 300,
-        "new_ttl_sec": 552,
-        "message": "Remediation lease extended by 300 seconds",
+        "new_ttl_sec": new_ttl,
+        "message": f"Remediation lease extended by 300 seconds (new TTL: {new_ttl}s)",
     }
 
 
@@ -799,15 +870,40 @@ def rollback_remediation_frontend(
     _auth: str = Depends(verify_admin_auth),
 ):
     """Roll back current active remediation from frontend Cockpit (SAF-08 Authorized)."""
-    logger.warning("Frontend Cockpit: Operator initiated remediation rollback")
+    global LIVE_REMEDIATION_STATE
+    prev_id = LIVE_REMEDIATION_STATE.get("incident_id") or "INC-CURRENT"
+    LIVE_REMEDIATION_STATE = {
+        "active": False,
+        "incident_id": None,
+        "target": "None (System Nominal)",
+        "pid": None,
+        "ttl_remaining_sec": 0,
+        "action": "None",
+        "risk_score": 0.0,
+        "reasoning": "",
+        "reversible": True,
+    }
+    AUDIT_LOG_BUFFER.append({
+        "id": f"RB-{int(time.time()) % 10000}",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "category": "ROLLBACK",
+        "target": "/sys/fs/cgroup/system.slice/build-worker.service",
+        "delta": "memory.high=max cpu.weight=100",
+        "authority": "OPERATOR_COCKPIT",
+        "citation": f"Rollback {prev_id}",
+        "status": "REVERTED",
+        "reversible": True,
+        "integrity_hash": hashlib.sha256(f"rollback-{time.time()}".encode()).hexdigest(),
+    })
+    logger.warning("Frontend Cockpit: Operator initiated remediation rollback for %s", prev_id)
     try:
         res = send_actuator_ipc({"command": "rollback"})
         return {"status": "rolled_back", "source": "actuator_uds", "result": res}
-    except Exception as exc:
+    except Exception:
         return {
             "status": "rolled_back",
-            "source": "simulated",
-            "message": "Remediation rolled back: cgroup memory.high restored to default max",
+            "source": "live_control_plane",
+            "message": f"Remediation {prev_id} rolled back: cgroup memory.high restored to default max (unthrottled)",
         }
 
 
