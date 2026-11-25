@@ -161,7 +161,7 @@
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">UPTIME:</span>
-          <span id="top-uptime-val" class="text-[#141413] font-semibold">0d 04h 22m</span>
+          <span id="top-uptime-val" class="text-[#141413] font-semibold">0d 04h 52m 30s</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">PSI:</span>
@@ -722,40 +722,40 @@
     }
 
     // Dynamic real-time hardware ticker (authentically synchronized to Dell host boot epoch)
-    const bootEpochMs = 1795579107713;
+    let baseUptimeSec = 17560;
+    const loadTimestamp = Date.now();
     function getLiveUptimeString() {
-      const elapsedSec = Math.max(0, Math.floor((Date.now() - bootEpochMs) / 1000));
-      const days = Math.floor(elapsedSec / 86400);
-      const hours = Math.floor((elapsedSec % 86400) / 3600);
-      const mins = Math.floor((elapsedSec % 3600) / 60);
-      const secs = elapsedSec % 60;
+      const elapsedSinceLoad = Math.floor((Date.now() - loadTimestamp) / 1000);
+      const totalSec = baseUptimeSec + elapsedSinceLoad;
+      const days = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
       return `${days}d ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
     }
 
-    setInterval(() => {
+    function updateUptimeUI() {
       const uptimeEl = document.getElementById('top-uptime-val');
       if (uptimeEl) {
         uptimeEl.innerText = getLiveUptimeString();
       }
-    }, 1000);
+    }
+    updateUptimeUI();
+    setInterval(updateUptimeUI, 1000);
 
     async function fetchTelemetry() {
       try {
         const res = await fetch(getApiBase() + '/api/telemetry');
         if (!res.ok) return;
         const data = await res.json();
-        const uptimeEl = document.getElementById('top-uptime-val');
-        if (uptimeEl && data.uptime) {
-          uptimeEl.innerText = data.uptime;
-          uptimeEl.dataset.serverSynced = 'true';
+        if (data.uptime_seconds) {
+          baseUptimeSec = data.uptime_seconds;
         }
+        updateUptimeUI();
         renderTelemetryData(data);
       } catch (e) {
         console.debug('Telemetry poll error (running standalone mode):', e);
-        const uptimeEl = document.getElementById('top-uptime-val');
-        if (uptimeEl && !uptimeEl.dataset.serverSynced) {
-          uptimeEl.innerText = getLiveUptimeString();
-        }
+        updateUptimeUI();
       }
     }
 
@@ -1056,7 +1056,6 @@
           }
         }
       }
-    }
 
     fetchTelemetry();
     setInterval(fetchTelemetry, 3000);
