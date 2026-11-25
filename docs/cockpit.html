@@ -858,6 +858,22 @@
         }
       } catch (e) {
         console.debug('Telemetry poll error:', e);
+        if (window.location.protocol === 'https:') {
+          const banner = document.getElementById('https-mixed-banner');
+          if (banner) banner.classList.remove('hidden');
+
+          const hostEl = document.getElementById('top-host-val');
+          if (hostEl) hostEl.innerHTML = `<a href="http://127.0.0.1:8000/cockpit.html" class="text-[#9E1C24] underline font-bold">Open http://127.0.0.1:8000</a>`;
+
+          const uptimeEl = document.getElementById('top-uptime-val');
+          if (uptimeEl) uptimeEl.innerText = "Blocked by HTTPS";
+
+          const psiEl = document.getElementById('top-psi-val');
+          if (psiEl) psiEl.innerHTML = `<span class="text-[#9E1C24]">OPEN LOCAL COCKPIT</span>`;
+
+          const incHostEl = document.getElementById('incident-host-val');
+          if (incHostEl) incHostEl.innerHTML = `<a href="http://127.0.0.1:8000/cockpit.html" class="text-[#9E1C24] underline">Open http://127.0.0.1:8000/cockpit.html</a>`;
+        }
       }
     }
 
