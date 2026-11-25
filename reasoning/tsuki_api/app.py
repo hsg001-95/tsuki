@@ -60,6 +60,7 @@ app.add_middleware(
     allow_origins=allowed_origins,
     allow_origin_regex=r"^(https?://[a-zA-Z0-9_-]+\.github\.io|https?://([a-zA-Z0-9_-]+\.)?snoxxgroup\.me)$",
     allow_credentials=True,
+    allow_private_network=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
