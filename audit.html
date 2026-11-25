@@ -143,7 +143,7 @@
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">UPTIME:</span>
-          <span id="top-uptime-val" class="text-[#141413] font-semibold">0d 04h 52m 30s</span>
+          <span id="top-uptime-val" class="text-[#141413] font-semibold flex items-center gap-1.5 tabular-nums">0d 04h 56m <span class="px-1 py-0.2 rounded-[1px] bg-[#EAF3ED] text-[#006B44] border border-[#006B44]/30 font-bold tabular-nums">00s</span></span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="text-[#8E8E86]">PSI:</span>
@@ -477,13 +477,13 @@
       const hours = Math.floor((totalSec % 86400) / 3600);
       const mins = Math.floor((totalSec % 3600) / 60);
       const secs = totalSec % 60;
-      return `${days}d ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+      return `${days}d ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m <span class="px-1 py-0.2 rounded-[1px] bg-[#EAF3ED] text-[#006B44] border border-[#006B44]/30 font-bold tabular-nums">${String(secs).padStart(2, '0')}s</span>`;
     }
 
     function updateUptimeUI() {
       const uptimeEl = document.getElementById('top-uptime-val');
       if (uptimeEl) {
-        uptimeEl.innerText = getLiveUptimeString();
+        uptimeEl.innerHTML = getLiveUptimeString();
       }
     }
     updateUptimeUI();
@@ -494,10 +494,12 @@
         const res = await fetch(getApiBase() + '/api/telemetry');
         if (!res.ok) return;
         const data = await res.json();
+        if (data.uptime_seconds) {
+          baseUptimeSec = data.uptime_seconds;
+        }
+        updateUptimeUI();
         const hostEl = document.getElementById('top-host-val');
         if (hostEl && data.host) hostEl.innerText = data.host;
-        const uptimeEl = document.getElementById('top-uptime-val');
-        if (uptimeEl && data.uptime) uptimeEl.innerText = data.uptime;
       } catch (e) {}
     }
 
