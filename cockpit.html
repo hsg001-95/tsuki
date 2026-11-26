@@ -506,7 +506,7 @@
                 cgroup root: <span class="text-[#141413]">/sys/fs/cgroup (unthrottled baseline)</span>
               </div>
               <div class="text-[10px] text-[#8E8E86]">
-                kernel: <span id="incident-kernel-val">Linux 7.0.0-43-generic</span> • ring buffer: active
+                kernel: <span id="incident-kernel-val">Linux 7.0.0-44-generic</span> • ring buffer: active
               </div>
             </div>
 
@@ -882,7 +882,7 @@
         if (!latestTelemetryCache) {
           latestTelemetryCache = {
             host: 'hiyansh-sharma-Dell-G15-5520',
-            kernel: '7.0.0-43-generic',
+            kernel: '7.0.0-44-generic',
             psi: { memory_some: 0.0, cpu_some: 0.02, io_some: 0.01 },
             guard_plane: { cpu_percent: 0.18, rss_mb: 56.2 },
             reasoning_plane: { inference_latency_p50_ms: 0.94, health_index_pct: 99.8 },
@@ -1266,7 +1266,7 @@
       if (!isIncidentActive) {
         const mockData = {
           host: host,
-          kernel: '7.0.0-43-generic',
+          kernel: '7.0.0-44-generic',
           uptime: '0d 02h 55m',
           psi: { memory_some: 38.0 },
           guard_plane: { cpu_percent: 0.18, rss_mb: 42.0 },
@@ -1290,7 +1290,7 @@
       } else {
         const mockData = {
           host: host,
-          kernel: '7.0.0-43-generic',
+          kernel: '7.0.0-44-generic',
           uptime: '0d 02h 55m',
           psi: { memory_some: 0.0 },
           guard_plane: { cpu_percent: 0.04, rss_mb: 38.0 },
