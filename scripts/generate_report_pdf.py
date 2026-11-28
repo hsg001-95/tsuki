@@ -23,7 +23,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     @page {
         size: A4;
-        margin: 9mm 12mm 9mm 12mm;
+        margin: 10mm 12mm 10mm 12mm;
     }
     body {
         background-color: #ffffff;
@@ -37,15 +37,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         max-width: 100%;
         margin: 0 auto;
         padding: 2px;
-        font-size: 12.5px;
-        line-height: 1.50;
-    }
-    .page-break {
-        page-break-before: always;
-        break-before: page;
-        height: 0;
-        margin: 0;
-        padding: 0;
+        font-size: 13px;
+        line-height: 1.58;
     }
     .markdown-body h1 {
         border-bottom: 2px solid #006B44;
@@ -60,8 +53,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .markdown-body h2 {
         border-bottom: 1px solid #DEDCD4;
         padding-bottom: 4px;
-        margin-top: 14px;
-        margin-bottom: 6px;
+        margin-top: 18px;
+        margin-bottom: 8px;
         color: #141413;
         font-family: 'Space Grotesk', sans-serif;
         font-size: 17px;
@@ -80,7 +73,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .markdown-body h4 {
         color: #2A2A28;
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 12.5px;
+        font-size: 13px;
         font-weight: 600;
         margin-top: 10px;
         margin-bottom: 3px;
@@ -90,8 +83,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         width: 100%;
         border-collapse: collapse;
         margin: 10px 0;
-        font-size: 10px;
-        line-height: 1.35;
+        font-size: 10.5px;
+        line-height: 1.38;
         font-family: 'JetBrains Mono', monospace;
         page-break-inside: auto;
     }
@@ -116,7 +109,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         line-height: 1.42;
         padding: 8px 12px;
         margin: 8px 0;
-        page-break-inside: avoid;
+        page-break-inside: auto;
     }
     .markdown-body code {
         font-family: 'JetBrains Mono', monospace;
@@ -134,14 +127,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         color: #2A2A28;
         background-color: #F7F6F2;
         padding: 8px 12px;
-        margin: 8px 0 14px 0;
+        margin: 6px 0 10px 0;
         font-size: 11.5px;
         border-radius: 0 4px 4px 0;
         page-break-inside: avoid;
     }
     .markdown-body img {
         max-width: 86%;
-        max-height: 360px;
+        max-height: 290px;
         width: auto;
         height: auto;
         border: 1px solid #DEDCD4;
@@ -161,8 +154,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         page-break-inside: avoid;
     }
     .mermaid svg {
-        max-width: 88% !important;
-        max-height: 340px !important;
+        max-width: 86% !important;
+        max-height: 320px !important;
         height: auto !important;
     }
     hr {
@@ -290,6 +283,26 @@ def build_pdf():
     md_content = md_content.replace(r"\times \frac{3}{2}", "× 3/2")
     md_content = md_content.replace(r"v_{\text{pressure}}(t)", "v_pressure(t)")
     md_content = md_content.replace(r"\text{VmLck} = \text{VmRSS}", "VmLck = VmRSS")
+    md_content = md_content.replace(r"\le 100\,\mu\text{s}", "≤ 100 μs")
+    md_content = md_content.replace(r"\le 50\,\mu\text{s}", "≤ 50 μs")
+    md_content = md_content.replace(r"\le 500\,\mu\text{s}", "≤ 500 μs")
+    md_content = md_content.replace(r"\le 2,500\,\mu\text{s}", "≤ 2500 μs")
+    md_content = md_content.replace(r"\le 300\,\mu\text{s}", "≤ 300 μs")
+    md_content = md_content.replace(r"\le 200\,\mu\text{s}", "≤ 200 μs")
+    md_content = md_content.replace(r"\le 150\,\mu\text{s}", "≤ 150 μs")
+    md_content = md_content.replace(r"\le 400\,\mu\text{s}", "≤ 400 μs")
+    md_content = md_content.replace(r"\le 1,000\,\mu\text{s}", "≤ 1000 μs")
+    md_content = md_content.replace(r"42\,\mu\text{s}", "42 μs")
+    md_content = md_content.replace(r"18\,\mu\text{s}", "18 μs")
+    md_content = md_content.replace(r"210\,\mu\text{s}", "210 μs")
+    md_content = md_content.replace(r"950\,\mu\text{s}", "950 μs")
+    md_content = md_content.replace(r"115\,\mu\text{s}", "115 μs")
+    md_content = md_content.replace(r"28\,\mu\text{s}", "28 μs")
+    md_content = md_content.replace(r"85\,\mu\text{s}", "85 μs")
+    md_content = md_content.replace(r"45\,\mu\text{s}", "45 μs")
+    md_content = md_content.replace(r"120\,\mu\text{s}", "120 μs")
+    md_content = md_content.replace(r"165\,\mu\text{s}", "165 μs")
+    md_content = md_content.replace(r"450\,\mu\text{s}", "450 μs")
 
     # Escape backticks and backslashes for JS string template
     escaped_md = md_content.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
