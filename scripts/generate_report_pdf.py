@@ -14,7 +14,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Tsuki // Engineering & Architecture Project Report</title>
+<title>Tsuki // Engineering & Architecture Monograph</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
@@ -23,7 +23,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     @page {
         size: A4;
-        margin: 12mm 12mm 12mm 12mm;
+        margin: 9mm 12mm 9mm 12mm;
     }
     body {
         background-color: #ffffff;
@@ -36,50 +36,67 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         box-sizing: border-box;
         max-width: 100%;
         margin: 0 auto;
-        padding: 8px;
-        font-size: 14px;
-        line-height: 1.65;
+        padding: 2px;
+        font-size: 12.5px;
+        line-height: 1.50;
+    }
+    .page-break {
+        page-break-before: always;
+        break-before: page;
+        height: 0;
+        margin: 0;
+        padding: 0;
     }
     .markdown-body h1 {
-        border-bottom: 2.5px solid #006B44;
-        padding-bottom: 8px;
+        border-bottom: 2px solid #006B44;
+        padding-bottom: 5px;
         color: #141413;
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 28px;
+        font-size: 22px;
         font-weight: 700;
-        margin-top: 6px;
-        margin-bottom: 12px;
+        margin-top: 4px;
+        margin-bottom: 10px;
     }
     .markdown-body h2 {
-        border-bottom: 1.5px solid #DEDCD4;
-        padding-bottom: 6px;
-        margin-top: 24px;
-        margin-bottom: 10px;
+        border-bottom: 1px solid #DEDCD4;
+        padding-bottom: 4px;
+        margin-top: 14px;
+        margin-bottom: 6px;
         color: #141413;
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 20px;
+        font-size: 17px;
         font-weight: 600;
         page-break-after: avoid;
     }
     .markdown-body h3 {
         color: #006B44;
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 16px;
+        font-size: 14.5px;
         font-weight: 600;
-        margin-top: 18px;
-        margin-bottom: 8px;
+        margin-top: 14px;
+        margin-bottom: 6px;
+        page-break-after: avoid;
+    }
+    .markdown-body h4 {
+        color: #2A2A28;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        margin-top: 10px;
+        margin-bottom: 3px;
         page-break-after: avoid;
     }
     .markdown-body table {
         width: 100%;
         border-collapse: collapse;
-        margin: 14px 0;
-        font-size: 12px;
+        margin: 10px 0;
+        font-size: 10px;
+        line-height: 1.35;
         font-family: 'JetBrains Mono', monospace;
-        page-break-inside: avoid;
+        page-break-inside: auto;
     }
     .markdown-body th, .markdown-body td {
-        padding: 7px 10px;
+        padding: 4px 6px;
         border: 1px solid #DEDCD4;
     }
     .markdown-body th {
@@ -87,66 +104,86 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         font-weight: 600;
         color: #141413;
     }
+    .markdown-body tr {
+        page-break-inside: avoid;
+    }
     .markdown-body pre {
         background-color: #FBFBF9;
         border: 1px solid #DEDCD4;
-        border-radius: 5px;
+        border-radius: 4px;
         font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
-        line-height: 1.5;
-        padding: 12px;
+        font-size: 10.5px;
+        line-height: 1.42;
+        padding: 8px 12px;
+        margin: 8px 0;
         page-break-inside: avoid;
     }
     .markdown-body code {
         font-family: 'JetBrains Mono', monospace;
         background-color: #F1EFEA;
-        padding: 2px 5px;
+        padding: 1px 4px;
         border-radius: 3px;
-        font-size: 12.5px;
+        font-size: 11px;
     }
     .markdown-body pre code {
         background-color: transparent;
         padding: 0;
     }
     .markdown-body blockquote {
-        border-left: 4px solid #006B44;
+        border-left: 3px solid #006B44;
         color: #2A2A28;
         background-color: #F7F6F2;
-        padding: 10px 16px;
-        margin: 12px 0 20px 0;
-        font-size: 13px;
+        padding: 8px 12px;
+        margin: 8px 0 14px 0;
+        font-size: 11.5px;
         border-radius: 0 4px 4px 0;
         page-break-inside: avoid;
     }
     .markdown-body img {
-        max-width: 98%;
+        max-width: 86%;
+        max-height: 360px;
         width: auto;
         height: auto;
         border: 1px solid #DEDCD4;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        margin: 14px auto 8px auto;
+        border-radius: 5px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+        margin: 10px auto 4px auto;
         display: block;
         page-break-inside: avoid;
     }
     .mermaid {
         background-color: #FBFBF9;
         border: 1px solid #DEDCD4;
-        border-radius: 6px;
-        padding: 12px;
-        margin: 16px 0;
+        border-radius: 5px;
+        padding: 8px;
+        margin: 10px 0;
         text-align: center;
         page-break-inside: avoid;
     }
     .mermaid svg {
-        max-width: 98% !important;
+        max-width: 88% !important;
+        max-height: 340px !important;
         height: auto !important;
     }
     hr {
         height: 1px;
         background-color: #DEDCD4;
         border: none;
-        margin: 18px 0;
+        margin: 14px 0;
+    }
+    ul, ol {
+        padding-left: 20px;
+        margin: 6px 0;
+    }
+    li {
+        margin-bottom: 2px;
+    }
+    /* Two-column layout for Table of Contents */
+    #content > ul:first-of-type {
+        column-count: 2;
+        column-gap: 20px;
+        font-size: 11px;
+        line-height: 1.45;
     }
 </style>
 </head>
@@ -207,12 +244,11 @@ def build_pdf():
     with open(REPORT_PATH, "r", encoding="utf-8") as f:
         md_content = f.read()
 
-    # Encode all screenshots to inline Base64 data URIs so Chrome never fails to render them
+    # Encode all screenshots to inline Base64 data URIs
     screenshot_dir = ROOT_DIR / "docs" / "screenshots"
     for img_file in screenshot_dir.glob("*.png"):
         b64_uri = encode_image_to_base64(img_file)
         if b64_uri:
-            # Replace various markdown path patterns
             md_content = md_content.replace(f"docs/screenshots/{img_file.name}", b64_uri)
             md_content = md_content.replace(f"screenshots/{img_file.name}", b64_uri)
             md_content = md_content.replace(f"./docs/screenshots/{img_file.name}", b64_uri)
@@ -229,6 +265,7 @@ def build_pdf():
     # Clean LaTeX math notation to crisp Unicode for print rendering
     md_content = md_content.replace(r"\longrightarrow", "⟶")
     md_content = md_content.replace(r"\Delta t_{\text{stalled}}", "Δt(stalled)")
+    md_content = md_content.replace(r"\Delta t_{\text{some\_stalled}}", "Δt(some_stalled)")
     md_content = md_content.replace(r"\Delta t_{\text{all\_stalled}}", "Δt(all_stalled)")
     md_content = md_content.replace(r"\Delta t_{\text{wall}}", "Δt(wall)")
     md_content = md_content.replace(r"\text{PSI}_{\text{some}}", "PSI(some)")
@@ -242,8 +279,17 @@ def build_pdf():
     md_content = md_content.replace(r"\mathcal{O}(1)", "O(1)")
     md_content = md_content.replace(r"y_t = (x *_d f)(t) = \sum_{i=0}^{k-1} f(i) \cdot x_{t - d \cdot i}", "y_t = (x *_d f)(t) = Σ f(i) · x_{t - d·i}")
     md_content = md_content.replace(r"R = 1 + \sum_{l=0}^{L-1} (k_l - 1) \cdot d_l", "R = 1 + Σ (k_l - 1) · d_l")
-    md_content = md_content.replace(r"\Delta \mathcal{R}(c) = \text{Score}(c) - \mathbb{E}[\text{Score}(c')]", "ΔR(c) = Score(c) - E[Score(c')]")
+    md_content = md_content.replace(r"\Delta \mathcal{R}(c) = \text{Risk}(\text{System}) - \mathbb{E}[\text{Risk}(\text{System} \setminus c)]", "ΔR(c) = Risk(System) - E[Risk(System \\ c)]")
+    md_content = md_content.replace(r"\Delta \mathcal{R}(c)", "ΔR(c)")
     md_content = md_content.replace(r"\tau_{\text{isolate}}", "τ(isolate)")
+    md_content = md_content.replace(r"\text{watermark}[\text{WMARK\_MIN}]", "watermark[WMARK_MIN]")
+    md_content = md_content.replace(r"\text{watermark}[\text{WMARK\_LOW}]", "watermark[WMARK_LOW]")
+    md_content = md_content.replace(r"\text{watermark}[\text{WMARK\_HIGH}]", "watermark[WMARK_HIGH]")
+    md_content = md_content.replace(r"\frac{\text{min\_free\_kbytes}}{4}", "min_free_kbytes / 4")
+    md_content = md_content.replace(r"\times \frac{5}{4}", "× 5/4")
+    md_content = md_content.replace(r"\times \frac{3}{2}", "× 3/2")
+    md_content = md_content.replace(r"v_{\text{pressure}}(t)", "v_pressure(t)")
+    md_content = md_content.replace(r"\text{VmLck} = \text{VmRSS}", "VmLck = VmRSS")
 
     # Escape backticks and backslashes for JS string template
     escaped_md = md_content.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
@@ -262,7 +308,7 @@ def build_pdf():
         "--disable-gpu",
         "--allow-file-access-from-files",
         "--run-all-compositor-stages-before-draw",
-        "--virtual-time-budget=8000",
+        "--virtual-time-budget=9000",
         f"--print-to-pdf={OUTPUT_PDF}",
         "--no-pdf-header-footer",
         str(OUTPUT_HTML.resolve()),
